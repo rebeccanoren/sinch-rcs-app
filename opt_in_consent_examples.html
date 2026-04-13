@@ -1,0 +1,173 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1rem 0; display: flex; flex-direction: column; gap: 1.5rem; }
+.label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; color: var(--color-text-secondary); text-transform: uppercase; margin-bottom: 8px; }
+.mockup-shell { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem; }
+.mockup { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+.mock-header { background: var(--color-background-secondary); border-bottom: 0.5px solid var(--color-border-tertiary); padding: 10px 16px; display: flex; align-items: center; gap: 8px; }
+.mock-logo { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.mock-nav { font-size: 12px; color: var(--color-text-secondary); margin-left: auto; display: flex; gap: 16px; }
+.mock-body { padding: 20px; }
+.mock-section-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.mock-section-sub { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 16px; }
+.mock-row { display: flex; gap: 10px; margin-bottom: 10px; }
+.mock-field { flex: 1; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 8px 10px; font-size: 12px; color: var(--color-text-secondary); }
+.mock-field.filled { color: var(--color-text-primary); }
+.divider { border-top: 0.5px solid var(--color-border-tertiary); margin: 16px 0; }
+.consent-box { display: flex; align-items: flex-start; gap: 10px; padding: 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); }
+.consent-box.highlighted { border-color: var(--color-border-success); background: var(--color-background-success); }
+.checkbox { width: 16px; height: 16px; border: 1.5px solid var(--color-border-primary); border-radius: 3px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
+.checkbox.checked { background: #166534; border-color: #166534; }
+.checkmark { width: 8px; height: 8px; }
+.consent-text { font-size: 12px; color: var(--color-text-primary); line-height: 1.5; }
+.consent-text .muted { color: var(--color-text-secondary); font-size: 11px; display: block; margin-top: 2px; }
+.consent-text .link { color: var(--color-text-info); text-decoration: underline; }
+.mock-btn { display: inline-block; background: #1a1a18; color: #fff; font-size: 12px; font-weight: 500; padding: 9px 20px; border-radius: var(--border-radius-md); margin-top: 14px; }
+.mock-btn.full { width: 100%; text-align: center; }
+.order-summary { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 12px; margin-bottom: 12px; }
+.order-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-secondary); padding: 3px 0; }
+.order-row.total { color: var(--color-text-primary); font-weight: 500; border-top: 0.5px solid var(--color-border-tertiary); margin-top: 6px; padding-top: 6px; }
+.settings-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.settings-row:last-child { border-bottom: none; }
+.settings-label { font-size: 13px; color: var(--color-text-primary); }
+.settings-desc { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+.toggle { width: 36px; height: 20px; border-radius: 999px; background: #166534; position: relative; flex-shrink: 0; }
+.toggle-dot { width: 16px; height: 16px; background: #fff; border-radius: 50%; position: absolute; top: 2px; right: 2px; }
+.toggle.off { background: var(--color-border-secondary); }
+.toggle.off .toggle-dot { right: auto; left: 2px; }
+.signup-field { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 12px; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 10px; }
+.signup-field.focused { border-color: var(--color-border-primary); color: var(--color-text-primary); }
+.annotation { display: flex; align-items: flex-start; gap: 8px; margin-top: 8px; }
+.annotation-dot { width: 18px; height: 18px; border-radius: 50%; background: #1d4ed8; color: #fff; font-size: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.annotation-text { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+.annotations { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; padding: 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); }
+</style>
+
+<div class="wrap">
+
+  <div>
+    <div class="label">Example 1 — checkout page</div>
+    <div class="mockup-shell">
+      <div class="mockup">
+        <div class="mock-header">
+          <div class="mock-logo">ShopCo</div>
+          <div class="mock-nav"><span>Cart</span><span>Account</span></div>
+        </div>
+        <div class="mock-body">
+          <div class="mock-section-title">Payment &amp; delivery</div>
+          <div class="mock-section-sub">Complete your order below</div>
+          <div class="order-summary">
+            <div class="order-row"><span>Running shoes (x1)</span><span>£89.99</span></div>
+            <div class="order-row"><span>Delivery</span><span>Free</span></div>
+            <div class="order-row total"><span>Total</span><span>£89.99</span></div>
+          </div>
+          <div class="mock-row">
+            <div class="mock-field filled">4242 •••• •••• 4242</div>
+            <div class="mock-field filled">12/27</div>
+            <div class="mock-field filled">•••</div>
+          </div>
+          <div class="divider"></div>
+          <div class="consent-box highlighted">
+            <div class="checkbox checked">
+              <svg class="checkmark" viewBox="0 0 8 8"><polyline points="1,4 3,6 7,2" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="consent-text">
+              Send me order updates and delivery notifications via RCS messages.
+              <span class="muted">You can opt out at any time by replying STOP. <span class="link">Privacy policy</span></span>
+            </div>
+          </div>
+          <div class="mock-btn full">Place order</div>
+        </div>
+      </div>
+      <div class="annotations">
+        <div class="annotation"><div class="annotation-dot">1</div><div class="annotation-text">Consent happens at checkout — a natural point where the user expects communication</div></div>
+        <div class="annotation"><div class="annotation-dot">2</div><div class="annotation-text">Pre-checked checkbox clearly shows what they're agreeing to receive</div></div>
+        <div class="annotation"><div class="annotation-dot">3</div><div class="annotation-text">Opt-out method (STOP) shown upfront alongside privacy policy link</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Example 2 — account notification settings</div>
+    <div class="mockup-shell">
+      <div class="mockup">
+        <div class="mock-header">
+          <div class="mock-logo">MyBank</div>
+          <div class="mock-nav"><span>Home</span><span>Settings</span></div>
+        </div>
+        <div class="mock-body">
+          <div class="mock-section-title">Notification preferences</div>
+          <div class="mock-section-sub">Choose how you'd like to hear from us</div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Email notifications</div>
+              <div class="settings-desc">Statements, receipts and alerts</div>
+            </div>
+            <div class="toggle"><div class="toggle-dot"></div></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">RCS messages</div>
+              <div class="settings-desc">Real-time transaction alerts and account updates via messages. Reply STOP to opt out.</div>
+            </div>
+            <div class="toggle"><div class="toggle-dot"></div></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Push notifications</div>
+              <div class="settings-desc">In-app alerts on your device</div>
+            </div>
+            <div class="toggle off"><div class="toggle-dot"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="annotations">
+        <div class="annotation"><div class="annotation-dot">1</div><div class="annotation-text">User actively navigates to settings and opts in — clear, intentional consent</div></div>
+        <div class="annotation"><div class="annotation-dot">2</div><div class="annotation-text">Toggle is on by default only if user previously agreed during signup</div></div>
+        <div class="annotation"><div class="annotation-dot">3</div><div class="annotation-text">Opt-out method stated directly in the description label</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Example 3 — signup form</div>
+    <div class="mockup-shell">
+      <div class="mockup">
+        <div class="mock-header">
+          <div class="mock-logo">LoyaltyPlus</div>
+        </div>
+        <div class="mock-body">
+          <div class="mock-section-title">Create your account</div>
+          <div class="mock-section-sub">Join to earn points on every purchase</div>
+          <div class="signup-field">Full name</div>
+          <div class="signup-field focused">sarah@example.com</div>
+          <div class="signup-field">Password</div>
+          <div class="divider"></div>
+          <div class="consent-box" style="margin-bottom:10px;">
+            <div class="checkbox checked">
+              <svg class="checkmark" viewBox="0 0 8 8"><polyline points="1,4 3,6 7,2" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="consent-text">
+              I agree to receive loyalty reward updates and promotions via RCS messages.
+              <span class="muted">Max 4 messages/month. Reply STOP to unsubscribe anytime.</span>
+            </div>
+          </div>
+          <div class="consent-box">
+            <div class="checkbox"></div>
+            <div class="consent-text">
+              I agree to the <span class="link">Terms of Service</span> and <span class="link">Privacy Policy</span>
+            </div>
+          </div>
+          <div class="mock-btn full" style="margin-top:14px;">Create account</div>
+        </div>
+      </div>
+      <div class="annotations">
+        <div class="annotation"><div class="annotation-dot">1</div><div class="annotation-text">RCS consent is separate from T&amp;C — user makes a distinct, informed choice</div></div>
+        <div class="annotation"><div class="annotation-dot">2</div><div class="annotation-text">Message frequency stated clearly ("max 4/month")</div></div>
+        <div class="annotation"><div class="annotation-dot">3</div><div class="annotation-text">Unchecked T&amp;C box shows the user must actively confirm — no implied consent</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>

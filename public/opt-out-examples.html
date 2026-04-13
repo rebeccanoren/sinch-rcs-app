@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Opt-out examples</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f7f7f5; color: #1a1a18; padding: 2rem 1rem; }
+  .wrap { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
+  .ex-label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: #6b6b67; margin-bottom: 8px; }
+  .phone-shell { background: #f2f2ef; border-radius: 12px; padding: 1.25rem; display: flex; justify-content: center; }
+  .phone { width: 280px; background: #fff; border: 0.5px solid #e5e5e2; border-radius: 24px; overflow: hidden; }
+  .phone-bar { background: #f2f2ef; border-bottom: 0.5px solid #e5e5e2; padding: 10px 16px; display: flex; align-items: center; gap: 10px; }
+  .phone-avatar { width: 28px; height: 28px; border-radius: 50%; background: #E6F1FB; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #0C447C; flex-shrink: 0; }
+  .phone-name { font-size: 13px; font-weight: 500; color: #1a1a18; }
+  .phone-sub { font-size: 10px; color: #9b9b96; }
+  .phone-body { padding: 16px 12px; display: flex; flex-direction: column; gap: 10px; min-height: 160px; background: #f7f7f5; }
+  .user-msg { align-self: flex-end; background: #1a1a18; color: #fff; font-size: 12px; line-height: 1.5; padding: 8px 12px; border-radius: 16px 16px 4px 16px; max-width: 80%; }
+  .agent-msg { align-self: flex-start; background: #fff; border: 0.5px solid #e5e5e2; color: #1a1a18; font-size: 12px; line-height: 1.6; padding: 10px 12px; border-radius: 16px 16px 16px 4px; max-width: 90%; }
+  .msg-time { font-size: 10px; color: #9b9b96; margin-top: 4px; text-align: right; }
+  .agent-time { text-align: left; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div>
+    <div class="ex-label">Example 1 — detailed opt-out confirmation</div>
+    <div class="phone-shell">
+      <div class="phone">
+        <div class="phone-bar">
+          <div class="phone-avatar">SC</div>
+          <div>
+            <div class="phone-name">ShopCo</div>
+            <div class="phone-sub">Business message</div>
+          </div>
+        </div>
+        <div class="phone-body">
+          <div>
+            <div class="user-msg">STOP</div>
+            <div class="msg-time">&#10003;&#10003; 14:03</div>
+          </div>
+          <div>
+            <div class="agent-msg">You have been unsubscribed and will no longer receive messages. If this was a mistake, reply START to resubscribe. For support, contact support@shopco.com or call +1 800 000 0000.</div>
+            <div class="msg-time agent-time">14:03</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="ex-label">Example 2 — short opt-out confirmation</div>
+    <div class="phone-shell">
+      <div class="phone">
+        <div class="phone-bar">
+          <div class="phone-avatar">SC</div>
+          <div>
+            <div class="phone-name">ShopCo</div>
+            <div class="phone-sub">Business message</div>
+          </div>
+        </div>
+        <div class="phone-body">
+          <div>
+            <div class="user-msg">STOP</div>
+            <div class="msg-time">&#10003;&#10003; 09:41</div>
+          </div>
+          <div>
+            <div class="agent-msg">You have successfully opted out. No further messages will be sent. Reply START to opt back in or HELP for assistance.</div>
+            <div class="msg-time agent-time">09:41</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
