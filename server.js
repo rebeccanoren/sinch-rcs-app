@@ -129,6 +129,10 @@ app.post('/api/send-message', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`\n  Sinch RCS Questionnaire running at http://localhost:${PORT}\n`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`\n  Sinch RCS Questionnaire running at http://localhost:${PORT}\n`);
+  });
+}
+
+module.exports = app;
