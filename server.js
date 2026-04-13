@@ -68,6 +68,30 @@ app.get('/api/questionnaire/:useCase', async (req, res) => {
   }
 });
 
+app.get('/api/project', async (req, res) => {
+  try {
+    const token = await getToken();
+    // Fetch account info from Sinch oauth introspect
+    const introspectRes = await fetch('https://auth.sinch.com/oauth2/introspect', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: `token=${token}`
+    });
+    const introspect = introspectRes.ok ? await introspectRes.json() : {};
+    res.json({
+      projectId: PROJECT_ID,
+      clientId:  CLIENT_ID,
+      account:   introspect.sub || introspect.username || null,
+      active:    introspect.active ?? null,
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message, projectId: PROJECT_ID, clientId: CLIENT_ID });
+  }
+});
+
 app.get('/api/senders', async (req, res) => {
   try {
     const token = await getToken();

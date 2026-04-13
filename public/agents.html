@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RCS Agents</title>
+<title>RCS Agents — Dev Overview</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
@@ -23,150 +23,102 @@
   --green-light: #f0fdf4;
   --amber:    #d97706;
   --amber-light: #fffbeb;
+  --orange:   #b45309;
+  --orange-light: #fef3c7;
+  --mono:     'SF Mono', 'Fira Mono', ui-monospace, monospace;
   --radius:   8px;
   --topbar-h: 56px;
 }
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
-body {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  color: var(--text);
-  background: var(--surface2);
-  min-height: 100vh;
-}
+body { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); background: var(--surface2); min-height: 100vh; }
 
 /* ── Topbar ── */
-.topbar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  height: var(--topbar-h);
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center;
-  padding: 0 28px;
-  gap: 12px;
-}
-.topbar-logo {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 15px; font-weight: 600; color: var(--text);
-  text-decoration: none;
-}
-.topbar-logo svg { flex-shrink: 0; }
+.topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: var(--topbar-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 28px; gap: 12px; }
+.topbar-logo { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: var(--text); text-decoration: none; }
 .topbar-sep { width: 1px; height: 20px; background: var(--border); }
 .topbar-section { font-size: 14px; font-weight: 500; color: var(--text2); }
 .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 
 /* ── Page shell ── */
-.page {
-  padding-top: calc(var(--topbar-h) + 40px);
-  padding-bottom: 60px;
-  max-width: 860px;
-  margin: 0 auto;
-  padding-left: 24px;
-  padding-right: 24px;
-}
-.page-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 24px;
-}
+.page { padding-top: calc(var(--topbar-h) + 40px); padding-bottom: 80px; max-width: 960px; margin: 0 auto; padding-left: 24px; padding-right: 24px; }
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
 .page-title { font-size: 22px; font-weight: 600; }
 .page-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
 
 /* ── Buttons ── */
-.btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-family: inherit; font-size: 13px; font-weight: 500;
-  border-radius: var(--radius); border: none; cursor: pointer;
-  padding: 8px 14px; transition: background 0.12s, opacity 0.12s;
-  text-decoration: none;
-}
+.btn { display: inline-flex; align-items: center; gap: 6px; font-family: inherit; font-size: 13px; font-weight: 500; border-radius: var(--radius); border: none; cursor: pointer; padding: 8px 14px; transition: background 0.12s, opacity 0.12s; text-decoration: none; }
 .btn-primary { background: var(--blue); color: #fff; }
 .btn-primary:hover { background: #1d4ed8; }
 .btn-outline { background: var(--surface); color: var(--text); border: 1px solid var(--border2); }
 .btn-outline:hover { background: var(--surface2); }
 
 /* ── Status badges ── */
-.badge {
-  display: inline-flex; align-items: center;
-  font-size: 11px; font-weight: 500; line-height: 1;
-  border-radius: 999px; padding: 3px 8px; flex-shrink: 0;
-  border: 1px solid transparent;
-}
+.badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 500; line-height: 1; border-radius: 999px; padding: 3px 8px; flex-shrink: 0; border: 1px solid transparent; }
 .badge-in-progress { background: var(--amber-light); color: var(--amber); border-color: #fde68a; }
 .badge-pending     { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
 .badge-live        { background: var(--green-light); color: var(--green); border-color: #bbf7d0; }
 
 /* ── Loading / empty ── */
-.state-box {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 10px; padding: 80px 0; color: var(--text3); font-size: 14px;
-}
-.spinner {
-  width: 28px; height: 28px;
-  border: 2px solid var(--border); border-top-color: var(--blue);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
+.state-box { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 80px 0; color: var(--text3); font-size: 14px; }
+.spinner { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── Agent cards ── */
-.agent-grid {
-  display: flex; flex-direction: column; gap: 12px;
-}
-.agent-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px 22px;
-  display: flex; align-items: center; gap: 18px;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  text-decoration: none; color: inherit;
-  cursor: pointer;
-}
-.agent-card:hover {
-  border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
-}
-.agent-avatar {
-  width: 48px; height: 48px; border-radius: 12px;
-  object-fit: cover; flex-shrink: 0;
-  background: var(--surface2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 17px; font-weight: 600; color: var(--text2);
-  overflow: hidden;
-}
+.agent-grid { display: flex; flex-direction: column; gap: 12px; }
+.agent-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; display: flex; align-items: center; gap: 18px; transition: border-color 0.15s, box-shadow 0.15s; text-decoration: none; color: inherit; cursor: pointer; }
+.agent-card:hover { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+.agent-avatar { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; flex-shrink: 0; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 600; color: var(--text2); overflow: hidden; }
 .agent-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
 .agent-info { flex: 1; min-width: 0; }
-.agent-name {
-  font-size: 15px; font-weight: 600;
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-}
-.agent-meta {
-  display: flex; align-items: center; gap: 6px; margin-top: 4px;
-  font-size: 12px; color: var(--text3); flex-wrap: wrap;
-}
+.agent-name { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.agent-meta { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 12px; color: var(--text3); flex-wrap: wrap; }
 .agent-meta-sep { color: var(--border2); }
-.agent-id {
-  font-family: 'SF Mono', 'Fira Mono', monospace; font-size: 11px;
-  color: var(--text3);
-}
+.agent-id { font-family: var(--mono); font-size: 11px; color: var(--text3); }
 .agent-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.agent-arrow {
-  width: 30px; height: 30px; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text3); background: none;
-  border: none; cursor: pointer;
-  transition: background 0.12s, color 0.12s;
-}
+.agent-arrow { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--text3); background: none; border: none; cursor: pointer; transition: background 0.12s, color 0.12s; }
 .agent-card:hover .agent-arrow { background: var(--blue-light); color: var(--blue); }
 
 /* ── Error banner ── */
-.error-banner {
-  background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius);
-  padding: 14px 18px; color: #dc2626; font-size: 13px;
-  display: flex; align-items: center; gap: 10px;
-}
+.error-banner { background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius); padding: 14px 18px; color: #dc2626; font-size: 13px; display: flex; align-items: center; gap: 10px; }
+
+/* ── Section divider ── */
+.section-divider { margin: 48px 0 24px; display: flex; align-items: center; gap: 12px; }
+.section-divider-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); white-space: nowrap; display: flex; align-items: center; gap: 7px; }
+.section-divider-line { flex: 1; height: 1px; background: var(--border); }
+
+/* ── Quick link chips ── */
+.quicklink-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; background: var(--surface); border: 1px solid var(--border2); border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--text); text-decoration: none; transition: border-color 0.15s, background 0.15s, box-shadow 0.15s; white-space: nowrap; }
+.quicklink-chip:hover { border-color: var(--blue); background: var(--blue-light); color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+.country-chip { background: var(--surface2); }
+.country-chip:hover { background: var(--blue-light); }
+
+/* ── Field reference table ── */
+.ref-section { margin-bottom: 28px; }
+.ref-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; user-select: none; transition: background 0.12s; }
+.ref-header:hover { background: var(--surface2); }
+.ref-header-left { display: flex; align-items: center; gap: 10px; }
+.ref-header-title { font-size: 14px; font-weight: 600; }
+.ref-header-count { font-size: 12px; color: var(--text3); }
+.ref-chevron { transition: transform 0.2s; color: var(--text3); }
+.ref-section.open .ref-header { border-radius: 10px 10px 0 0; border-bottom-color: transparent; }
+.ref-section.open .ref-chevron { transform: rotate(90deg); }
+.ref-body { display: none; border: 1px solid var(--border); border-top: none; border-radius: 0 0 10px 10px; overflow: hidden; }
+.ref-section.open .ref-body { display: block; }
+.ref-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.ref-table thead th { background: var(--surface2); padding: 9px 14px; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text3); border-bottom: 1px solid var(--border); white-space: nowrap; }
+.ref-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+.ref-table tbody tr:last-child { border-bottom: none; }
+.ref-table tbody tr:hover { background: var(--surface2); }
+.ref-table td { padding: 10px 14px; vertical-align: top; }
+.field-key { font-family: var(--mono); font-size: 11.5px; color: #1e40af; background: #eff6ff; border-radius: 4px; padding: 2px 6px; white-space: nowrap; }
+.field-api-q { color: var(--text2); line-height: 1.45; }
+.field-ui-label { color: var(--text); font-weight: 500; }
+.badge-custom { display: inline-block; font-size: 10px; font-weight: 600; color: var(--orange); background: var(--orange-light); border: 1px solid #fcd34d; border-radius: 4px; padding: 1px 5px; font-family: var(--mono); margin-left: 5px; vertical-align: middle; }
+.badge-match { display: inline-block; font-size: 10px; font-weight: 600; color: var(--green); background: var(--green-light); border: 1px solid #bbf7d0; border-radius: 4px; padding: 1px 5px; font-family: var(--mono); margin-left: 5px; vertical-align: middle; }
+.sugg-pill { display: inline-block; background: var(--surface2); border: 1px solid var(--border2); border-radius: 4px; padding: 2px 7px; font-size: 11px; color: var(--text2); margin: 2px 2px 0 0; }
+.no-sugg { color: var(--text3); font-size: 12px; font-style: italic; }
+.ref-loading { padding: 28px; text-align: center; color: var(--text3); font-size: 13px; }
 </style>
 </head>
 <body>
@@ -192,111 +144,233 @@ body {
 </div>
 
 <div class="page">
+
+  <!-- ── Agents ── -->
   <div class="page-header">
     <div>
       <div class="page-title">RCS Agents</div>
       <div class="page-sub" id="agentCount">Loading…</div>
     </div>
   </div>
-
   <div id="agentGrid" class="agent-grid">
-    <div class="state-box">
-      <div class="spinner"></div>
-      <span>Loading agents…</span>
+    <div class="state-box"><div class="spinner"></div><span>Loading agents…</span></div>
+  </div>
+
+  <!-- ── Developer Debug ── -->
+  <div class="section-divider">
+    <div class="section-divider-label">
+      <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+        <path d="M5 1.5h4M7 1.5v2M3 5l-1.5 1.5L3 8M11 5l1.5 1.5L11 8M2 10h10M4 10v2.5M10 10v2.5M4.5 5.5h5v5h-5z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Developer Debug
+    </div>
+    <div class="section-divider-line"></div>
+  </div>
+
+  <!-- Project info banner -->
+  <div id="projectBanner" style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3)">Project ID</span>
+      <span id="projId" style="font-family:var(--mono);font-size:12.5px;color:var(--text)">—</span>
+    </div>
+    <div style="width:1px;height:28px;background:var(--border);flex-shrink:0"></div>
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3)">Access Key</span>
+      <span id="projClient" style="font-family:var(--mono);font-size:12.5px;color:var(--text)">—</span>
+    </div>
+    <div style="width:1px;height:28px;background:var(--border);flex-shrink:0"></div>
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3)">Environment</span>
+      <span style="font-size:13px;color:var(--green);font-weight:500;display:flex;align-items:center;gap:5px">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block"></span>Connected
+      </span>
     </div>
   </div>
+
+  <!-- Quick links -->
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:28px">
+    <a class="quicklink-chip" href="overview.html#verification" target="_blank">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1.5L2 4v4c0 3.31 2.67 5.74 6 6.5 3.33-.76 6-3.19 6-6.5V4L8 1.5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      Verification Details
+    </a>
+    <div id="countryChips" style="display:contents"></div>
+  </div>
+
+  <!-- Field reference tables -->
+  <div id="refTables">
+    <div class="ref-loading"><div class="spinner" style="margin:0 auto 10px"></div>Loading API field reference…</div>
+  </div>
+
 </div>
 
 <script>
+/* ─── UI label overrides (matches FIELD_LABELS in overview.html) ─────── */
+const FIELD_LABELS = {
+  screenshotUris:'Show how users agree to receive messages', stopMessageResponse:'Opt-out (STOP) confirmation response',
+  helpMessageResponse:'Help (HELP) response', optInUserMessage:'User opt-in keyword or action',
+  optInConfirmationResponse:'Opt-in confirmation message', optInBrandMessage:'First branded message after opt-in',
+  interactionsDescription:'When does your business send messages to users through the agent?',
+  triggerDescription:'Message triggers', videoUris:'Add a link to a video showing the agent in use',
+  useCaseDescription:'Use case description', smsCampaign:'Does your RCS agent upgrade an existing SMS campaign?',
+  verizonSmsUpgradeShortCode:'SMS short code being upgraded', verizonSmsUpgradeLongCode:'SMS long code being upgraded',
+  verizonMonthlyMessagesVolume:'Estimated monthly message volume', verizonSmsOptInDescription:'Verizon subscriber opt-in description',
+  sampleMessages:'Sample message', callToActionDescription:'Call to action description', callToActionScreenshotUrl:'Call to action screenshot URL',
+  companyLegalName:'Legal company name', brandName:'Business display name', brandIndustry:'Business category',
+  legalForm:'Legal form', taxIdCountry:'Legal country of registration', ein:'Tax ID (EIN)', taxId:'Tax ID',
+  additionalIdType:'Additional ID type', additionalIdNumber:'Additional ID number',
+  stockExchange:'Stock Exchange', stockSymbol:'Stock Symbol', websiteUrl:'Website URL',
+  phoneNumber:'Phone number', fullCompanyAddress:'Registered business address',
+  contactFirstName:'First name', contactSurname:'Last name', contactPosition:'Job title',
+  contactEmail:'Email', contactPhoneNumber:'Phone number',
+};
+
 const STATE_LABEL = {
-  IN_TEST:          { text: 'In progress',     cls: 'badge-in-progress' },
-  PREPARING_LAUNCH: { text: 'Pending approval', cls: 'badge-pending' },
-  LAUNCHING:        { text: 'Pending approval', cls: 'badge-pending' },
-  LAUNCHED:         { text: 'Live',            cls: 'badge-live' },
+  IN_TEST:{ text:'In progress',cls:'badge-in-progress' }, PREPARING_LAUNCH:{ text:'Pending approval',cls:'badge-pending' },
+  LAUNCHING:{ text:'Pending approval',cls:'badge-pending' }, LAUNCHED:{ text:'Live',cls:'badge-live' },
 };
+const USE_CASE_LABEL = { TRANSACTIONAL:'Transactional', PROMOTIONAL:'Promotional', OTP:'OTP', MULTIUSE:'Multi-use' };
+const REGION_LABEL   = { US:'United States', EU:'Europe', APAC:'Asia Pacific' };
 
-const USE_CASE_LABEL = {
-  TRANSACTIONAL: 'Transactional',
-  PROMOTIONAL:   'Promotional',
-  OTP:           'OTP',
-  MULTIUSE:      'Multi-use',
-};
+function getInitials(name) { return (name||'?').trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2); }
+function formatDate(iso) { if(!iso) return ''; return new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
 
-const REGION_LABEL = {
-  US: 'United States', EU: 'Europe', APAC: 'Asia Pacific',
-};
-
-function getInitials(name) {
-  return (name || '?').trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2);
-}
-
-function formatDate(iso) {
-  if (!iso) return '';
-  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-}
-
+/* ─── Agents ─────────────────────────────────────────────────────────── */
 function renderAgents(senders) {
   const grid = document.getElementById('agentGrid');
-  const countEl = document.getElementById('agentCount');
-
-  countEl.textContent = `${senders.length} agent${senders.length !== 1 ? 's' : ''} in this project`;
-
-  if (senders.length === 0) {
-    grid.innerHTML = `<div class="state-box">
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-        <rect x="4" y="4" width="24" height="24" rx="6" stroke="#d1d1d6" stroke-width="1.5"/>
-        <path d="M11 16h10M16 11v10" stroke="#d1d1d6" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      <span>No RCS agents found in this project.</span>
-    </div>`;
+  document.getElementById('agentCount').textContent = `${senders.length} agent${senders.length!==1?'s':''} in this project`;
+  if (!senders.length) {
+    grid.innerHTML = `<div class="state-box"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="24" height="24" rx="6" stroke="#d1d1d6" stroke-width="1.5"/><path d="M11 16h10M16 11v10" stroke="#d1d1d6" stroke-width="1.5" stroke-linecap="round"/></svg><span>No RCS agents found.</span></div>`;
     return;
   }
-
   grid.innerHTML = senders.map(s => {
-    const brand  = s.details?.brand || {};
-    const name   = brand.name || 'Unnamed Agent';
-    const initials = getInitials(name);
-    const color  = brand.color || '#2563eb';
-    const state  = STATE_LABEL[s.state] || { text: s.state, cls: 'badge-in-progress' };
-    const useCase = USE_CASE_LABEL[s.useCase] || s.useCase || '';
-    const region  = REGION_LABEL[s.region] || s.region || '';
-    const created = formatDate(s.created);
-    const shortId = s.id.split('-')[0];
-
-    const avatarHtml = brand.logoUrl
-      ? `<img src="${brand.logoUrl}" alt="${name}" onerror="this.style.display='none';this.parentElement.textContent='${initials}'">`
-      : '';
-
+    const brand = s.details?.brand || {};
+    const name  = brand.name || 'Unnamed Agent';
+    const color = brand.color || '#2563eb';
+    const state = STATE_LABEL[s.state] || { text:s.state, cls:'badge-in-progress' };
+    const avatarHtml = brand.logoUrl ? `<img src="${brand.logoUrl}" alt="${name}" onerror="this.style.display='none';this.parentElement.textContent='${getInitials(name)}'">` : '';
     return `<a class="agent-card" href="overview.html?id=${s.id}">
-      <div class="agent-avatar" style="${brand.logoUrl ? '' : `background:${color}20;color:${color}`}">
-        ${avatarHtml}${brand.logoUrl ? '' : initials}
-      </div>
+      <div class="agent-avatar" style="${brand.logoUrl?'':`background:${color}20;color:${color}`}">${avatarHtml}${brand.logoUrl?'':getInitials(name)}</div>
       <div class="agent-info">
-        <div class="agent-name">
-          ${name}
-          <span class="badge ${state.cls}">${state.text}</span>
-        </div>
+        <div class="agent-name">${name}<span class="badge ${state.cls}">${state.text}</span></div>
         <div class="agent-meta">
-          ${useCase ? `<span>${useCase}</span>` : ''}
-          ${useCase && region ? `<span class="agent-meta-sep">·</span>` : ''}
-          ${region ? `<span>${region}</span>` : ''}
-          ${created ? `<span class="agent-meta-sep">·</span><span>Created ${created}</span>` : ''}
-          <span class="agent-meta-sep">·</span>
-          <span class="agent-id">${shortId}…</span>
+          ${USE_CASE_LABEL[s.useCase]?`<span>${USE_CASE_LABEL[s.useCase]}</span><span class="agent-meta-sep">·</span>`:''}
+          ${REGION_LABEL[s.region]?`<span>${REGION_LABEL[s.region]}</span>`:''}
+          ${s.created?`<span class="agent-meta-sep">·</span><span>Created ${formatDate(s.created)}</span>`:''}
+          <span class="agent-meta-sep">·</span><span class="agent-id">${s.id.split('-')[0]}…</span>
         </div>
       </div>
-      <div class="agent-actions">
-        <div class="agent-arrow">
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-            <path d="M5.5 3l4.5 4.5L5.5 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-      </div>
+      <div class="agent-actions"><div class="agent-arrow">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M5.5 3l4.5 4.5L5.5 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div></div>
     </a>`;
   }).join('');
 }
 
+/* ─── Field reference tables ─────────────────────────────────────────── */
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function renderFieldTable(country, questions) {
+  const entries = Object.entries(questions);
+  const rows = entries.map(([key, q]) => {
+    const apiQ    = q.question?.trim() || '—';
+    const uiLabel = FIELD_LABELS[key];
+    const isCustom = uiLabel && uiLabel !== apiQ;
+    const labelCell = uiLabel
+      ? `<span class="field-ui-label">${esc(uiLabel)}</span><span class="${isCustom?'badge-custom':'badge-match'}">${isCustom?'custom':'= API'}</span>`
+      : `<span style="color:var(--text3);font-style:italic">Uses API question</span>`;
+    const sugg = q.suggestedAnswers?.length
+      ? q.suggestedAnswers.map(a => `<span class="sugg-pill">${esc(a)}</span>`).join('')
+      : `<span class="no-sugg">free text</span>`;
+    return `<tr>
+      <td><span class="field-key">${esc(key)}</span></td>
+      <td class="field-api-q">${esc(apiQ)}</td>
+      <td>${labelCell}</td>
+      <td>${sugg}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <table class="ref-table">
+      <thead><tr>
+        <th>API Field Key</th>
+        <th>API Question</th>
+        <th>UI Label</th>
+        <th>Suggested Answers</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function toggleRef(el) {
+  el.closest('.ref-section').classList.toggle('open');
+}
+
+async function loadRefTables() {
+  const container = document.getElementById('refTables');
+  try {
+    const USE_CASES = ['TRANSACTIONAL', 'PROMOTIONAL'];
+    const COUNTRIES = ['US'];
+    const results = [];
+
+    for (const uc of USE_CASES) {
+      const res  = await fetch(`/api/questionnaire/${uc}?countries=${COUNTRIES.join(',')}`);
+      const data = await res.json();
+      for (const country of COUNTRIES) {
+        const qs = data[country.toLowerCase()]?.questions;
+        if (qs) results.push({ label: `${country} · ${uc}`, key: `${country}-${uc}`, questions: qs });
+      }
+    }
+
+    container.innerHTML = results.map(({ label, key, questions }) => {
+      const count = Object.keys(questions).length;
+      return `<div class="ref-section" id="ref-${key}">
+        <div class="ref-header" onclick="toggleRef(this)">
+          <div class="ref-header-left">
+            <svg class="ref-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="ref-header-title">${esc(label)}</span>
+            <span class="ref-header-count">${count} fields</span>
+          </div>
+          <span style="font-size:11px;color:var(--blue);font-weight:500">Expand</span>
+        </div>
+        <div class="ref-body">${renderFieldTable(key, questions)}</div>
+      </div>`;
+    }).join('');
+
+    // Auto-open first one
+    document.querySelector('.ref-section')?.classList.add('open');
+
+  } catch (e) {
+    container.innerHTML = `<div class="error-banner">Failed to load field reference: ${esc(e.message)}</div>`;
+  }
+}
+
+/* ─── Country chips ──────────────────────────────────────────────────── */
+const SUPPORTED_COUNTRIES = [
+  { code:'US', flag:'🇺🇸' }, { code:'GB', flag:'🇬🇧' }, { code:'DE', flag:'🇩🇪' },
+  { code:'FR', flag:'🇫🇷' }, { code:'SE', flag:'🇸🇪' }, { code:'NO', flag:'🇳🇴' },
+  { code:'DK', flag:'🇩🇰' }, { code:'FI', flag:'🇫🇮' }, { code:'NL', flag:'🇳🇱' },
+  { code:'BE', flag:'🇧🇪' }, { code:'CA', flag:'🇨🇦' }, { code:'AU', flag:'🇦🇺' },
+];
+
+function renderCountryChips() {
+  document.getElementById('countryChips').innerHTML = SUPPORTED_COUNTRIES.map(c =>
+    `<a class="quicklink-chip country-chip" href="overview.html" target="_blank" title="${c.code} country form">
+      ${c.flag} ${c.code}
+    </a>`
+  ).join('');
+}
+
+/* ─── Init ─────────────────────────────────────────────────────────────── */
 (async () => {
+  // Load project info
+  try {
+    const res  = await fetch('/api/project');
+    const data = await res.json();
+    document.getElementById('projId').textContent     = data.projectId || '—';
+    document.getElementById('projClient').textContent = data.clientId  || '—';
+  } catch (e) { /* silent */ }
+
+  // Load agents
   const grid = document.getElementById('agentGrid');
   try {
     const res  = await fetch('/api/senders');
@@ -306,13 +380,13 @@ function renderAgents(senders) {
   } catch (e) {
     document.getElementById('agentCount').textContent = '';
     grid.innerHTML = `<div class="error-banner">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/>
-        <path d="M8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-      </svg>
-      Failed to load agents: ${e.message}
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Failed to load agents: ${esc(e.message)}
     </div>`;
   }
+
+  renderCountryChips();
+  loadRefTables();
 })();
 </script>
 </body>
