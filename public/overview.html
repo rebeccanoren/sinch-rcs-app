@@ -3369,8 +3369,8 @@ const COUNTRY_META = {
 };
 
 /* ── Keys hidden entirely or shown only in summary ── */
-const HIDDEN_KEYS = new Set(['messagesVolume','callToActionScreenshotUrl','optInUserMessage','verizonSmsOptInDescription']);
-const SUMMARY_ONLY_KEYS = new Set(['verizonRbmOptInDescription','verizonInitialMessageTypeModel','videoUris']);
+const HIDDEN_KEYS = new Set(['messagesVolume','callToActionScreenshotUrl','optInUserMessage']);
+const SUMMARY_ONLY_KEYS = new Set(['verizonInitialMessageTypeModel','videoUris']);
 
 /* ── Step definitions for named form types ── */
 const STEP_DEFS = {
@@ -3398,7 +3398,7 @@ const STEP_DEFS = {
       keys:['us__sampleMessages'] },
     { title:'Consent',
       subtitle:'Explain how people sign up to receive your messages and how they can manage their preferences.',
-      keys:['us__callToActionDescription','us__optInKeyword','us__optInBrandMessage','us__optInConfirmationResponse','us__helpMessageResponse','us__stopMessageResponse'] },
+      keys:['us__callToActionDescription','us__optInKeyword','us__optInBrandMessage','us__optInConfirmationResponse','us__helpMessageResponse','us__stopMessageResponse','us__verizonSmsOptInDescription','us__verizonRbmOptInDescription'] },
     { title:'Summary', isSummary:true },
   ],
 };
@@ -3416,7 +3416,9 @@ const FIELD_LABELS = {
   triggerDescription:'Message triggers', videoUris:'Add a link to a video showing the agent in use',
   useCaseDescription:'Use case description', smsCampaign:'Does your RCS agent upgrade an existing SMS campaign?',
   verizonSmsUpgradeShortCode:'SMS short code being upgraded', verizonSmsUpgradeLongCode:'SMS long code being upgraded',
-  verizonMonthlyMessagesVolume:'Estimated monthly message volume', verizonSmsOptInDescription:'Verizon subscriber opt-in description',
+  verizonMonthlyMessagesVolume:'Estimated monthly message volume',
+  verizonSmsOptInDescription:'Verizon SMS subscriber opt-in description',
+  verizonRbmOptInDescription:'Verizon RBM opt-in description',
   sampleMessages:'Sample message', callToActionDescription:'Call-to-action text shown before signup', callToActionScreenshotUrl:'Call to action screenshot URL',
   companyLegalName:'Legal company name', brandName:'Business display name', brandIndustry:'Business category',
   legalForm:'Legal form', taxIdCountry:'Legal country of registration', ein:'Tax ID (EIN)', taxId:'Tax ID',
@@ -3920,6 +3922,12 @@ function focusField(id) {
       Suggested answers are not shown in the form UI — this field uses a free-text input. Values above can be applied via the debug panel only.
     </div>`;
   }
+  if (FIELD_ANNOTATIONS[qKey]) {
+    html += `<div class="side-annotation">
+      <div class="side-annotation-title">Annotations</div>
+      ${FIELD_ANNOTATIONS[qKey]}
+    </div>`;
+  }
   html += `</div>`;
   document.getElementById('countryReqSideContent').innerHTML = html;
 }
@@ -4125,6 +4133,15 @@ function renderField(sectionKey, qKey, q) {
         </div>
       </div>
     </div>`;
+  }
+
+  if (qKey === 'verizonSmsOptInDescription') {
+    // Only shown when the agent upgrades an existing SMS campaign
+    const smsCampaignVal = answers[`${sectionKey}__smsCampaign`];
+    const visible = smsCampaignVal && smsCampaignVal !== 'No';
+    // Render via standard path but wrap in a toggleable div
+    const innerHtml = renderFieldStandard(sectionKey, qKey, q, id);
+    return `<div id="verizonSmsOptInWrapper_${sectionKey}" style="display:${visible?'block':'none'}">${innerHtml}</div>`;
   }
 
   if (qKey === 'optInKeyword') {
@@ -4359,6 +4376,12 @@ function debugLabel(uiLabel, qKey, q, apiKey) {
 /* Keys whose API suggestedAnswers are not surfaced as UI controls */
 const SUGG_NOT_IN_UI = new Set(['optOutDescription','stopMessageResponse']);
 
+/* Annotations shown in the debug side panel for specific fields */
+const FIELD_ANNOTATIONS = {
+  verizonSmsOptInDescription: 'Only shown when the RCS agent is upgrading an existing SMS campaign (i.e. "Does your RCS agent upgrade an existing SMS campaign?" = Yes).',
+  verizonRbmOptInDescription: 'This field serves the same purpose as <strong>general.questions.optInDescription</strong> but is specific to Verizon\'s RBM requirements.',
+};
+
 function renderSelect(id, options, current, inline) {
   const opts = options.map(o => `<option value="${esc(o)}"${current===o?' selected':''}>${esc(o)}</option>`).join('');
   const onChange = inline
@@ -4396,6 +4419,7 @@ function selectSmsCampaign(id, value, sectionKey) {
     const sel = (value === 'No') ? inp.value === 'No' : inp.value === 'Yes';
     inp.checked = sel; lbl.classList.toggle('selected', sel);
   });
+  const smsWrapper = document.getElementById(`verizonSmsOptInWrapper_${sectionKey}`);
   if (value === 'No') {
     answers[id] = 'No';
     // Clear type & number
@@ -4406,11 +4430,13 @@ function selectSmsCampaign(id, value, sectionKey) {
     document.querySelectorAll(`[name="${id}_type"]`).forEach(inp => {
       inp.checked = false; inp.closest('.radio-option')?.classList.remove('selected');
     });
+    if (smsWrapper) smsWrapper.style.display = 'none';
   } else {
     // Only set 'Yes' if no type chosen yet; preserve existing type value
     if (!answers[id] || answers[id] === 'No') answers[id] = '';
     const t = document.getElementById(`smsCampType_${sectionKey}`);
     if (t) t.style.display = 'block';
+    if (smsWrapper) smsWrapper.style.display = 'block';
   }
   renderStepperOnly();
 }
