@@ -4466,8 +4466,8 @@ const SUGG_NOT_IN_UI = new Set(['optOutDescription','stopMessageResponse']);
 const FIELD_ANNOTATIONS = {
   verizonSmsOptInDescription: 'Only shown when the RCS agent is upgrading an existing SMS campaign (i.e. "Does your RCS agent upgrade an existing SMS campaign?" = Yes).',
   verizonRbmOptInDescription: 'This field serves the same purpose as <strong>general.questions.optInDescription</strong> but is specific to Verizon\'s RBM requirements.',
-  stopMessageResponse: 'This field overlaps with <strong>general.questions.optOutDescription</strong> in the Verification Details wizard — both capture the message sent when a user replies STOP. Ensure the content is consistent between the two.',
-  optOutDescription:   'This field overlaps with <strong>us.questions.stopMessageResponse</strong> in the US Use case setup form — both capture the message sent when a user replies STOP. Ensure the content is consistent between the two.',
+  stopMessageResponse: 'This field overlaps with <strong>general.questions.optOutDescription</strong> in the Verification Details wizard.',
+  optOutDescription:   'This field overlaps with <strong>us.questions.stopMessageResponse</strong> in the US Use case setup form.',
 };
 
 function renderSelect(id, options, current, inline) {
