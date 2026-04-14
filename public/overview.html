@@ -3846,6 +3846,18 @@ function focusField(id) {
 }
 
 /* Number input connects to us.questions.smsCampaign (primary) + verizonSmsUpgrade* (secondary) */
+/* Shown when focusing the Yes/No or type-picker — UI-only helpers with no API field */
+function focusSmsCampHelper() {
+  if (!countryReqDebugMode) return;
+  document.getElementById('countryReqSideContent').innerHTML = `<div class="side-panel-inner">
+    <div class="side-annotation">
+      <div class="side-annotation-title">Annotations</div>
+      This is a UI-only helper. It has no direct API field — it guides the user to enter the correct value in the number field below, which maps to <strong>us.questions.smsCampaign</strong> and the relevant <strong>verizonSmsUpgrade*</strong> field.
+    </div>
+  </div>`;
+}
+
+/* Number input: smsCampaign (primary) + verizonSmsUpgrade* (secondary) — no annotation */
 function focusSmsCampNumField(sectionKey, numKey) {
   if (!countryReqDebugMode) return;
   const smsQ = rawQuestionData.get(`${sectionKey}__smsCampaign`);
@@ -3853,7 +3865,6 @@ function focusSmsCampNumField(sectionKey, numKey) {
 
   let html = `<div class="side-panel-inner">`;
 
-  // Primary: smsCampaign
   html += `<div class="side-field-label">API field</div>`;
   html += `<div class="side-api-key">${esc(sectionKey)}.questions.smsCampaign</div>`;
   if (smsQ?.question?.trim()) {
@@ -3861,7 +3872,6 @@ function focusSmsCampNumField(sectionKey, numKey) {
     html += `<div class="side-api-question">${esc(smsQ.question.trim())}</div>`;
   }
 
-  // Secondary: verizonSmsUpgradeShortCode or verizonSmsUpgradeLongCode
   if (numKey && numQ) {
     html += `<div class="side-field-label" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">Also writes to</div>`;
     html += `<div class="side-api-key">${esc(sectionKey)}.questions.${esc(numKey)}</div>`;
@@ -3871,10 +3881,6 @@ function focusSmsCampNumField(sectionKey, numKey) {
     }
   }
 
-  html += `<div class="side-annotation">
-    <div class="side-annotation-title">Annotations</div>
-    "Does your RCS agent upgrade…" and "What type of SMS sender?" are UI-only helpers. The number entered here is what maps to these API fields.
-  </div>`;
   html += `</div>`;
   document.getElementById('countryReqSideContent').innerHTML = html;
 }
@@ -4038,7 +4044,7 @@ function renderField(sectionKey, qKey, q) {
     const numVal    = numKey ? (answers[numKey] || '') : '';
     const typeOpts  = SMS_CAMPAIGN_TYPES.map(t => `
       <label class="radio-option${val===t.fullVal?' selected':''}" data-val="${esc(t.fullVal)}"
-        onclick="selectSmsCampaignType('${id}','${sectionKey}','${t.fullVal}','${t.numKey}','${esc(t.placeholder)}','${esc(t.numLabel)}');focusSmsCampNumField('${sectionKey}','${t.numKey}')">
+        onclick="selectSmsCampaignType('${id}','${sectionKey}','${t.fullVal}','${t.numKey}','${esc(t.placeholder)}','${esc(t.numLabel)}');focusSmsCampHelper()">
         <input type="radio" name="${id}_type" value="${esc(t.fullVal)}"${val===t.fullVal?' checked':''}>
         <div class="radio-dot"></div>
         <span class="radio-text">${esc(t.label)}</span>
@@ -4049,7 +4055,7 @@ function renderField(sectionKey, qKey, q) {
         ${['No','Yes'].map(opt => {
           const sel = opt==='No' ? isNo : isYes;
           return `<label class="radio-option${sel?' selected':''}"
-            onclick="selectSmsCampaign('${id}','${opt}','${sectionKey}')">
+            onclick="selectSmsCampaign('${id}','${opt}','${sectionKey}');focusSmsCampHelper()">
             <input type="radio" name="${id}" value="${esc(opt)}"${sel?' checked':''}>
             <div class="radio-dot"></div>
             <span class="radio-text">${esc(opt)}</span>
