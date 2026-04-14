@@ -1154,11 +1154,13 @@ body {
   display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
 }
 .field-label-with-hint .form-label { margin-bottom: 0; }
-.custom-label-badge {
-  display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 600;
-  color: #b45309; background: #fef3c7; border: 1px solid #fcd34d;
-  border-radius: 4px; padding: 0 5px; vertical-align: middle;
-  font-family: ui-monospace, monospace; cursor: help; line-height: 16px;
+.side-annotation {
+  margin-top: 14px; padding: 8px 10px; background: #fff7ed; border: 1px solid #fed7aa;
+  border-radius: 6px; font-size: 11.5px; color: #9a3412; line-height: 1.5;
+}
+.side-annotation-title {
+  font-weight: 700; font-size: 10px; letter-spacing: .05em; text-transform: uppercase;
+  color: #c2410c; margin-bottom: 4px;
 }
 .field-tooltip-icon {
   width: 16px; height: 16px; border-radius: 50%; background: var(--surface2);
@@ -2622,6 +2624,13 @@ function focusWzField(fieldId) {
     });
   }
 
+  if (SUGG_NOT_IN_UI.has(fieldId) && q?.suggestedAnswers?.length) {
+    html += `<div class="side-annotation">
+      <div class="side-annotation-title">Annotations</div>
+      Suggested answers are not shown in the form UI — this field uses a free-text input. Values above can be applied via the debug panel only.
+    </div>`;
+  }
+
   html += `</div>`;
   el.innerHTML = html;
 }
@@ -3331,7 +3340,7 @@ const STEP_DEFS = {
   ],
 };
 
-/* ── UI label overrides ── */
+/* ── Field label overrides (UI display labels) ── */
 const FIELD_LABELS = {
   contactFirstName:'Contact first name', contactSurname:'Contact last name',
   contactPosition:'Contact position', contactPhoneNumber:'Contact phone', contactEmail:'Contact email',
@@ -3824,6 +3833,12 @@ function focusField(id) {
       html += `<button class="side-suggestion" onclick="applySuggestion('${esc(id)}','${safe}')">${esc(s)}</button>`;
     });
   }
+  if (SUGG_NOT_IN_UI.has(qKey) && q.suggestedAnswers?.length) {
+    html += `<div class="side-annotation">
+      <div class="side-annotation-title">Annotations</div>
+      Suggested answers are not shown in the form UI — this field uses a free-text input. Values above can be applied via the debug panel only.
+    </div>`;
+  }
   html += `</div>`;
   document.getElementById('countryReqSideContent').innerHTML = html;
 }
@@ -4168,15 +4183,13 @@ function togglePublicCompany(checked) {
 }
 
 function debugLabel(uiLabel, qKey, q, apiKey) {
-  const apiQ     = q?.question?.trim();
-  const isCustom = FIELD_LABELS[qKey] && apiQ && FIELD_LABELS[qKey] !== apiQ;
-  const badge    = isCustom
-    ? `<span class="custom-label-badge" title="API question: ${esc(apiQ)}">UI label</span>`
-    : '';
-  if (!countryReqDebugMode) return `${esc(uiLabel)}${badge}`;
+  if (!countryReqDebugMode) return esc(uiLabel);
   const keySpan = `<span style="display:block;font-family:ui-monospace,monospace;font-size:11px;font-weight:500;color:#92400e;margin-top:2px">${esc(apiKey)}</span>`;
-  return `${esc(uiLabel)}${badge}${keySpan}`;
+  return `${esc(uiLabel)}${keySpan}`;
 }
+
+/* Keys whose API suggestedAnswers are not surfaced as UI controls */
+const SUGG_NOT_IN_UI = new Set(['optOutDescription','stopMessageResponse']);
 
 function renderSelect(id, options, current, inline) {
   const opts = options.map(o => `<option value="${esc(o)}"${current===o?' selected':''}>${esc(o)}</option>`).join('');
