@@ -4577,6 +4577,22 @@ const STATE_MAP = {
 const REGION_MAP = { US: 'United States', EU: 'Europe', APAC: 'Asia Pacific' };
 
 (async () => {
+  const debugParams  = new URLSearchParams(window.location.search);
+  const debugMode    = debugParams.get('debug');
+  const debugCountry = (debugParams.get('code') || '').toUpperCase();
+  const debugForm    = debugParams.get('form');
+
+  // ── Fast-path: country debug links skip the full agent load ──
+  if (debugMode === 'country' && debugCountry) {
+    const meta = COUNTRY_META[debugCountry] || { name: debugCountry, emoji: '🌍' };
+    activeCountries = [{ code: debugCountry, name: meta.name, flag: meta.emoji }];
+    await loadCountryForms(debugCountry);
+    const forms  = countryCards.get(debugCountry)?.forms || [];
+    const target = debugForm ? forms.find(f => f.id === debugForm) : forms[0];
+    if (target) openCountryReq(debugCountry, target.id);
+    return;
+  }
+
   const senderId = new URLSearchParams(window.location.search).get('id') || DEFAULT_SENDER_ID;
   try {
     const res = await fetch(`/api/sender/${senderId}`);
@@ -4625,36 +4641,16 @@ const REGION_MAP = { US: 'United States', EU: 'Europe', APAC: 'Asia Pacific' };
 
   init();
 
-  const debugParams = new URLSearchParams(window.location.search);
-  const debugMode   = debugParams.get('debug');
-  const debugCountry = (debugParams.get('code') || '').toUpperCase();
-
-  // For debug country links: inject the country even if not on agent
-  if (debugMode === 'country' && debugCountry && !activeCountries.find(c => c.code === debugCountry)) {
-    const meta = COUNTRY_META[debugCountry] || { name: debugCountry, emoji: '🌍' };
-    activeCountries.push({ code: debugCountry, name: meta.name, flag: meta.emoji });
-    agent.countries = agent.countries || [];
-    if (!agent.countries.includes(debugCountry)) agent.countries.push(debugCountry);
-  }
-
   await Promise.all([
     loadVerificationQuestions(),
     ...activeCountries.map(c => loadCountryForms(c.code)),
   ]);
   renderCountriesTab();
 
-  // Auto-open debug form after render
+  // Auto-open verification wizard if launched via debug link
   if (debugMode === 'verification') {
     switchTab('countries', document.querySelector('.tab-btn:nth-child(2)'));
     setTimeout(() => goToVerificationWizard(), 200);
-  } else if (debugMode === 'country' && debugCountry) {
-    const debugForm = debugParams.get('form');
-    switchTab('countries', document.querySelector('.tab-btn:nth-child(2)'));
-    setTimeout(() => {
-      const forms = countryCards.get(debugCountry)?.forms || [];
-      const target = debugForm ? forms.find(f => f.id === debugForm) : forms[0];
-      if (target) openCountryReq(debugCountry, target.id);
-    }, 200);
   }
 
   // Global keyboard handler
