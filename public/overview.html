@@ -3060,6 +3060,22 @@ See https://example.com/privacy
 and https://example.com/terms</div>`
   },
 
+  'optin-brand-message': {
+    title: 'First message your RCS Agent sends to the user',
+    body: () => `
+      <p>This is the first message your agent sends after a user opts in. It should:</p>
+      <ul>
+        <li>Welcome the user by name or brand</li>
+        <li>Confirm what they signed up for</li>
+        <li>Set expectations for the type and frequency of messages</li>
+        <li>Include opt-out instructions (e.g. Reply STOP to unsubscribe)</li>
+      </ul>
+      <div class="help-dialog-tip"><strong>Tip:</strong> Keep it short and on-brand. Avoid promotions in the first message — focus on confirming the subscription.</div>
+      <div class="help-examples-label">Examples</div>
+      <div class="help-msg-bubble">Welcome to ACME! You're now subscribed to receive order updates and exclusive offers. Reply STOP to unsubscribe at any time.</div>
+      <div class="help-msg-bubble">Hi! Thanks for signing up for Clever Bookings alerts. You'll receive booking confirmations and reminders here. Reply STOP to opt out.</div>`
+  },
+
   'optin-confirmation': {
     title: 'Opt-in confirmation response',
     body: () => `
@@ -3468,13 +3484,22 @@ const RADIO_KEYS    = new Set(['smsCampaign','verizonInitialMessageTypeModel']);
 const CHECKBOX_KEYS = new Set(['optInDescription','triggerDescription']);
 const TEXTAREA_KEYS = new Set(['useCaseDescription','callToActionDescription','sampleMessages','optInUserMessage','optInConfirmationResponse','optInBrandMessage','helpMessageResponse','stopMessageResponse','interactionsDescription','videoUris','verizonSmsOptInDescription','optOutDescription']);
 const FIELD_SUBHEADING_KEYS = new Set(['interactionsDescription','screenshotUris']);
-const TEXTAREA_HINTS = {};
-const TEXTAREA_EXAMPLES = {};
+const TEXTAREA_HINTS = {
+  callToActionDescription: 'Provide the exact text shown to users before they sign up to receive messages. This must include what they\'ll receive and required disclosures.',
+};
+const TEXTAREA_EXAMPLES = {
+  callToActionDescription: 'Example: Sign up to receive booking updates and reminders from us. Message frequency varies. Message & data rates may apply.',
+  optInBrandMessage:       'Example: Welcome to ACME! Get 10% off your first order.',
+  optInConfirmationResponse: 'Example: You\'re subscribed to ACME alerts. Msg&data rates may apply. Text STOP to opt out.',
+  helpMessageResponse:     'Example: Need help? Contact our support team at support@example.com or visit [yourwebsite.com/help]. Msg&Data rates may apply.',
+  stopMessageResponse:     'Example: You have been unsubscribed and will no longer receive messages from us.',
+};
 /* qKey → help dialog topic; renders a "View examples" link below the textarea */
 const TEXTAREA_HELP_LINKS = {
-  callToActionDescription: 'cta-before-signup',
+  callToActionDescription:   'cta-before-signup',
+  optInBrandMessage:         'optin-brand-message',
   optInConfirmationResponse: 'optin-confirmation',
-  helpMessageResponse: 'help-keyword-response',
+  helpMessageResponse:       'help-keyword-response',
 };
 
 const PHONE_PREFIXES = [
