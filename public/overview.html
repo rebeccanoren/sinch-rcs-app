@@ -1211,6 +1211,9 @@ body {
 .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
 .field-hint { font-size: 13px; color: var(--text2); line-height: 1.5; margin-bottom: 8px; }
 .field-subheading { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.field-section-header { margin-top: 8px; margin-bottom: 4px; padding-top: 16px; border-top: 1px solid var(--border); }
+.field-section-header-title { font-size: 15px; font-weight: 600; color: var(--text); }
+.field-section-header-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
 .f-input, .f-select, .f-textarea {
   width: 100%; padding: 9px 12px; font-size: 14px; font-family: inherit;
   border: 1px solid var(--border2); border-radius: var(--radius);
@@ -3306,7 +3309,7 @@ const COUNTRY_META = {
 };
 
 /* ── Keys hidden entirely or shown only in summary ── */
-const HIDDEN_KEYS = new Set(['messagesVolume','callToActionDescription','callToActionScreenshotUrl']);
+const HIDDEN_KEYS = new Set(['messagesVolume','callToActionScreenshotUrl','optInUserMessage','verizonSmsOptInDescription']);
 const SUMMARY_ONLY_KEYS = new Set(['verizonRbmOptInDescription','verizonInitialMessageTypeModel','videoUris']);
 
 /* ── Step definitions for named form types ── */
@@ -3334,8 +3337,8 @@ const STEP_DEFS = {
       subtitle:'Provide a sample message users will receive from your agent, and describe the call to action.',
       keys:['us__sampleMessages'] },
     { title:'Consent',
-      subtitle:'Explain how users opt in to receive messages and how they can opt out. This information will be verified.',
-      keys:['us__optInUserMessage','us__optInConfirmationResponse','us__optInBrandMessage','us__helpMessageResponse','us__stopMessageResponse','us__verizonSmsOptInDescription'] },
+      subtitle:'Explain how people sign up to receive your messages and how they can manage their preferences.',
+      keys:['us__callToActionDescription','us__optInKeyword','us__optInBrandMessage','us__optInConfirmationResponse','us__helpMessageResponse','us__stopMessageResponse'] },
     { title:'Summary', isSummary:true },
   ],
 };
@@ -3347,14 +3350,14 @@ const FIELD_LABELS = {
   name:'Contact first name', email:'Contact email', title:'Contact position', website:'Company website',
   optInDescription:'Contacts will opt-in primarily via', optOutDescription:'Opt-out (STOP) confirmation response',
   screenshotUris:'Show how users agree to receive messages', stopMessageResponse:'Opt-out (STOP) confirmation response',
-  helpMessageResponse:'Help (HELP) response', optInUserMessage:'User opt-in keyword or action',
-  optInConfirmationResponse:'Opt-in confirmation message', optInBrandMessage:'First branded message after opt-in',
+  helpMessageResponse:'HELP keyword response', optInUserMessage:'User opt-in keyword or action',
+  optInConfirmationResponse:'Opt in confirmation response', optInBrandMessage:'First message your RCS Agent sends to the user',
   interactionsDescription:'When does your business send messages to users through the agent?',
   triggerDescription:'Message triggers', videoUris:'Add a link to a video showing the agent in use',
   useCaseDescription:'Use case description', smsCampaign:'Does your RCS agent upgrade an existing SMS campaign?',
   verizonSmsUpgradeShortCode:'SMS short code being upgraded', verizonSmsUpgradeLongCode:'SMS long code being upgraded',
   verizonMonthlyMessagesVolume:'Estimated monthly message volume', verizonSmsOptInDescription:'Verizon subscriber opt-in description',
-  sampleMessages:'Sample message', callToActionDescription:'Call to action description', callToActionScreenshotUrl:'Call to action screenshot URL',
+  sampleMessages:'Sample message', callToActionDescription:'Call-to-action text shown before signup', callToActionScreenshotUrl:'Call to action screenshot URL',
   companyLegalName:'Legal company name', brandName:'Business display name', brandIndustry:'Business category',
   legalForm:'Legal form', taxIdCountry:'Legal country of registration', ein:'Tax ID (EIN)', taxId:'Tax ID',
   additionalIdType:'Additional ID type', additionalIdNumber:'Additional ID number',
@@ -3388,6 +3391,16 @@ const SMS_CAMPAIGN_TYPES = [
   { label:'10-Digit Long Code (10DLC)',  fullVal:'Yes — upgrading a 10-digit long code (10DLC)', numKey:'verizonSmsUpgradeLongCode',  numLabel:'10-Digit Long Code (10DLC)',  placeholder:'e.g. +12025551234' },
   { label:'Toll-free number (TFN)',      fullVal:'Yes — upgrading a toll-free number (TFN)',  numKey:'verizonSmsUpgradeLongCode',  numLabel:'toll-free number (TFN)',       placeholder:'e.g. 833-123-4567' },
 ];
+
+/* Fields injected into steps that have no backing API question */
+const SYNTHETIC_FIELDS = {
+  'us__optInKeyword': { sectionKey:'us', qKey:'optInKeyword', q:{ question:null, suggestedAnswers:[] } },
+};
+
+/* Section headers inserted before a specific qKey */
+const SECTION_HEADERS = {
+  optInBrandMessage: { title:'Keyword response messages', subtitle:'Please provide the messages sent in response to keywords.' },
+};
 
 const RADIO_KEYS    = new Set(['smsCampaign','verizonInitialMessageTypeModel']);
 const CHECKBOX_KEYS = new Set(['optInDescription','triggerDescription']);
@@ -3754,10 +3767,10 @@ function renderActiveStep() {
     showSidePanel(false);
   } else {
     const stepKeyOrder = step.keys;
-    const stepKeySet   = new Set(stepKeyOrder);
-    const stepQuestions = activeFormQuestions
-      .filter(q => stepKeySet.has(`${q.sectionKey}__${q.qKey}`))
-      .sort((a, b) => stepKeyOrder.indexOf(`${a.sectionKey}__${a.qKey}`) - stepKeyOrder.indexOf(`${b.sectionKey}__${b.qKey}`));
+    const stepQuestions = stepKeyOrder.map(key => {
+      const apiQ = activeFormQuestions.find(q => `${q.sectionKey}__${q.qKey}` === key);
+      return apiQ || SYNTHETIC_FIELDS[key] || null;
+    }).filter(Boolean);
     sidePanelFields = {};
     document.getElementById('countryReqFields').innerHTML = renderFields(stepQuestions);
     const hasSide = stepQuestions.some(({ q }) => q.question?.trim() || q.suggestedAnswers?.length);
@@ -3846,6 +3859,17 @@ function focusField(id) {
 }
 
 /* Number input connects to us.questions.smsCampaign (primary) + verizonSmsUpgrade* (secondary) */
+/* Opt-in keyword field — not in API */
+function focusOptInKeyword() {
+  if (!countryReqDebugMode) return;
+  document.getElementById('countryReqSideContent').innerHTML = `<div class="side-panel-inner">
+    <div class="side-annotation">
+      <div class="side-annotation-title">Annotations</div>
+      This field is not connected to an API question. It is a UI helper to collect the opt-in keyword for your records.
+    </div>
+  </div>`;
+}
+
 /* Shown when focusing the Yes/No or type-picker — UI-only helpers with no API field */
 function focusSmsCampHelper() {
   if (!countryReqDebugMode) return;
@@ -3912,7 +3936,15 @@ function applySuggestion(id, text) {
 /* ── Field rendering ── */
 function renderFields(questions) {
   if (!questions?.length) return `<p style="color:var(--text3);font-size:14px">No fields for this step.</p>`;
-  return questions.map(({ sectionKey, qKey, q }) => renderField(sectionKey, qKey, q)).join('');
+  return questions.map(({ sectionKey, qKey, q }) => {
+    const header = SECTION_HEADERS[qKey]
+      ? `<div class="field-section-header">
+          <div class="field-section-header-title">${esc(SECTION_HEADERS[qKey].title)}</div>
+          <div class="field-section-header-sub">${esc(SECTION_HEADERS[qKey].subtitle)}</div>
+        </div>`
+      : '';
+    return header + renderField(sectionKey, qKey, q);
+  }).join('');
 }
 
 function renderField(sectionKey, qKey, q) {
@@ -4026,6 +4058,18 @@ function renderField(sectionKey, qKey, q) {
             oninput="answers['${symId}']=this.value" onfocus="focusField('${symId}')">
         </div>
       </div>
+    </div>`;
+  }
+
+  if (qKey === 'optInKeyword') {
+    // UI helper — not connected to any API field
+    delete sidePanelFields[id];
+    const val = answers[id] || '';
+    return `<div class="form-field" id="fi_wrap_${id}">
+      <label class="form-label" for="fi_${id}">Opt-in keyword</label>
+      <input type="text" id="fi_${id}" class="f-input" placeholder="e.g. START"
+        value="${esc(val)}" oninput="answers['${id}']=this.value" onfocus="focusOptInKeyword()">
+      <p class="field-hint">The keyword users send to opt in and start the conversation (e.g. START).</p>
     </div>`;
   }
 
