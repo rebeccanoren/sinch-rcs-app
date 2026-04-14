@@ -93,32 +93,6 @@ body { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); 
 .country-chip { background: var(--surface2); }
 .country-chip:hover { background: var(--blue-light); }
 
-/* ── Field reference table ── */
-.ref-section { margin-bottom: 28px; }
-.ref-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; user-select: none; transition: background 0.12s; }
-.ref-header:hover { background: var(--surface2); }
-.ref-header-left { display: flex; align-items: center; gap: 10px; }
-.ref-header-title { font-size: 14px; font-weight: 600; }
-.ref-header-count { font-size: 12px; color: var(--text3); }
-.ref-chevron { transition: transform 0.2s; color: var(--text3); }
-.ref-section.open .ref-header { border-radius: 10px 10px 0 0; border-bottom-color: transparent; }
-.ref-section.open .ref-chevron { transform: rotate(90deg); }
-.ref-body { display: none; border: 1px solid var(--border); border-top: none; border-radius: 0 0 10px 10px; overflow: hidden; }
-.ref-section.open .ref-body { display: block; }
-.ref-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-.ref-table thead th { background: var(--surface2); padding: 9px 14px; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text3); border-bottom: 1px solid var(--border); white-space: nowrap; }
-.ref-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
-.ref-table tbody tr:last-child { border-bottom: none; }
-.ref-table tbody tr:hover { background: var(--surface2); }
-.ref-table td { padding: 10px 14px; vertical-align: top; }
-.field-key { font-family: var(--mono); font-size: 11.5px; color: #1e40af; background: #eff6ff; border-radius: 4px; padding: 2px 6px; white-space: nowrap; }
-.field-api-q { color: var(--text2); line-height: 1.45; }
-.field-ui-label { color: var(--text); font-weight: 500; }
-.badge-custom { display: inline-block; font-size: 10px; font-weight: 600; color: var(--orange); background: var(--orange-light); border: 1px solid #fcd34d; border-radius: 4px; padding: 1px 5px; font-family: var(--mono); margin-left: 5px; vertical-align: middle; }
-.badge-match { display: inline-block; font-size: 10px; font-weight: 600; color: var(--green); background: var(--green-light); border: 1px solid #bbf7d0; border-radius: 4px; padding: 1px 5px; font-family: var(--mono); margin-left: 5px; vertical-align: middle; }
-.sugg-pill { display: inline-block; background: var(--surface2); border: 1px solid var(--border2); border-radius: 4px; padding: 2px 7px; font-size: 11px; color: var(--text2); margin: 2px 2px 0 0; }
-.no-sugg { color: var(--text3); font-size: 12px; font-style: italic; }
-.ref-loading { padding: 28px; text-align: center; color: var(--text3); font-size: 13px; }
 </style>
 </head>
 <body>
@@ -196,33 +170,10 @@ body { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); 
     <div id="countryChips" style="display:contents"></div>
   </div>
 
-  <!-- Field reference tables -->
-  <div id="refTables">
-    <div class="ref-loading"><div class="spinner" style="margin:0 auto 10px"></div>Loading API field reference…</div>
-  </div>
 
 </div>
 
 <script>
-/* ─── UI label overrides (matches FIELD_LABELS in overview.html) ─────── */
-const FIELD_LABELS = {
-  screenshotUris:'Show how users agree to receive messages', stopMessageResponse:'Opt-out (STOP) confirmation response',
-  helpMessageResponse:'Help (HELP) response', optInUserMessage:'User opt-in keyword or action',
-  optInConfirmationResponse:'Opt-in confirmation message', optInBrandMessage:'First branded message after opt-in',
-  interactionsDescription:'When does your business send messages to users through the agent?',
-  triggerDescription:'Message triggers', videoUris:'Add a link to a video showing the agent in use',
-  useCaseDescription:'Use case description', smsCampaign:'Does your RCS agent upgrade an existing SMS campaign?',
-  verizonSmsUpgradeShortCode:'SMS short code being upgraded', verizonSmsUpgradeLongCode:'SMS long code being upgraded',
-  verizonMonthlyMessagesVolume:'Estimated monthly message volume', verizonSmsOptInDescription:'Verizon subscriber opt-in description',
-  sampleMessages:'Sample message', callToActionDescription:'Call to action description', callToActionScreenshotUrl:'Call to action screenshot URL',
-  companyLegalName:'Legal company name', brandName:'Business display name', brandIndustry:'Business category',
-  legalForm:'Legal form', taxIdCountry:'Legal country of registration', ein:'Tax ID (EIN)', taxId:'Tax ID',
-  additionalIdType:'Additional ID type', additionalIdNumber:'Additional ID number',
-  stockExchange:'Stock Exchange', stockSymbol:'Stock Symbol', websiteUrl:'Website URL',
-  phoneNumber:'Phone number', fullCompanyAddress:'Registered business address',
-  contactFirstName:'First name', contactSurname:'Last name', contactPosition:'Job title',
-  contactEmail:'Email', contactPhoneNumber:'Phone number',
-};
 
 const STATE_LABEL = {
   IN_TEST:{ text:'In progress',cls:'badge-in-progress' }, PREPARING_LAUNCH:{ text:'Pending approval',cls:'badge-pending' },
@@ -266,90 +217,11 @@ function renderAgents(senders) {
   }).join('');
 }
 
-/* ─── Field reference tables ─────────────────────────────────────────── */
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-function renderFieldTable(country, questions) {
-  const entries = Object.entries(questions);
-  const rows = entries.map(([key, q]) => {
-    const apiQ    = q.question?.trim() || '—';
-    const uiLabel = FIELD_LABELS[key];
-    const isCustom = uiLabel && uiLabel !== apiQ;
-    const labelCell = uiLabel
-      ? `<span class="field-ui-label">${esc(uiLabel)}</span><span class="${isCustom?'badge-custom':'badge-match'}">${isCustom?'custom':'= API'}</span>`
-      : `<span style="color:var(--text3);font-style:italic">Uses API question</span>`;
-    const sugg = q.suggestedAnswers?.length
-      ? q.suggestedAnswers.map(a => `<span class="sugg-pill">${esc(a)}</span>`).join('')
-      : `<span class="no-sugg">free text</span>`;
-    return `<tr>
-      <td><span class="field-key">${esc(key)}</span></td>
-      <td class="field-api-q">${esc(apiQ)}</td>
-      <td>${labelCell}</td>
-      <td>${sugg}</td>
-    </tr>`;
-  }).join('');
-
-  return `
-    <table class="ref-table">
-      <thead><tr>
-        <th>API Field Key</th>
-        <th>API Question</th>
-        <th>UI Label</th>
-        <th>Suggested Answers</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
-}
-
-function toggleRef(el) {
-  el.closest('.ref-section').classList.toggle('open');
-}
-
-async function loadRefTables() {
-  const container = document.getElementById('refTables');
-  try {
-    const USE_CASES = ['TRANSACTIONAL', 'PROMOTIONAL'];
-    const COUNTRIES = ['US'];
-    const results = [];
-
-    for (const uc of USE_CASES) {
-      const res  = await fetch(`/api/questionnaire/${uc}?countries=${COUNTRIES.join(',')}`);
-      const data = await res.json();
-      for (const country of COUNTRIES) {
-        const qs = data[country.toLowerCase()]?.questions;
-        if (qs) results.push({ label: `${country} · ${uc}`, key: `${country}-${uc}`, questions: qs });
-      }
-    }
-
-    container.innerHTML = results.map(({ label, key, questions }) => {
-      const count = Object.keys(questions).length;
-      return `<div class="ref-section" id="ref-${key}">
-        <div class="ref-header" onclick="toggleRef(this)">
-          <div class="ref-header-left">
-            <svg class="ref-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span class="ref-header-title">${esc(label)}</span>
-            <span class="ref-header-count">${count} fields</span>
-          </div>
-          <span style="font-size:11px;color:var(--blue);font-weight:500">Expand</span>
-        </div>
-        <div class="ref-body">${renderFieldTable(key, questions)}</div>
-      </div>`;
-    }).join('');
-
-    // Auto-open first one
-    document.querySelector('.ref-section')?.classList.add('open');
-
-  } catch (e) {
-    container.innerHTML = `<div class="error-banner">Failed to load field reference: ${esc(e.message)}</div>`;
-  }
-}
 
 /* ─── Country chips ──────────────────────────────────────────────────── */
 const SUPPORTED_COUNTRIES = [
-  { code:'US', flag:'🇺🇸' }, { code:'GB', flag:'🇬🇧' }, { code:'DE', flag:'🇩🇪' },
-  { code:'FR', flag:'🇫🇷' }, { code:'SE', flag:'🇸🇪' }, { code:'NO', flag:'🇳🇴' },
-  { code:'DK', flag:'🇩🇰' }, { code:'FI', flag:'🇫🇮' }, { code:'NL', flag:'🇳🇱' },
-  { code:'BE', flag:'🇧🇪' }, { code:'CA', flag:'🇨🇦' }, { code:'AU', flag:'🇦🇺' },
+  { code:'US', flag:'🇺🇸' }, { code:'GB', flag:'🇬🇧' }, { code:'FR', flag:'🇫🇷' },
 ];
 
 function renderCountryChips(agentId) {
@@ -395,7 +267,6 @@ function renderCountryChips(agentId) {
     if (verifChip) verifChip.href = `overview.html?id=${firstAgentId}&debug=verification`;
   }
   renderCountryChips(firstAgentId);
-  loadRefTables();
 })();
 </script>
 </body>
