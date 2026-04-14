@@ -3845,29 +3845,35 @@ function focusField(id) {
   document.getElementById('countryReqSideContent').innerHTML = html;
 }
 
-/* Show only the API num key — smsCampaign and the type picker are pure UI helpers */
+/* Number input connects to us.questions.smsCampaign (primary) + verizonSmsUpgrade* (secondary) */
 function focusSmsCampNumField(sectionKey, numKey) {
   if (!countryReqDebugMode) return;
+  const smsQ = rawQuestionData.get(`${sectionKey}__smsCampaign`);
   const numQ = rawQuestionData.get(`${sectionKey}__${numKey}`);
-  if (!numQ) return;
 
   let html = `<div class="side-panel-inner">`;
+
+  // Primary: smsCampaign
   html += `<div class="side-field-label">API field</div>`;
-  html += `<div class="side-api-key">${esc(sectionKey)}.questions.${esc(numKey)}</div>`;
-  if (numQ.question?.trim()) {
+  html += `<div class="side-api-key">${esc(sectionKey)}.questions.smsCampaign</div>`;
+  if (smsQ?.question?.trim()) {
     html += `<div class="side-field-label" style="margin-top:12px">API question</div>`;
-    html += `<div class="side-api-question">${esc(numQ.question.trim())}</div>`;
+    html += `<div class="side-api-question">${esc(smsQ.question.trim())}</div>`;
   }
-  if (numQ.suggestedAnswers?.length) {
-    html += `<div class="side-suggestions-label">Suggested answers</div>`;
-    numQ.suggestedAnswers.forEach(s => {
-      const safe = s.replace(/'/g, "&#39;");
-      html += `<button class="side-suggestion" onclick="focusSmsCampNumInp('${esc(sectionKey)}');document.getElementById('smsCampNumInp_${esc(sectionKey)}').value='${safe}';updateSmsCampNum('${esc(sectionKey)}','${safe}')">${esc(s)}</button>`;
-    });
+
+  // Secondary: verizonSmsUpgradeShortCode or verizonSmsUpgradeLongCode
+  if (numKey && numQ) {
+    html += `<div class="side-field-label" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">Also writes to</div>`;
+    html += `<div class="side-api-key">${esc(sectionKey)}.questions.${esc(numKey)}</div>`;
+    if (numQ.question?.trim()) {
+      html += `<div class="side-field-label" style="margin-top:12px">API question</div>`;
+      html += `<div class="side-api-question">${esc(numQ.question.trim())}</div>`;
+    }
   }
+
   html += `<div class="side-annotation">
     <div class="side-annotation-title">Annotations</div>
-    "Does your RCS agent upgrade an existing SMS campaign?" and "What type of SMS sender?" are UI-only helpers — they are not API fields. Only the number entered here maps to the API.
+    "Does your RCS agent upgrade…" and "What type of SMS sender?" are UI-only helpers. The number entered here is what maps to these API fields.
   </div>`;
   html += `</div>`;
   document.getElementById('countryReqSideContent').innerHTML = html;
@@ -4018,12 +4024,14 @@ function renderField(sectionKey, qKey, q) {
   }
 
   if (qKey === 'smsCampaign') {
+    // smsCampaign is handled as a UI-only compound block — don't register in sidePanelFields
+    // The number input connects to us.questions.smsCampaign + verizonSmsUpgrade*
+    delete sidePanelFields[id];
     const val      = answers[id] || '';
     const isYes    = val !== '' && val !== 'No';
     const isNo     = val === 'No';
     const uiLabel  = FIELD_LABELS[qKey] || q.question?.trim() || qKey;
-    const apiKey   = `${sectionKey}.questions.${qKey}`;
-    const label    = debugLabel(uiLabel, qKey, q, apiKey);
+    const label    = esc(uiLabel); // no API key shown — pure UI helper
     // Detect which type is selected from the composed value
     const typeMatch = SMS_CAMPAIGN_TYPES.find(t => t.fullVal === val);
     const numKey    = typeMatch ? `${sectionKey}__${typeMatch.numKey}` : '';
