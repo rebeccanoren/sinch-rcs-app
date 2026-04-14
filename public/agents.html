@@ -189,7 +189,7 @@ body { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); 
 
   <!-- Quick links -->
   <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:28px">
-    <a class="quicklink-chip" href="overview.html#verification" target="_blank">
+    <a class="quicklink-chip" id="verifChip" href="overview.html?debug=verification" target="_blank">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1.5L2 4v4c0 3.31 2.67 5.74 6 6.5 3.33-.76 6-3.19 6-6.5V4L8 1.5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
       Verification Details
     </a>
@@ -352,9 +352,10 @@ const SUPPORTED_COUNTRIES = [
   { code:'BE', flag:'🇧🇪' }, { code:'CA', flag:'🇨🇦' }, { code:'AU', flag:'🇦🇺' },
 ];
 
-function renderCountryChips() {
+function renderCountryChips(agentId) {
+  const base = agentId ? `overview.html?id=${agentId}` : 'overview.html';
   document.getElementById('countryChips').innerHTML = SUPPORTED_COUNTRIES.map(c =>
-    `<a class="quicklink-chip country-chip" href="overview.html" target="_blank" title="${c.code} country form">
+    `<a class="quicklink-chip country-chip" href="${base}&debug=country&code=${c.code}" target="_blank">
       ${c.flag} ${c.code}
     </a>`
   ).join('');
@@ -372,11 +373,14 @@ function renderCountryChips() {
 
   // Load agents
   const grid = document.getElementById('agentGrid');
+  let firstAgentId = null;
   try {
     const res  = await fetch('/api/senders');
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || data.error || res.status);
-    renderAgents(data.senders || []);
+    const senders = data.senders || [];
+    firstAgentId = senders[0]?.id || null;
+    renderAgents(senders);
   } catch (e) {
     document.getElementById('agentCount').textContent = '';
     grid.innerHTML = `<div class="error-banner">
@@ -385,7 +389,12 @@ function renderCountryChips() {
     </div>`;
   }
 
-  renderCountryChips();
+  // Update chip hrefs with first agent ID if available
+  if (firstAgentId) {
+    const verifChip = document.getElementById('verifChip');
+    if (verifChip) verifChip.href = `overview.html?id=${firstAgentId}&debug=verification`;
+  }
+  renderCountryChips(firstAgentId);
   loadRefTables();
 })();
 </script>

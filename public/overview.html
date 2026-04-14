@@ -4607,11 +4607,36 @@ const REGION_MAP = { US: 'United States', EU: 'Europe', APAC: 'Asia Pacific' };
   }
 
   init();
+
+  const debugParams = new URLSearchParams(window.location.search);
+  const debugMode   = debugParams.get('debug');
+  const debugCountry = (debugParams.get('code') || '').toUpperCase();
+
+  // For debug country links: inject the country even if not on agent
+  if (debugMode === 'country' && debugCountry && !activeCountries.find(c => c.code === debugCountry)) {
+    const meta = COUNTRY_META[debugCountry] || { name: debugCountry, emoji: '🌍' };
+    activeCountries.push({ code: debugCountry, name: meta.name, flag: meta.emoji });
+    agent.countries = agent.countries || [];
+    if (!agent.countries.includes(debugCountry)) agent.countries.push(debugCountry);
+  }
+
   await Promise.all([
     loadVerificationQuestions(),
     ...activeCountries.map(c => loadCountryForms(c.code)),
   ]);
   renderCountriesTab();
+
+  // Auto-open debug form after render
+  if (debugMode === 'verification') {
+    switchTab('countries', document.querySelector('.tab-btn:nth-child(2)'));
+    setTimeout(() => goToVerificationWizard(), 200);
+  } else if (debugMode === 'country' && debugCountry) {
+    switchTab('countries', document.querySelector('.tab-btn:nth-child(2)'));
+    setTimeout(() => {
+      const forms = countryCards.get(debugCountry)?.forms || [];
+      if (forms.length) openCountryReq(debugCountry, forms[0].id);
+    }, 200);
+  }
 
   // Global keyboard handler
   document.addEventListener('keydown', e => {
