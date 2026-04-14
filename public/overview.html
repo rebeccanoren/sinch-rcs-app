@@ -3386,7 +3386,7 @@ const FIELD_CONFIG = {
 const SMS_CAMPAIGN_TYPES = [
   { label:'Short code',                  fullVal:'Yes — upgrading a short code',              numKey:'verizonSmsUpgradeShortCode', numLabel:'short code',                  placeholder:'e.g. 12345' },
   { label:'10-Digit Long Code (10DLC)',  fullVal:'Yes — upgrading a 10-digit long code (10DLC)', numKey:'verizonSmsUpgradeLongCode',  numLabel:'10-Digit Long Code (10DLC)',  placeholder:'e.g. +12025551234' },
-  { label:'Toll-free number (TFN)',      fullVal:'Yes — upgrading a toll-free number (TFN)',  numKey:'verizonSmsUpgradeShortCode', numLabel:'toll-free number (TFN)',       placeholder:'e.g. 833-123-4567' },
+  { label:'Toll-free number (TFN)',      fullVal:'Yes — upgrading a toll-free number (TFN)',  numKey:'verizonSmsUpgradeLongCode',  numLabel:'toll-free number (TFN)',       placeholder:'e.g. 833-123-4567' },
 ];
 
 const RADIO_KEYS    = new Set(['smsCampaign','verizonInitialMessageTypeModel']);
@@ -3845,39 +3845,30 @@ function focusField(id) {
   document.getElementById('countryReqSideContent').innerHTML = html;
 }
 
-/* Show smsCampaign + the specific num key (verizonSmsUpgradeShortCode or verizonSmsUpgradeLongCode) */
+/* Show only the API num key — smsCampaign and the type picker are pure UI helpers */
 function focusSmsCampNumField(sectionKey, numKey) {
   if (!countryReqDebugMode) return;
-  const smsQ = rawQuestionData.get(`${sectionKey}__smsCampaign`);
   const numQ = rawQuestionData.get(`${sectionKey}__${numKey}`);
+  if (!numQ) return;
 
   let html = `<div class="side-panel-inner">`;
-
-  // Primary: smsCampaign
   html += `<div class="side-field-label">API field</div>`;
-  html += `<div class="side-api-key">${esc(sectionKey)}.questions.smsCampaign</div>`;
-  if (smsQ?.question?.trim()) {
+  html += `<div class="side-api-key">${esc(sectionKey)}.questions.${esc(numKey)}</div>`;
+  if (numQ.question?.trim()) {
     html += `<div class="side-field-label" style="margin-top:12px">API question</div>`;
-    html += `<div class="side-api-question">${esc(smsQ.question.trim())}</div>`;
+    html += `<div class="side-api-question">${esc(numQ.question.trim())}</div>`;
   }
-  if (smsQ?.suggestedAnswers?.length) {
+  if (numQ.suggestedAnswers?.length) {
     html += `<div class="side-suggestions-label">Suggested answers</div>`;
-    smsQ.suggestedAnswers.forEach(s => {
+    numQ.suggestedAnswers.forEach(s => {
       const safe = s.replace(/'/g, "&#39;");
-      html += `<button class="side-suggestion" onclick="applySuggestion('${esc(sectionKey)}__smsCampaign','${safe}')">${esc(s)}</button>`;
+      html += `<button class="side-suggestion" onclick="focusSmsCampNumInp('${esc(sectionKey)}');document.getElementById('smsCampNumInp_${esc(sectionKey)}').value='${safe}';updateSmsCampNum('${esc(sectionKey)}','${safe}')">${esc(s)}</button>`;
     });
   }
-
-  // Secondary: number field
-  if (numKey && numQ) {
-    html += `<div class="side-field-label" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">Also writes to</div>`;
-    html += `<div class="side-api-key">${esc(sectionKey)}.questions.${esc(numKey)}</div>`;
-    if (numQ.question?.trim()) {
-      html += `<div class="side-field-label" style="margin-top:12px">API question</div>`;
-      html += `<div class="side-api-question">${esc(numQ.question.trim())}</div>`;
-    }
-  }
-
+  html += `<div class="side-annotation">
+    <div class="side-annotation-title">Annotations</div>
+    "Does your RCS agent upgrade an existing SMS campaign?" and "What type of SMS sender?" are UI-only helpers — they are not API fields. Only the number entered here maps to the API.
+  </div>`;
   html += `</div>`;
   document.getElementById('countryReqSideContent').innerHTML = html;
 }
@@ -4050,7 +4041,7 @@ function renderField(sectionKey, qKey, q) {
         ${['No','Yes'].map(opt => {
           const sel = opt==='No' ? isNo : isYes;
           return `<label class="radio-option${sel?' selected':''}"
-            onclick="focusField('${id}');selectSmsCampaign('${id}','${opt}','${sectionKey}')">
+            onclick="selectSmsCampaign('${id}','${opt}','${sectionKey}')">
             <input type="radio" name="${id}" value="${esc(opt)}"${sel?' checked':''}>
             <div class="radio-dot"></div>
             <span class="radio-text">${esc(opt)}</span>
