@@ -3306,7 +3306,7 @@ const COUNTRY_META = {
 };
 
 /* ── Keys hidden entirely or shown only in summary ── */
-const HIDDEN_KEYS = new Set(['messagesVolume']);
+const HIDDEN_KEYS = new Set(['messagesVolume','callToActionDescription','callToActionScreenshotUrl']);
 const SUMMARY_ONLY_KEYS = new Set(['verizonRbmOptInDescription','verizonInitialMessageTypeModel','videoUris']);
 
 /* ── Step definitions for named form types ── */
@@ -3332,7 +3332,7 @@ const STEP_DEFS = {
       keys:['us__useCaseDescription','us__smsCampaign','us__verizonMonthlyMessagesVolume'] },
     { title:'Example message',
       subtitle:'Provide a sample message users will receive from your agent, and describe the call to action.',
-      keys:['us__sampleMessages','us__callToActionDescription','us__callToActionScreenshotUrl'] },
+      keys:['us__sampleMessages'] },
     { title:'Consent',
       subtitle:'Explain how users opt in to receive messages and how they can opt out. This information will be verified.',
       keys:['us__optInUserMessage','us__optInConfirmationResponse','us__optInBrandMessage','us__helpMessageResponse','us__stopMessageResponse','us__verizonSmsOptInDescription'] },
