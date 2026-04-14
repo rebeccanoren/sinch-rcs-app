@@ -2703,6 +2703,8 @@ function goToVerificationWizard() {
 }
 
 function closeVerificationWizard() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('debug') === 'verification') { window.location.href = 'agents.html'; return; }
   document.getElementById('verificationWizard').classList.add('hidden');
 }
 
@@ -3666,6 +3668,8 @@ function openCountryReq(code, formId) {
 }
 
 function closeCountryReq() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('debug') === 'country') { window.location.href = 'agents.html'; return; }
   document.getElementById('countryReqOverlay').classList.add('hidden');
   countryReqDebugMode = false;
   activeFormId = null;
@@ -4631,10 +4635,12 @@ const REGION_MAP = { US: 'United States', EU: 'Europe', APAC: 'Asia Pacific' };
     switchTab('countries', document.querySelector('.tab-btn:nth-child(2)'));
     setTimeout(() => goToVerificationWizard(), 200);
   } else if (debugMode === 'country' && debugCountry) {
+    const debugForm = debugParams.get('form');
     switchTab('countries', document.querySelector('.tab-btn:nth-child(2)'));
     setTimeout(() => {
       const forms = countryCards.get(debugCountry)?.forms || [];
-      if (forms.length) openCountryReq(debugCountry, forms[0].id);
+      const target = debugForm ? forms.find(f => f.id === debugForm) : forms[0];
+      if (target) openCountryReq(debugCountry, target.id);
     }, 200);
   }
 
