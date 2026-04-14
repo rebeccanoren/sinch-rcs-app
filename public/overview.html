@@ -3437,7 +3437,7 @@ const FIELD_LABELS = {
   optInConfirmationResponse:'Opt in confirmation response', optInBrandMessage:'First message your RCS Agent sends to the user',
   interactionsDescription:'When does your business send messages to users through the agent?',
   triggerDescription:'Message triggers', videoUris:'Add a link to a video showing the agent in use',
-  useCaseDescription:'Use case description', smsCampaign:'Does your RCS agent upgrade an existing SMS campaign?',
+  useCaseDescription:'How will you use your RCS agent?', smsCampaign:'Will you use SMS as a fallback?',
   verizonSmsUpgradeShortCode:'SMS short code being upgraded', verizonSmsUpgradeLongCode:'SMS long code being upgraded',
   verizonMonthlyMessagesVolume:'Estimated monthly message volume',
   verizonSmsOptInDescription:'Verizon SMS subscriber opt-in description',
@@ -3484,6 +3484,7 @@ const SYNTHETIC_FIELDS = {
 
 /* Section headers inserted before a specific qKey */
 const SECTION_HEADERS = {
+  smsCampaign:      { title:'SMS fallback', subtitle:'Let us know if you plan to use SMS as a fallback. This helps with review and verification.' },
   optInBrandMessage: { title:'Keyword response messages', subtitle:'Please provide the messages sent in response to keywords.' },
 };
 
@@ -3492,7 +3493,8 @@ const CHECKBOX_KEYS = new Set(['optInDescription','triggerDescription']);
 const TEXTAREA_KEYS = new Set(['useCaseDescription','callToActionDescription','sampleMessages','optInUserMessage','optInConfirmationResponse','optInBrandMessage','helpMessageResponse','stopMessageResponse','interactionsDescription','videoUris','verizonSmsOptInDescription','optOutDescription']);
 const FIELD_SUBHEADING_KEYS = new Set(['interactionsDescription','screenshotUris']);
 const TEXTAREA_HINTS = {
-  callToActionDescription: 'Provide the exact text shown to users before they sign up to receive messages. This must include what they\'ll receive and required disclosures.',
+  useCaseDescription:       'Describe the purpose of your RCS messages. For example: order updates, promotions, appointment reminders, customer support, or authentication.',
+  callToActionDescription:  'Provide the exact text shown to users before they sign up to receive messages. This must include what they\'ll receive and required disclosures.',
 };
 const TEXTAREA_EXAMPLES = {
   callToActionDescription: 'Example: Sign up to receive booking updates and reminders from us. Message frequency varies. Message & data rates may apply.',
