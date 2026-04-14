@@ -3417,6 +3417,7 @@ const countryCardCollapsed = {}; // tracks collapsed state per code
 /* ── Country requirements state (API-driven) ── */
 let countryReqDebugMode = false;
 const countryCards    = new Map();    // code → { forms: [{id,title,subtitle,questions:[]}] }
+const rawQuestionData = new Map();    // `${sectionKey}__${qKey}` → q  (all keys, including hidden/embedded)
 const answers         = {};           // sectionKey__qKey → value
 const completedForms  = new Set();    // set of completed formIds
 const stepCompletion  = {};           // formId → Set of stepIdx
@@ -3598,6 +3599,7 @@ function buildCountryForms(code, data) {
   if (code === 'US') {
     const phase1 = [], phase2 = [];
     for (const qKey of Object.keys(data.us?.questions || {})) {
+      rawQuestionData.set(`us__${qKey}`, data.us.questions[qKey]); // cache all, including embedded
       if (HIDDEN_KEYS.has(qKey)) continue;
       const entry = { sectionKey: 'us', qKey, q: data.us.questions[qKey] };
       if (STEP_DEFS.US_phase2.flatMap(s => s.keys || []).includes(`us__${qKey}`))
@@ -3843,6 +3845,51 @@ function focusField(id) {
   document.getElementById('countryReqSideContent').innerHTML = html;
 }
 
+/* Show smsCampaign + the specific num key (verizonSmsUpgradeShortCode or verizonSmsUpgradeLongCode) */
+function focusSmsCampNumField(sectionKey, numKey) {
+  if (!countryReqDebugMode) return;
+  const smsQ = rawQuestionData.get(`${sectionKey}__smsCampaign`);
+  const numQ = rawQuestionData.get(`${sectionKey}__${numKey}`);
+
+  let html = `<div class="side-panel-inner">`;
+
+  // Primary: smsCampaign
+  html += `<div class="side-field-label">API field</div>`;
+  html += `<div class="side-api-key">${esc(sectionKey)}.questions.smsCampaign</div>`;
+  if (smsQ?.question?.trim()) {
+    html += `<div class="side-field-label" style="margin-top:12px">API question</div>`;
+    html += `<div class="side-api-question">${esc(smsQ.question.trim())}</div>`;
+  }
+  if (smsQ?.suggestedAnswers?.length) {
+    html += `<div class="side-suggestions-label">Suggested answers</div>`;
+    smsQ.suggestedAnswers.forEach(s => {
+      const safe = s.replace(/'/g, "&#39;");
+      html += `<button class="side-suggestion" onclick="applySuggestion('${esc(sectionKey)}__smsCampaign','${safe}')">${esc(s)}</button>`;
+    });
+  }
+
+  // Secondary: number field
+  if (numKey && numQ) {
+    html += `<div class="side-field-label" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">Also writes to</div>`;
+    html += `<div class="side-api-key">${esc(sectionKey)}.questions.${esc(numKey)}</div>`;
+    if (numQ.question?.trim()) {
+      html += `<div class="side-field-label" style="margin-top:12px">API question</div>`;
+      html += `<div class="side-api-question">${esc(numQ.question.trim())}</div>`;
+    }
+  }
+
+  html += `</div>`;
+  document.getElementById('countryReqSideContent').innerHTML = html;
+}
+
+/* Called from onfocus on the number input — reads the current numkey from dataset */
+function focusSmsCampNumInp(sectionKey) {
+  const inp = document.getElementById(`smsCampNumInp_${sectionKey}`);
+  if (!inp?.dataset?.numkey) return;
+  const numKey = inp.dataset.numkey.split('__').pop();
+  focusSmsCampNumField(sectionKey, numKey);
+}
+
 function applySuggestion(id, text) {
   const el = document.getElementById(`fi_${id}`);
   if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) {
@@ -3992,7 +4039,7 @@ function renderField(sectionKey, qKey, q) {
     const numVal    = numKey ? (answers[numKey] || '') : '';
     const typeOpts  = SMS_CAMPAIGN_TYPES.map(t => `
       <label class="radio-option${val===t.fullVal?' selected':''}" data-val="${esc(t.fullVal)}"
-        onclick="focusField('${id}');selectSmsCampaignType('${id}','${sectionKey}','${t.fullVal}','${t.numKey}','${esc(t.placeholder)}','${esc(t.numLabel)}')">
+        onclick="selectSmsCampaignType('${id}','${sectionKey}','${t.fullVal}','${t.numKey}','${esc(t.placeholder)}','${esc(t.numLabel)}');focusSmsCampNumField('${sectionKey}','${t.numKey}')">
         <input type="radio" name="${id}_type" value="${esc(t.fullVal)}"${val===t.fullVal?' checked':''}>
         <div class="radio-dot"></div>
         <span class="radio-text">${esc(t.label)}</span>
@@ -4018,7 +4065,7 @@ function renderField(sectionKey, qKey, q) {
         <label class="form-label" id="smsCampNumLabel_${sectionKey}">${typeMatch ? `What is the ${esc(typeMatch.numLabel)} being upgraded?` : ''}</label>
         <input type="text" id="smsCampNumInp_${sectionKey}" class="f-input"
           placeholder="${typeMatch ? esc(typeMatch.placeholder) : ''}" value="${esc(numVal)}"
-          oninput="updateSmsCampNum('${sectionKey}',this.value)" onfocus="focusField('${id}')">
+          oninput="updateSmsCampNum('${sectionKey}',this.value)" onfocus="focusSmsCampNumInp('${sectionKey}')">
       </div>
     </div>`;
   }
