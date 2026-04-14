@@ -3035,6 +3035,66 @@ const HELP_CONTENT = {
       </ul>`
   },
 
+  'cta-before-signup': {
+    title: 'Call-to-action text shown before signup',
+    body: () => `
+      <p>This is the text users see before they sign up to receive messages. It explains what they are agreeing to. It must:</p>
+      <ul>
+        <li>Explain what the user is signing up for</li>
+        <li>Describe the type of messages they will receive</li>
+        <li>Include message frequency (if messages are recurring)</li>
+        <li>Include "Message &amp; data rates may apply"</li>
+        <li>Include a link to your Privacy Policy</li>
+        <li>Include a link to your Terms and Conditions</li>
+      </ul>
+      <div class="help-dialog-tip"><strong>Tip:</strong> This text should match exactly what users see at the point of signup (e.g. website, app, or form).</div>
+      <div class="help-examples-label">Examples</div>
+      <div class="help-msg-bubble">Sign up to receive booking updates and reminders. Message frequency varies. Message &amp; data rates may apply.
+
+Privacy Policy: https://example.com/privacy
+Terms: https://example.com/terms</div>
+      <div class="help-msg-bubble">Get delivery updates and special offers from Clever Bookings via SMS. Up to 2 messages per week. Message &amp; data rates may apply.
+
+See https://example.com/privacy
+
+and https://example.com/terms</div>`
+  },
+
+  'optin-confirmation': {
+    title: 'Opt-in confirmation response',
+    body: () => `
+      <p>This is the message sent to the user to confirm that they have successfully subscribed to receive messages. It should:</p>
+      <ul>
+        <li>Clearly confirm the subscription</li>
+        <li>Describe what type of messages they will receive</li>
+        <li>State message frequency if applicable</li>
+        <li>Include instructions to unsubscribe, for example STOP</li>
+        <li>Include HELP instructions if supported</li>
+      </ul>
+      <div class="help-dialog-tip"><strong>Tip:</strong> Do not include promotional content beyond confirming the subscription.</div>
+      <p>This message helps demonstrate user consent and is required for approval in many regions.</p>
+      <div class="help-examples-label">Examples</div>
+      <div class="help-msg-bubble">You're now subscribed to receive promotional updates and special offers. Message frequency varies. Reply STOP to unsubscribe or HELP for assistance.</div>
+      <div class="help-msg-bubble">Subscription confirmed. You will receive recurring account alerts and updates. Message frequency varies. Reply STOP to unsubscribe or HELP for help.</div>
+      <div class="help-msg-bubble">You have successfully subscribed to receive messages as requested. Message frequency varies. Reply STOP to cancel or HELP for assistance</div>`
+  },
+
+  'help-keyword-response': {
+    title: 'HELP keyword response',
+    body: () => `
+      <p>This is the message your agent sends when a user replies with HELP. It should:</p>
+      <ul>
+        <li>Remind the user what they are subscribed to</li>
+        <li>Provide clear contact information for support, such as email or phone number</li>
+        <li>Include instructions on how to unsubscribe, for example STOP</li>
+      </ul>
+      <p>This message is required for approval and ensures users can easily get assistance.</p>
+      <div class="help-dialog-tip"><strong>Tip:</strong> Keep it informative and support-focused. Do not include promotional content.</div>
+      <div class="help-examples-label">Examples</div>
+      <div class="help-msg-bubble">You are subscribed to receive updates and notifications. For assistance, contact support@example.com or call +1 800 000 0000. Reply STOP to unsubscribe.</div>
+      <div class="help-msg-bubble">You are subscribed to appointment reminders and account updates. For support, contact support@example.com or call +1 800 000 0000. Reply STOP to cancel future messages.</div>`
+  },
+
   'ein-help': {
     title: 'What is an EIN?',
     body: () => `
@@ -3408,6 +3468,12 @@ const TEXTAREA_KEYS = new Set(['useCaseDescription','callToActionDescription','s
 const FIELD_SUBHEADING_KEYS = new Set(['interactionsDescription','screenshotUris']);
 const TEXTAREA_HINTS = {};
 const TEXTAREA_EXAMPLES = {};
+/* qKey → help dialog topic; renders a "View examples" link below the textarea */
+const TEXTAREA_HELP_LINKS = {
+  callToActionDescription: 'cta-before-signup',
+  optInConfirmationResponse: 'optin-confirmation',
+  helpMessageResponse: 'help-keyword-response',
+};
 
 const PHONE_PREFIXES = [
   {flag:'🇺🇸',code:'+1'},{flag:'🇬🇧',code:'+44'},{flag:'🇩🇪',code:'+49'},
@@ -4152,10 +4218,13 @@ function renderField(sectionKey, qKey, q) {
           const safe = s.replace(/'/g, "&#39;");
           return `<button type="button" class="sugg-tag${active?' active':''}" onclick="toggleSuggTag('${id}','${safe}',this)">${esc(s)}</button>`;
         }).join('')}</div>` : '';
+    const viewExLink = TEXTAREA_HELP_LINKS[qKey]
+      ? `<button class="field-footnote" type="button" onclick="openHelpDialog('${TEXTAREA_HELP_LINKS[qKey]}')">View examples</button>`
+      : '';
     inputHtml = `${hintHtml}<textarea id="fi_${id}" class="f-textarea"
       placeholder="${esc(TEXTAREA_EXAMPLES[qKey] || 'Enter your answer…')}"
       oninput="answers['${id}']=this.value;syncTagsFromTextarea('${id}')"
-      onfocus="focusField('${id}')">${esc(val||'')}</textarea>${tagsHtml}`;
+      onfocus="focusField('${id}')">${esc(val||'')}</textarea>${tagsHtml}${viewExLink}`;
   } else if (cfg?.type && cfg.type !== 'text') {
     const attrs = [`type="${cfg.type}"`, `id="fi_${id}"`, `class="f-input"`,
       `placeholder="${esc(cfg.placeholder||'')}"`,
@@ -4215,10 +4284,13 @@ function renderFieldStandard(sectionKey, qKey, q, id) {
           const safe = s.replace(/'/g, "&#39;");
           return `<button type="button" class="sugg-tag${active?' active':''}" onclick="toggleSuggTag('${id}','${safe}',this)">${esc(s)}</button>`;
         }).join('')}</div>` : '';
+    const viewExLink = TEXTAREA_HELP_LINKS[qKey]
+      ? `<button class="field-footnote" type="button" onclick="openHelpDialog('${TEXTAREA_HELP_LINKS[qKey]}')">View examples</button>`
+      : '';
     inputHtml = `${hintHtml}<textarea id="fi_${id}" class="f-textarea"
       placeholder="${esc(TEXTAREA_EXAMPLES[qKey] || 'Enter your answer…')}"
       oninput="answers['${id}']=this.value;syncTagsFromTextarea('${id}')"
-      onfocus="focusField('${id}')">${esc(val||'')}</textarea>${tagsHtml}`;
+      onfocus="focusField('${id}')">${esc(val||'')}</textarea>${tagsHtml}${viewExLink}`;
   } else if (cfg?.type && cfg.type !== 'text') {
     const attrs = [`type="${cfg.type}"`, `id="fi_${id}"`, `class="f-input"`,
       `placeholder="${esc(cfg.placeholder||'')}"`,
