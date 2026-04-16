@@ -95,6 +95,7 @@ body { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); 
 .form-link-body { flex: 1; min-width: 0; }
 .form-link-name { font-size: 13px; font-weight: 600; }
 .form-link-desc { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.form-link-date { font-size: 11px; color: var(--text3); margin-top: 4px; opacity: 0.7; }
 .form-link-arrow { color: var(--text3); flex-shrink: 0; transition: color 0.15s; }
 .form-link:hover .form-link-arrow { color: var(--blue); }
 
@@ -175,6 +176,7 @@ body { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); 
       <div class="form-link-body">
         <div class="form-link-name">Verification Details</div>
         <div class="form-link-desc">Consent, messaging use &amp; business contact</div>
+        <div class="form-link-date">Last updated: 14 Apr 2026</div>
       </div>
       <svg class="form-link-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
@@ -233,10 +235,10 @@ function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 
 /* ─── Country form links ─────────────────────────────────────────────── */
 const COUNTRY_FORMS = [
-  { code:'US', flag:'🇺🇸', form:'US_phase1', name:'US — About your business',              desc:'Company registration, legal identity &amp; address' },
-  { code:'US', flag:'🇺🇸', form:'US_phase2', name:'US — Use case setup',                   desc:'Message use case, consent &amp; sample messages' },
-  { code:'GB', flag:'🇬🇧', form:'GB_phase1', name:'Add operator details (United Kingdom)', desc:'UK-specific registration &amp; operator requirements' },
-  { code:'FR', flag:'🇫🇷', form:'FR_phase1', name:'Add operator details (France)',          desc:'French operator registration requirements' },
+  { code:'US', flag:'🇺🇸', form:'US_phase1', name:'US — About your business',              desc:'Company registration, legal identity &amp; address',   lastUpdated:'14 Apr 2026' },
+  { code:'US', flag:'🇺🇸', form:'US_phase2', name:'US — Use case setup',                   desc:'Message use case, consent &amp; sample messages',     lastUpdated:'14 Apr 2026' },
+  { code:'GB', flag:'🇬🇧', form:'GB_country', name:'Add operator details (United Kingdom)', desc:'UK-specific registration &amp; operator requirements', lastUpdated:'14 Apr 2026' },
+  { code:'FR', flag:'🇫🇷', form:'FR_country', name:'Add operator details (France)',          desc:'French operator registration requirements',            lastUpdated:'14 Apr 2026' },
 ];
 
 function renderCountryFormLinks(agentId) {
@@ -247,6 +249,7 @@ function renderCountryFormLinks(agentId) {
       <div class="form-link-body">
         <div class="form-link-name">${f.name}</div>
         <div class="form-link-desc">${f.desc}</div>
+        ${f.lastUpdated ? `<div class="form-link-date">Last updated: ${f.lastUpdated}</div>` : ''}
       </div>
       <svg class="form-link-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>`

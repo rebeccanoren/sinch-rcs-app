@@ -920,9 +920,12 @@ body {
 }
 
 /* Wizard field types */
-.wz-field { margin-bottom: 28px; }
+.wz-field { margin-bottom: 36px; }
 .wz-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 10px; display: block; }
 .wz-hint { font-size: 13px; color: var(--text2); margin-bottom: 10px; line-height: 1.5; }
+.wz-section-header { margin-top: 8px; padding-top: 24px; margin-bottom: 20px; }
+.wz-section-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.wz-section-sub { font-size: 13px; color: var(--text2); line-height: 1.5; margin: 0; }
 .wz-textarea {
   width: 100%; padding: 10px 12px; min-height: 90px; resize: vertical;
   border: 1px solid var(--border2); border-radius: var(--radius);
@@ -1216,7 +1219,15 @@ body {
 .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
 .field-hint { font-size: 13px; color: var(--text2); line-height: 1.5; margin-bottom: 8px; }
 .field-subheading { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.side-unused-list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.side-unused-row { padding: 8px 10px; background: var(--surface2); border-radius: 6px; border: 1px solid var(--border); }
+.side-unused-key { font-family: monospace; font-size: 11px; color: var(--blue); word-break: break-all; }
+.side-unused-label { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.side-unused-note { font-size: 11px; color: var(--text3); margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--border); line-height: 1.5; }
 .field-section-header { margin-top: 8px; margin-bottom: 4px; padding-top: 16px; border-top: 1px solid var(--border); }
+.kw-pair { border: 1px solid var(--border); border-radius: 10px; padding: 0 16px; margin-bottom: 12px; }
+.kw-pair .form-field { margin-bottom: 0; padding: 16px 0 8px; }
+.kw-pair .form-field + .form-field { padding-top: 4px; }
 .field-section-header-title { font-size: 15px; font-weight: 600; color: var(--text); }
 .field-section-header-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
 .f-input, .f-select, .f-textarea {
@@ -2021,6 +2032,13 @@ body {
       <option value="OTP">OTP</option>
       <option value="MULTIUSE">Multi-use</option>
     </select>
+    <button class="btn-debug" id="wzUnusedBtn" onclick="showWzUnusedFields()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M7 4v3.5M7 9.5v.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <span>Not in UI</span>
+    </button>
     <button class="btn-debug" id="wzDebugBtn" onclick="toggleWzDebug()">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
         <path d="M5 1.5h4M7 1.5v2M3 5l-1.5 1.5L3 8M11 5l1.5 1.5L11 8M2 10h10M4 10v2.5M10 10v2.5M4.5 5.5h5v5h-5z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2082,6 +2100,13 @@ body {
       </svg>
     </button>
     <div style="flex:1; font-size:15px; font-weight:600; color:var(--text)" id="countryReqTitle"></div>
+    <button class="btn-debug" id="countryReqUnusedBtn" onclick="showUnusedFields()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M7 4v3.5M7 9.5v.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <span>Not in UI</span>
+    </button>
     <button class="btn-debug" id="countryReqDebugBtn" onclick="toggleCountryReqDebug()">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
         <path d="M5 1.5h4M7 1.5v2M3 5l-1.5 1.5L3 8M11 5l1.5 1.5L11 8M2 10h10M4 10v2.5M10 10v2.5M4.5 5.5h5v5h-5z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2521,10 +2546,10 @@ function esc(s) {
 /* ══════════════════════════════════════
    VERIFICATION WIZARD
 ══════════════════════════════════════ */
-const WZ_STEPS = ['Consent','Messaging content','Business contact','Summary'];
+const WZ_STEPS = ['Consent','Messaging triggers','Business contact','Summary'];
 
 /* Fallback options used only if API hasn't loaded yet */
-const WZ_OPTIN_FALLBACK = ['By creating an account on your website or app','By subscribing to a loyalty program','By making a purchase in-store or online','By subscribing to a newsletter','Other'];
+const WZ_OPTIN_CHIPS = ['Website form','Checkbox consent','QR code scan','In-app prompt','Paper form'];
 const WZ_TRIGGER_FALLBACK = ['After a transaction or purchase','Following a user-initiated action or request','On a scheduled or recurring basis','As part of a promotional campaign','When triggered by a customer support interaction','Other'];
 
 /* Questions fetched from /api/questionnaire — populated at runtime */
@@ -2552,10 +2577,10 @@ async function loadVerificationQuestions(useCase) {
 }
 
 const wzData = {
-  optInDescription:[], optInOther:'',
+  optInDescription:'',
   screenshotMode:'upload', screenshotUris:'', screenshotFileName:'',
   optOutDescription:'',
-  triggerDescription:[], triggerOther:'', interactionsDescription:'',
+  triggerDescription:'', interactionsDescription:'',
   name:'', email:'', title:'', website:'',
 };
 let wzStep = 0;
@@ -2563,13 +2588,12 @@ let wzDebugOpen = false;
 
 const WZ_API_FIELDS = {
   0: [
-    { id:'optInDescription',  label: 'Opt-in methods',   key: 'general.questions.optInDescription',  desc: 'Array of strings describing how users opt in to receive messages.' },
-    { id:'optInOther',        label: 'Opt-in (other)',   key: '(extra — no direct API field)',        desc: 'Free-text description when "Other" opt-in method is selected.' },
+    { id:'optInDescription',  label: 'Opt-in methods',   key: 'general.questions.optInDescription',  desc: 'Text description of how users opt in to receive messages.' },
     { id:'screenshotUris',    label: 'Screenshot / URL', key: 'general.questions.screenshotUris',    desc: 'URL linking to proof of the opt-in mechanism (screenshot or live page).' },
     { id:'optOutDescription', label: 'Opt-out response', key: 'general.questions.optOutDescription', desc: 'Message sent to users after they send STOP to unsubscribe.' },
   ],
   1: [
-    { id:'triggerDescription',      label: 'Message triggers',    key: 'general.questions.triggerDescription',      desc: 'Array of strings describing when your agent sends messages.' },
+    { id:'triggerDescription',      label: 'Message triggers',    key: 'general.questions.triggerDescription',      desc: 'Free-text description of when your agent sends messages.' },
     { id:'interactionsDescription', label: 'Trigger description', key: 'general.questions.interactionsDescription', desc: 'Detailed explanation of events that cause messages to be sent.' },
   ],
   2: [
@@ -2650,13 +2674,36 @@ function focusWzField(fieldId) {
   el.innerHTML = html;
 }
 
-function addInteractionChip(chipEl, text) {
-  const ta = document.getElementById('wzInteractions');
+function removeChipText(value, text) {
+  const esc = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value
+    .replace(new RegExp(',\\s*' + esc, 'g'), '')
+    .replace(new RegExp(esc + '\\s*,\\s*', 'g'), '')
+    .replace(new RegExp(esc, 'g'), '')
+    .trim();
+}
+
+function toggleChip(taId, syncFn, text) {
+  const ta = document.getElementById(taId);
   if (!ta) return;
-  const cur = ta.value.trim();
-  ta.value = cur ? cur + ', ' + text : text;
+  const cur = ta.value;
+  ta.value = cur.includes(text) ? removeChipText(cur, text) : (cur.trim() ? cur.trim() + ', ' + text : text);
   ta.focus();
-  syncInteractionChips(ta.value);
+  syncFn(ta.value);
+}
+
+function addTriggerChip(chipEl, text) {
+  toggleChip('wzTriggerDesc', syncTriggerChips, text);
+}
+
+function syncTriggerChips(value) {
+  document.querySelectorAll('#wzTriggerChips .wz-chip').forEach(chip => {
+    chip.classList.toggle('used', value.includes(chip.textContent));
+  });
+}
+
+function addInteractionChip(chipEl, text) {
+  toggleChip('wzInteractions', syncInteractionChips, text);
 }
 
 function syncInteractionChips(value) {
@@ -2665,19 +2712,23 @@ function syncInteractionChips(value) {
   });
 }
 
+function addOptInChip(chipEl, text) {
+  toggleChip('wzOptInDesc', syncOptInChips, text);
+}
+
+function syncOptInChips(value) {
+  document.querySelectorAll('#wzOptInChips .wz-chip').forEach(chip => {
+    chip.classList.toggle('used', value.includes(chip.textContent));
+  });
+}
+
 function applyWzSuggestion(fieldId, text) {
   if (fieldId === 'optInDescription') {
-    const items = document.querySelectorAll('#wzOptIn .consent-check-item');
-    for (const item of items) {
-      if (item.dataset.val === text && !item.classList.contains('checked')) { toggleConsentCheck(item); return; }
-    }
+    addOptInChip(null, text);
     return;
   }
   if (fieldId === 'triggerDescription') {
-    const items = document.querySelectorAll('#wzTrigger .consent-check-item');
-    for (const item of items) {
-      if (item.dataset.val === text && !item.classList.contains('checked')) { toggleConsentCheck(item); return; }
-    }
+    addTriggerChip(null, text);
     return;
   }
   if (fieldId === 'interactionsDescription') {
@@ -2762,13 +2813,11 @@ function wizardPrev() {
 
 function saveWzStep() {
   if (wzStep === 0) {
-    wzData.optInDescription = [...document.querySelectorAll('#wzOptIn .consent-check-item.checked')].map(el => el.dataset.val);
-    wzData.optInOther = val('wzOptInOther');
+    wzData.optInDescription = val('wzOptInDesc');
     wzData.screenshotUris = val('wzScreenshotUrl');
     wzData.optOutDescription = val('wzOptOutDesc');
   } else if (wzStep === 1) {
-    wzData.triggerDescription = getChecked('wzTrigger');
-    wzData.triggerOther = val('wzTriggerOther');
+    wzData.triggerDescription = val('wzTriggerDesc');
     wzData.interactionsDescription = val('wzInteractions');
   } else if (wzStep === 2) {
     wzData.name = val('wzName');
@@ -2854,17 +2903,6 @@ function toggleConsentCheck(el) {
   focusWzField('optInDescription');
 }
 
-function toggleTriggerCheck(el) {
-  const checkSvg = `<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  el.classList.toggle('checked');
-  const box = el.querySelector('.wz-cb-box');
-  if (box) box.innerHTML = el.classList.contains('checked') ? checkSvg : '';
-  if (el.dataset.val === 'Other') {
-    const wrap = document.getElementById('wzTriggerOtherWrap');
-    if (wrap) wrap.style.display = el.classList.contains('checked') ? 'block' : 'none';
-  }
-  focusWzField('triggerDescription');
-}
 
 function setUploadMode(mode) {
   wzData.screenshotMode = mode;
@@ -2970,26 +3008,30 @@ const HELP_CONTENT = {
       </div>`
   },
   'optout': {
-    title: 'Opt-out (STOP) confirmation response',
+    title: 'Opt-out confirmation response',
     body: () => `
-      <p>This is the message sent to the user to confirm they have successfully unsubscribed from receiving messages. It should:</p>
+      <p>This is the message sent to the user when they opt out. It must include:</p>
       <ul>
-        <li><strong>Clearly confirm that the user has been unsubscribed</strong></li>
-        <li><strong>Reassure the user that no further messages will be sent</strong></li>
-        <li><strong>Provide information on how to resubscribe if applicable</strong><span>e.g. reply START</span></li>
-        <li><strong>Include support contact information</strong><span>email or phone number</span></li>
+        <li><strong>Program or brand name</strong><span>So the user knows which service they unsubscribed from</span></li>
+        <li><strong>Confirmation of unsubscribe and no further messages</strong><span>Clearly state both that they have been unsubscribed and that no more messages will be sent</span></li>
       </ul>
-      <p>This message is required for compliance and ensures users have clear confirmation of their opt-out request.</p>
-      <div class="help-dialog-tip">
-        <strong>Tip:</strong> Keep it short, clear, and purely informational. Do not include promotional content.
-      </div>
+      <div class="help-dialog-tip"><strong>Tip:</strong> Keep it short, clear, and purely informational. Do not include promotional content.</div>
+      <div class="help-examples-label">Example</div>
+      <div class="help-msg-bubble">ACME: You have been unsubscribed and will no longer receive messages.</div>`
+  },
+  'trigger-guide': {
+    title: 'What to include',
+    body: () => `
+      <ul>
+        <li><strong>What event starts the message flow</strong><span>e.g. a completed purchase, a form submission, or a user request</span></li>
+        <li><strong>When the first message is sent</strong><span>e.g. immediately after the event, 24 hours before, or once a week</span></li>
+        <li><strong>Whether messages are one-time or recurring</strong><span>e.g. a single confirmation, or a series of reminders</span></li>
+      </ul>
       <div class="help-examples-label">Examples</div>
-      <div class="help-msg-bubble">
-        You have been unsubscribed and will no longer receive messages. If this was a mistake, reply START to resubscribe. For support, contact support@example.com or call +1 800 000 0000.
-      </div>
-      <div class="help-msg-bubble">
-        You have successfully opted out. No further messages will be sent. Reply START to opt back in or HELP for assistance.
-      </div>`
+      <div class="help-dialog-example">"Users receive a confirmation message immediately after placing an order."</div>
+      <div class="help-dialog-example" style="margin-top:10px">"Shipping updates are sent when the carrier status changes."</div>
+      <div class="help-dialog-example" style="margin-top:10px">"Appointment reminders are sent 24 hours before the scheduled time."</div>
+      <div class="help-dialog-example" style="margin-top:10px">"Promotional messages are sent weekly to subscribed users."</div>`
   },
   'messaging-triggers': {
     title: 'What to include in your trigger description',
@@ -3155,19 +3197,16 @@ const HELP_CONTENT = {
   },
 
   'help-keyword-response': {
-    title: 'HELP keyword response',
+    title: 'Help keyword response',
     body: () => `
-      <p>This is the message your agent sends when a user replies with HELP. It should:</p>
+      <p>This is the message your agent sends when a user requests help — for example by replying with HELP or a supported equivalent. It must include:</p>
       <ul>
-        <li>Remind the user what they are subscribed to</li>
-        <li>Provide clear contact information for support, such as email or phone number</li>
-        <li>Include instructions on how to unsubscribe, for example STOP</li>
+        <li><strong>Program or brand name</strong><span>So the user knows which service is contacting them</span></li>
+        <li><strong>Customer care contact</strong><span>A phone number, email address, or URL linking directly to a support page</span></li>
       </ul>
-      <p>This message is required for approval and ensures users can easily get assistance.</p>
-      <div class="help-dialog-tip"><strong>Tip:</strong> Keep it informative and support-focused. Do not include promotional content.</div>
-      <div class="help-examples-label">Examples</div>
-      <div class="help-msg-bubble">You are subscribed to receive updates and notifications. For assistance, contact support@example.com or call +1 800 000 0000. Reply STOP to unsubscribe.</div>
-      <div class="help-msg-bubble">You are subscribed to appointment reminders and account updates. For support, contact support@example.com or call +1 800 000 0000. Reply STOP to cancel future messages.</div>`
+      <div class="help-dialog-tip"><strong>Tip:</strong> Keep it short and support-focused. Do not include promotional content.</div>
+      <div class="help-examples-label">Example</div>
+      <div class="help-msg-bubble">ACME: For assistance, email support@acme.com or call 1-800-000-0000.</div>`
   },
 
   'ein-help': {
@@ -3227,33 +3266,21 @@ function closeHelpDialog(e) {
 }
 
 function renderWzConsent() {
-  const checkSvg = `<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const isUrlMode = wzData.screenshotMode === 'url';
 
-  const rawOptInOpts = getVerifQuestion('general','optInDescription')?.suggestedAnswers || WZ_OPTIN_FALLBACK;
-  const optInOpts = rawOptInOpts.includes('Other') ? rawOptInOpts : [...rawOptInOpts, 'Other'];
-
-  const checkItems = optInOpts.map(opt => {
-    const checked = wzData.optInDescription.includes(opt);
-    return `
-      <div class="consent-check-item${checked ? ' checked' : ''}" data-val="${esc(opt)}" onclick="toggleConsentCheck(this)">
-        <div class="consent-cb-box">${checked ? checkSvg : ''}</div>
-        <span class="consent-cb-label">${esc(opt)}</span>
-      </div>`;
-  }).join('');
-
-  const otherChecked = wzData.optInDescription.includes('Other');
+  const optInChipsHtml = `<div class="wz-chips" id="wzOptInChips">${WZ_OPTIN_CHIPS.map(s => {
+    const used = wzData.optInDescription.includes(s);
+    return `<button type="button" class="wz-chip${used ? ' used' : ''}" onclick="addOptInChip(this,'${s.replace(/'/g,"&#39;")}')">${esc(s)}</button>`;
+  }).join('')}</div>`;
 
   return `
     <div class="wz-step-title">Consent</div>
-    <div class="wz-step-sub">Google requires this information to verify and approve your RCS agent. Explain how users opt in to receive messages and what confirmation they receive when they opt out.</div>
+    <div class="wz-step-sub">This information is required by Google and local mobile operators to approve your RCS Agent. It will be reviewed as part of the approval process.<br><br>Describe how users opt in to receive messages and the confirmation message they receive when they opt out.</div>
 
     <div class="wz-field">
       <label class="wz-label">How do contacts opt in to receive messages?</label>
-      <div class="consent-check-list" id="wzOptIn">${checkItems}</div>
-      <div id="wzOptInOtherWrap" style="display:${otherChecked ? 'block' : 'none'}">
-        <input class="consent-other-input" id="wzOptInOther" type="text" placeholder="Describe how users opt in…" value="${esc(wzData.optInOther)}" onfocus="focusWzField('optInOther')">
-      </div>
+      <textarea class="wz-textarea" id="wzOptInDesc" placeholder="e.g. Users opt in via a website form with a checkbox, or by scanning a QR code to start a chat" onfocus="focusWzField('optInDescription')" oninput="syncOptInChips(this.value)">${esc(wzData.optInDescription)}</textarea>
+      ${optInChipsHtml}
     </div>
 
     <div class="wz-field">
@@ -3277,26 +3304,24 @@ function renderWzConsent() {
       <button class="help-link" type="button" onclick="openHelpDialog('optin-evidence')">What should a screenshot or URL include?</button>
     </div>
 
+    <div class="wz-section-header">
+      <div class="wz-section-title">Compliance</div>
+      <p class="wz-section-sub">Provide the message your agent sends to confirm that a user has unsubscribed from your messages.<br><br>This is required for approval and may also be reviewed by local mobile operators. It should apply regardless of how the user opts out (for example by replying "STOP", clicking an unsubscribe link, or changing preferences elsewhere).</p>
+    </div>
     <div class="wz-field">
-      <label class="wz-label">Opt-out (STOP) response</label>
-      <span class="wz-hint">What confirmation message do users receive after sending STOP?</span>
-      <textarea class="wz-textarea" id="wzOptOutDesc" placeholder="e.g. You have been unsubscribed and will no longer receive messages from us." style="min-height:80px" onfocus="focusWzField('optOutDescription')">${esc(wzData.optOutDescription)}</textarea>
-      <button class="help-link" type="button" onclick="openHelpDialog('optout')">What makes a good opt-out response?</button>
+      <label class="wz-label">Opt-out confirmation message</label>
+      <textarea class="wz-textarea" id="wzOptOutDesc" placeholder="Example: You've been unsubscribed and won't receive any more messages from us." style="min-height:80px" onfocus="focusWzField('optOutDescription')">${esc(wzData.optOutDescription)}</textarea>
+      <button class="field-footnote" type="button" onclick="openHelpDialog('optout')">What should this include?</button>
     </div>`;
 }
 
+const WZ_TRIGGER_CHIPS = ['User action (e.g. makes a purchase, signs up)','System update (e.g. order shipped, status changed)','Scheduled messages (e.g. reminders, campaigns)','Promotions or outreach (business-initiated)'];
+
 function renderWzMessaging() {
-  const rawTriggerOpts = getVerifQuestion('general','triggerDescription')?.suggestedAnswers || WZ_TRIGGER_FALLBACK;
-  const triggerOpts = rawTriggerOpts.includes('Other') ? rawTriggerOpts : [...rawTriggerOpts, 'Other'];
-  const checkSvg = `<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const triggerItemsHtml = triggerOpts.map(o => {
-    const checked = wzData.triggerDescription.includes(o);
-    return `<div class="wz-check-item${checked?' checked':''}" data-val="${esc(o)}" onclick="toggleTriggerCheck(this)">
-      <div class="wz-cb-box">${checked ? checkSvg : ''}</div>
-      <span class="wz-cb-text">${esc(o)}</span>
-    </div>`;
-  }).join('');
-  const otherChecked = wzData.triggerDescription.includes('Other');
+  const triggerChipsHtml = `<div class="wz-chips" id="wzTriggerChips">${WZ_TRIGGER_CHIPS.map(s => {
+    const used = wzData.triggerDescription.includes(s);
+    return `<button type="button" class="wz-chip${used ? ' used' : ''}" onclick="addTriggerChip(this,'${s.replace(/'/g,"&#39;")}')">${esc(s)}</button>`;
+  }).join('')}</div>`;
 
   const interactionChips = getVerifQuestion('general','interactionsDescription')?.suggestedAnswers || [];
   const chipsHtml = interactionChips.length
@@ -3307,28 +3332,26 @@ function renderWzMessaging() {
     : '';
 
   return `
-    <div class="wz-step-title">Messaging content</div>
-    <div class="wz-step-sub">Help Google understand your messaging patterns — when messages are sent and how users can interact with your agent.</div>
+    <div class="wz-step-title">Messaging triggers</div>
+    <div class="wz-step-sub">Describe when messages are sent and how users interact with your RCS Agent. This helps Google and mobile operators review your messaging use case.</div>
     <div class="wz-field">
-      <label class="wz-label">When does your business send messages to users?</label>
-      <div class="wz-check-group" id="wzTrigger">${triggerItemsHtml}</div>
-      <div id="wzTriggerOtherWrap" style="display:${otherChecked ? 'block' : 'none'};margin-top:10px">
-        <input class="wz-input" id="wzTriggerOther" type="text" placeholder="Describe when messages are sent…" value="${esc(wzData.triggerOther)}">
-      </div>
+      <label class="wz-label">When are messages sent to users?</label>
+      <span class="wz-hint">Describe the events or conditions that trigger messages to be sent. This helps carriers understand your messaging behavior.</span>
+      <textarea class="wz-textarea" id="wzTriggerDesc" placeholder="e.g. After a purchase, when an order ships, before an appointment, or during scheduled campaigns" onfocus="focusWzField('triggerDescription')" oninput="syncTriggerChips(this.value)">${esc(wzData.triggerDescription)}</textarea>
+      ${triggerChipsHtml}
     </div>
     <div class="wz-field">
-      <label class="wz-label">Describe what actions or events trigger messages</label>
-      <span class="wz-hint">Explain the specific situations that cause your agent to send a message.</span>
+      <label class="wz-label">What messages will users receive?</label>
+      <span class="wz-hint">Describe the main messages your agent sends and when they are sent. Focus on the most common interactions.</span>
       <textarea class="wz-textarea" id="wzInteractions" placeholder="e.g. A message is sent immediately after a flight booking is confirmed, and again 24 hours before departure…" onfocus="focusWzField('interactionsDescription')" oninput="syncInteractionChips(this.value)">${esc(wzData.interactionsDescription)}</textarea>
       ${chipsHtml}
-      <button class="help-link" type="button" onclick="openHelpDialog('messaging-triggers')">What should I include here?</button>
     </div>`;
 }
 
 function renderWzContact() {
   return `
     <div class="wz-step-title">Business contact person</div>
-    <div class="wz-step-sub">This person must be authorized to confirm the company's ownership of the agent and approve Sinch's right to manage it. This should be someone from the business that the agent represents. Their details may be verified by Google or local mobile operators.</div>
+    <div class="wz-step-sub">After you submit your RCS agent, this person will receive an email from Google to review the details and approve Sinch as the messaging provider.<br><br>They must be authorized to represent the business sending the messages (the brand shown in the agent), not the reseller or partner submitting the request. This person may also be contacted by local mobile operators to verify the information.</div>
     <div class="wz-field">
       <label class="wz-label">Contact full name</label>
       <input class="wz-input" id="wzName" type="text" placeholder="e.g. Naomi Sullivan" value="${esc(wzData.name)}" onfocus="focusWzField('name')">
@@ -3355,15 +3378,13 @@ function renderWzSummary() {
     <div class="wz-step-sub">Review your verification details before saving. Click a step in the progress bar above to make changes.</div>
     <div class="wz-summary-section">
       <div class="wz-summary-head">Consent</div>
-      <div class="wz-summary-row"><span class="wz-summary-key">Opt-in methods</span><span class="wz-summary-val">${join(wzData.optInDescription)}</span></div>
-      ${wzData.optInOther ? `<div class="wz-summary-row"><span class="wz-summary-key">Opt-in (other)</span><span class="wz-summary-val">${esc(wzData.optInOther)}</span></div>` : ''}
+      <div class="wz-summary-row"><span class="wz-summary-key">Opt-in methods</span><span class="wz-summary-val">${or(wzData.optInDescription)}</span></div>
       <div class="wz-summary-row"><span class="wz-summary-key">Screenshot/URL</span><span class="wz-summary-val">${wzData.screenshotMode === 'upload' && wzData.screenshotFileName ? esc(wzData.screenshotFileName) : or(wzData.screenshotUris)}</span></div>
       <div class="wz-summary-row"><span class="wz-summary-key">Opt-out response</span><span class="wz-summary-val">${or(wzData.optOutDescription)}</span></div>
     </div>
     <div class="wz-summary-section">
-      <div class="wz-summary-head">Messaging content</div>
-      <div class="wz-summary-row"><span class="wz-summary-key">Message triggers</span><span class="wz-summary-val">${join(wzData.triggerDescription)}</span></div>
-      ${wzData.triggerOther ? `<div class="wz-summary-row"><span class="wz-summary-key">Trigger (other)</span><span class="wz-summary-val">${esc(wzData.triggerOther)}</span></div>` : ''}
+      <div class="wz-summary-head">Messaging triggers</div>
+      <div class="wz-summary-row"><span class="wz-summary-key">Message triggers</span><span class="wz-summary-val">${or(wzData.triggerDescription)}</span></div>
       <div class="wz-summary-row"><span class="wz-summary-key">Interactions</span><span class="wz-summary-val">${or(wzData.interactionsDescription)}</span></div>
     </div>
     <div class="wz-summary-section">
@@ -3444,8 +3465,10 @@ const COUNTRY_META = {
 };
 
 /* ── Keys hidden entirely or shown only in summary ── */
-const HIDDEN_KEYS = new Set(['messagesVolume','callToActionScreenshotUrl','optInUserMessage']);
+const HIDDEN_KEYS = new Set(['messagesVolume','callToActionScreenshotUrl','optInUserMessage','verizonSmsUpgradeShortCode','verizonSmsUpgradeLongCode']);
 const SUMMARY_ONLY_KEYS = new Set(['verizonInitialMessageTypeModel','videoUris']);
+/* ── US phase2 fields not in any step (show in phase2 "Not in UI") ── */
+const US_PHASE2_EXTRA_KEYS = new Set(['optInBrandMessage','verizonRbmOptInDescription']);
 
 /* ── Step definitions for named form types ── */
 const STEP_DEFS = {
@@ -3460,7 +3483,7 @@ const STEP_DEFS = {
       subtitle:'This information is used by mobile operators to verify your business.',
       keys:['us__websiteUrl','us__phoneNumber'] },
     { title:'Business contact person',
-      subtitle:"This person must be authorized to confirm the company's ownership of the agent and approve Sinch's right to manage it. Their details may be verified by Google or local mobile operators.",
+      subtitle:"After you submit your RCS agent, this person will receive an email from Google to review the details and approve Sinch as the messaging provider. They must be authorized to represent the business sending the messages (the brand shown in the agent), not the reseller or partner submitting the request. This person may also be contacted by local mobile operators to verify the information.",
       keys:['us__contactFirstName','us__contactSurname','us__contactPosition','us__contactPhoneNumber','us__contactEmail'] },
     { title:'Summary', isSummary:true },
   ],
@@ -3473,7 +3496,20 @@ const STEP_DEFS = {
       keys:['us__sampleMessages'] },
     { title:'Consent',
       subtitle:'Explain how people sign up to receive your messages and how they can manage their preferences.',
-      keys:['us__callToActionDescription','us__optInKeyword','us__optInBrandMessage','us__optInConfirmationResponse','us__helpMessageResponse','us__stopMessageResponse','us__verizonSmsOptInDescription','us__verizonRbmOptInDescription'] },
+      // us__verizonRbmOptInDescription intentionally excluded: it duplicates both
+      // general.questions.optInDescription (opt-in description) and
+      // general.questions.screenshotUris (consent screenshot). Covered by the Verification
+      // Details wizard — no need to surface it here as well.
+      keys:['us__callToActionDescription','us__optInKeyword','us__optInConfirmationResponse','us__helpKeyword','us__helpMessageResponse','us__stopKeyword','us__stopMessageResponse','us__verizonSmsOptInDescription'] },
+    { title:'Summary', isSummary:true },
+  ],
+  GB_country: [
+    { title:'About your business',
+      subtitle:'Mobile operators in United Kingdom need additional details about the business using this RCS Agent.',
+      keys:['gb__companyLegalName','gb__brandIndustry','gb__companyRegistrationNumber','gb__fullCompanyAddress'] },
+    { title:'Message volume',
+      subtitle:'Tell us how often your agent sends messages and how long the campaign will run.',
+      keys:['gb__messagesFrequency','gb__campaignLength'] },
     { title:'Summary', isSummary:true },
   ],
 };
@@ -3484,22 +3520,25 @@ const FIELD_LABELS = {
   contactPosition:'Contact position', contactPhoneNumber:'Contact phone', contactEmail:'Contact email',
   name:'Contact first name', email:'Contact email', title:'Contact position', website:'Company website',
   optInDescription:'Contacts will opt-in primarily via', optOutDescription:'Opt-out (STOP) confirmation response',
-  screenshotUris:'Show how users agree to receive messages', stopMessageResponse:'Opt-out (STOP) confirmation response',
-  helpMessageResponse:'HELP keyword response', optInUserMessage:'User opt-in keyword or action',
-  optInConfirmationResponse:'Opt in confirmation response', optInBrandMessage:'First message your RCS Agent sends to the user',
+  screenshotUris:'Show how users agree to receive messages', stopMessageResponse:'Opt-out confirmation message',
+  helpMessageResponse:'Help message', optInUserMessage:'User opt-in keyword or action',
+  optInConfirmationResponse:'Opt-in confirmation message', optInBrandMessage:'First message your RCS Agent sends to the user',
   interactionsDescription:'When does your business send messages to users through the agent?',
   triggerDescription:'Message triggers', videoUris:'Add a link to a video showing the agent in use',
-  useCaseDescription:'How will you use your RCS agent?', smsCampaign:'Will you use SMS as a fallback?',
+  useCaseDescription:'How do you plan to use RCS Business Messaging?', smsCampaign:'Will you use SMS as a fallback?',
   verizonSmsUpgradeShortCode:'SMS short code being upgraded', verizonSmsUpgradeLongCode:'SMS long code being upgraded',
   verizonMonthlyMessagesVolume:'Estimated monthly message volume',
   verizonSmsOptInDescription:'Verizon SMS subscriber opt-in description',
   verizonRbmOptInDescription:'Verizon RBM opt-in description',
   sampleMessages:'Sample message', callToActionDescription:'Call-to-action text shown before signup', callToActionScreenshotUrl:'Call to action screenshot URL',
-  companyLegalName:'Legal company name', brandName:'Business display name', brandIndustry:'Business category',
+  companyLegalName:'Legal business name', brandName:'Business display name', brandIndustry:'Business category',
   legalForm:'Legal form', taxIdCountry:'Legal country of registration', ein:'Tax ID (EIN)', taxId:'Tax ID',
   additionalIdType:'Additional ID type', additionalIdNumber:'Additional ID number',
   stockExchange:'Stock Exchange', stockSymbol:'Stock Symbol', websiteUrl:'Website URL',
   phoneNumber:'Phone number', fullCompanyAddress:'Registered business address',
+  companyRegistrationNumber:'Registration number',
+  messagesFrequency:'How often do you expect to send messages?',
+  campaignLength:'What will be the length of the RCS campaign?',
 };
 
 /* ── Field rendering config ── */
@@ -3521,6 +3560,8 @@ const FIELD_CONFIG = {
   legalForm:{type:'select',options:['LLC','Corporation','S-Corp','Sole Proprietorship','Partnership','Non-profit','Government','Other']},
   brandIndustry:{type:'select',options:['Automotive','Banking & Finance','Education','Entertainment','Food & Beverage','Government','Healthcare','Insurance','Logistics & Delivery','Retail','Technology','Telecommunications','Travel & Hospitality','Utilities','Other']},
   additionalIdType:{type:'select'},
+  messagesFrequency:{type:'select',options:[]},
+  campaignLength:{type:'select',options:[]},
 };
 
 const SMS_CAMPAIGN_TYPES = [
@@ -3531,29 +3572,34 @@ const SMS_CAMPAIGN_TYPES = [
 
 /* Fields injected into steps that have no backing API question */
 const SYNTHETIC_FIELDS = {
-  'us__optInKeyword': { sectionKey:'us', qKey:'optInKeyword', q:{ question:null, suggestedAnswers:[] } },
+  'us__optInKeyword':  { sectionKey:'us', qKey:'optInKeyword',  q:{ question:null, suggestedAnswers:[] } },
+  'us__helpKeyword':   { sectionKey:'us', qKey:'helpKeyword',   q:{ question:null, suggestedAnswers:[] } },
+  'us__stopKeyword':   { sectionKey:'us', qKey:'stopKeyword',   q:{ question:null, suggestedAnswers:[] } },
 };
 
 /* Section headers inserted before a specific qKey */
 const SECTION_HEADERS = {
-  smsCampaign:      { title:'SMS fallback', subtitle:'Let us know if you plan to use SMS as a fallback. This helps with review and verification.' },
-  optInBrandMessage: { title:'Keyword response messages', subtitle:'Please provide the messages sent in response to keywords.' },
+  smsCampaign:            { title:'SMS fallback', subtitle:'Let us know if you plan to use SMS as a fallback. This helps with review and verification.' },
+  optInKeyword:           { title:'Compliance', subtitle:'Define the messages your agent sends to meet carrier and regulatory requirements. These responses confirm actions like opting out and may be triggered by keywords (for example "STOP") or other unsubscribe methods.' },
 };
 
 const RADIO_KEYS    = new Set(['smsCampaign','verizonInitialMessageTypeModel']);
-const CHECKBOX_KEYS = new Set(['optInDescription','triggerDescription']);
-const TEXTAREA_KEYS = new Set(['useCaseDescription','callToActionDescription','sampleMessages','optInUserMessage','optInConfirmationResponse','optInBrandMessage','helpMessageResponse','stopMessageResponse','interactionsDescription','videoUris','verizonSmsOptInDescription','optOutDescription']);
+const CHECKBOX_KEYS = new Set([]);
+const TEXTAREA_KEYS = new Set(['useCaseDescription','callToActionDescription','sampleMessages','optInUserMessage','optInConfirmationResponse','optInBrandMessage','helpMessageResponse','stopMessageResponse','triggerDescription','interactionsDescription','videoUris','verizonSmsOptInDescription','optOutDescription','optInDescription']);
 const FIELD_SUBHEADING_KEYS = new Set(['interactionsDescription','screenshotUris']);
 const TEXTAREA_HINTS = {
-  useCaseDescription:       'Describe the purpose of your RCS messages. For example: order updates, promotions, appointment reminders, customer support, or authentication.',
+  useCaseDescription:       'Describe what messages you plan to send and when they are used. For example: order updates, appointment reminders, customer support, or promotions.',
+  sampleMessages:           'Write a realistic message your agent would send. Include what it is about, when it is sent, and what the user can do next.',
   callToActionDescription:  'Provide the exact text shown to users before they sign up to receive messages. This must include what they\'ll receive and required disclosures.',
 };
 const TEXTAREA_EXAMPLES = {
+  useCaseDescription:       'e.g. We send order updates after purchase, delivery notifications, appointment reminders, and customer support messages',
+  sampleMessages:           'e.g. Your order #1042 has shipped and will arrive by Friday. Track your delivery at acme.com/track',
   callToActionDescription: 'Example: Sign up to receive booking updates and reminders from us. Message frequency varies. Message & data rates may apply.',
   optInBrandMessage:       'Example: Welcome to ACME! Get 10% off your first order.',
-  optInConfirmationResponse: 'Example: You\'re subscribed to ACME alerts. Msg&data rates may apply. Text STOP to opt out.',
-  helpMessageResponse:     'Example: Need help? Contact our support team at support@example.com or visit [yourwebsite.com/help]. Msg&Data rates may apply.',
-  stopMessageResponse:     'Example: You have been unsubscribed and will no longer receive messages from us.',
+  optInConfirmationResponse: 'Example: You\'re now subscribed to ACME updates. Msg & data rates may apply. Reply STOP to unsubscribe.',
+  helpMessageResponse:     'Example: For support, visit acme.com/help or email support@acme.com. Msg & data rates may apply.',
+  stopMessageResponse:     'Example: You\'ve been unsubscribed and won\'t receive any more messages from us.',
 };
 /* qKey → help dialog topic; renders a "View examples" link below the textarea */
 const TEXTAREA_HELP_LINKS = {
@@ -3561,6 +3607,7 @@ const TEXTAREA_HELP_LINKS = {
   optInBrandMessage:         'optin-brand-message',
   optInConfirmationResponse: 'optin-confirmation',
   helpMessageResponse:       'help-keyword-response',
+  stopMessageResponse:       'optout',
 };
 
 const PHONE_PREFIXES = [
@@ -3769,7 +3816,7 @@ function buildCountryForms(code, data) {
       rawQuestionData.set(`us__${qKey}`, data.us.questions[qKey]); // cache all, including embedded
       if (HIDDEN_KEYS.has(qKey)) continue;
       const entry = { sectionKey: 'us', qKey, q: data.us.questions[qKey] };
-      if (STEP_DEFS.US_phase2.flatMap(s => s.keys || []).includes(`us__${qKey}`))
+      if (STEP_DEFS.US_phase2.flatMap(s => s.keys || []).includes(`us__${qKey}`) || US_PHASE2_EXTRA_KEYS.has(qKey))
         phase2.push(entry);
       else if (!SUMMARY_ONLY_KEYS.has(qKey))
         phase1.push(entry);
@@ -3812,7 +3859,7 @@ function getFormInfo(formId) {
   const card = countryCards.get(code);
   const form = card?.forms.find(f => f.id === formId);
   if (!form) return null;
-  const stepDefs = [
+  const stepDefs = STEP_DEFS[formId] || [
     { title: 'Operator details',
       subtitle: `Country-specific questions for your ${COUNTRY_META[code]?.name || code} RCS agent registration.`,
       keys: form.questions.map(q => `${q.sectionKey}__${q.qKey}`) },
@@ -3863,6 +3910,85 @@ function toggleCountryReqDebug() {
   btn.querySelector('.debug-label').textContent = countryReqDebugMode ? 'API keys ON' : 'API keys';
   document.getElementById('countryReqSide').classList.toggle('visible', countryReqDebugMode);
   renderActiveStep(); // re-render fields to show/hide API key labels
+}
+
+function showUnusedFields() {
+  // Collect all keys present in step definitions (excluding synthetic fields)
+  const usedKeys = new Set(activeStepDefs.flatMap(s => s.keys || []));
+  // Find API questions not covered by any step key
+  const unused = activeFormQuestions.filter(({ sectionKey, qKey }) => {
+    return !usedKeys.has(`${sectionKey}__${qKey}`);
+  });
+  // Force side panel open
+  if (!countryReqDebugMode) {
+    countryReqDebugMode = true;
+    const dbgBtn = document.getElementById('countryReqDebugBtn');
+    if (dbgBtn) { dbgBtn.classList.add('active'); dbgBtn.querySelector('.debug-label').textContent = 'API keys ON'; }
+    renderActiveStep();
+  }
+  document.getElementById('countryReqSide').classList.add('visible');
+  const btn = document.getElementById('countryReqUnusedBtn');
+  btn.classList.add('active');
+  if (!unused.length) {
+    document.getElementById('countryReqSideContent').innerHTML = `<div class="side-panel-inner"><p style="font-size:13px;color:var(--text2)">All API fields for this form are mapped to UI fields.</p></div>`;
+    return;
+  }
+  const rows = unused.map(({ sectionKey, qKey, q }) => {
+    const label = FIELD_LABELS[qKey] || q.question?.trim() || qKey;
+    const apiKey = `${sectionKey}.questions.${qKey}`;
+    const note = FIELD_ANNOTATIONS[qKey];
+    return `<div class="side-unused-row">
+      <div class="side-unused-key">${esc(apiKey)}</div>
+      <div class="side-unused-label">${esc(label)}</div>
+      ${note ? `<div class="side-unused-note">${note}</div>` : ''}
+    </div>`;
+  }).join('');
+  document.getElementById('countryReqSideContent').innerHTML = `<div class="side-panel-inner">
+    <div class="side-annotation">
+      <div class="side-annotation-title">Not in UI — ${unused.length} field${unused.length !== 1 ? 's' : ''}</div>
+      These API fields exist for this form but are not included in any step.
+    </div>
+    <div class="side-unused-list">${rows}</div>
+  </div>`;
+}
+
+function showWzUnusedFields() {
+  // Collect all API question keys used in the wizard steps
+  const usedIds = new Set(Object.keys(sidePanelFields));
+  // All verif questions across all sections
+  const allVerifQs = [];
+  for (const [id, { sectionKey, qKey, q }] of Object.entries(sidePanelFields)) { /* already in use */ }
+  // Walk rawQuestionData for general/* keys
+  const unused = [];
+  rawQuestionData.forEach(({ sectionKey, qKey, q }, id) => {
+    if (sectionKey !== 'general') return;
+    if (!usedIds.has(id)) unused.push({ sectionKey, qKey, q });
+  });
+  if (!wzDebugOpen) toggleWzDebug();
+  const btn = document.getElementById('wzUnusedBtn');
+  btn.classList.add('active');
+  const content = document.getElementById('wzSideContent');
+  if (!unused.length) {
+    content.innerHTML = `<div class="side-panel-inner"><p style="font-size:13px;color:var(--text2)">All API fields for this form are mapped to UI fields.</p></div>`;
+    return;
+  }
+  const rows = unused.map(({ sectionKey, qKey, q }) => {
+    const label = FIELD_LABELS[qKey] || q.question?.trim() || qKey;
+    const apiKey = `${sectionKey}.questions.${qKey}`;
+    const note = FIELD_ANNOTATIONS[qKey];
+    return `<div class="side-unused-row">
+      <div class="side-unused-key">${esc(apiKey)}</div>
+      <div class="side-unused-label">${esc(label)}</div>
+      ${note ? `<div class="side-unused-note">${note}</div>` : ''}
+    </div>`;
+  }).join('');
+  content.innerHTML = `<div class="side-panel-inner">
+    <div class="side-annotation">
+      <div class="side-annotation-title">Not in UI — ${unused.length} field${unused.length !== 1 ? 's' : ''}</div>
+      These API fields exist but are not included in any wizard step.
+    </div>
+    <div class="side-unused-list">${rows}</div>
+  </div>`;
 }
 
 /* ── Step helpers ── */
@@ -3982,7 +4108,13 @@ function saveCountryReqAndClose() {
 }
 
 /* ── Side panel ── */
+function clearUnusedBtn() {
+  const btn = document.getElementById('countryReqUnusedBtn');
+  if (btn) btn.classList.remove('active');
+}
+
 function focusField(id) {
+  clearUnusedBtn();
   const def = sidePanelFields[id];
   if (!def || !countryReqDebugMode) return;
   const { sectionKey, qKey, q } = def;
@@ -4025,7 +4157,7 @@ function focusOptInKeyword() {
   document.getElementById('countryReqSideContent').innerHTML = `<div class="side-panel-inner">
     <div class="side-annotation">
       <div class="side-annotation-title">Annotations</div>
-      This field is not connected to an API question. It is a UI helper to collect the opt-in keyword for your records.
+      This field has no confirmed API connection yet. It may be used for testing purposes — to be decided.
     </div>
   </div>`;
 }
@@ -4094,17 +4226,40 @@ function applySuggestion(id, text) {
 }
 
 /* ── Field rendering ── */
+/* Keyword → paired response key for visual grouping */
+const KEYWORD_PAIRS = {
+  optInKeyword: 'optInConfirmationResponse',
+  helpKeyword:  'helpMessageResponse',
+  stopKeyword:  'stopMessageResponse',
+};
+const KEYWORD_BADGES = {
+  optInKeyword: 'START',
+  helpKeyword:  'HELP',
+  stopKeyword:  'STOP',
+};
+
 function renderFields(questions) {
   if (!questions?.length) return `<p style="color:var(--text3);font-size:14px">No fields for this step.</p>`;
-  return questions.map(({ sectionKey, qKey, q }) => {
+  const out = [];
+  const skip = new Set();
+  questions.forEach(({ sectionKey, qKey, q }, i) => {
+    if (skip.has(qKey)) return;
     const header = SECTION_HEADERS[qKey]
       ? `<div class="field-section-header">
           <div class="field-section-header-title">${esc(SECTION_HEADERS[qKey].title)}</div>
           <div class="field-section-header-sub">${esc(SECTION_HEADERS[qKey].subtitle)}</div>
         </div>`
       : '';
-    return header + renderField(sectionKey, qKey, q);
-  }).join('');
+    const pairedKey = KEYWORD_PAIRS[qKey];
+    const nextQ = questions[i + 1];
+    if (pairedKey && nextQ?.qKey === pairedKey) {
+      skip.add(pairedKey);
+      out.push(header + `<div class="kw-pair">${renderField(sectionKey, qKey, q)}${renderField(nextQ.sectionKey, nextQ.qKey, nextQ.q)}</div>`);
+    } else {
+      out.push(header + renderField(sectionKey, qKey, q));
+    }
+  });
+  return out.join('');
 }
 
 function renderField(sectionKey, qKey, q) {
@@ -4238,7 +4393,27 @@ function renderField(sectionKey, qKey, q) {
       <label class="form-label" for="fi_${id}">Opt-in keyword</label>
       <input type="text" id="fi_${id}" class="f-input" placeholder="e.g. START"
         value="${esc(val)}" oninput="answers['${id}']=this.value" onfocus="focusOptInKeyword()">
-      <p class="field-hint">The keyword users send to opt in and start the conversation (e.g. START).</p>
+      <p class="field-hint">Users text this to subscribe. Carriers also use it to verify your setup.</p>
+    </div>`;
+  }
+
+  if (qKey === 'helpKeyword') {
+    delete sidePanelFields[id];
+    const val = answers[id] || '';
+    return `<div class="form-field" id="fi_wrap_${id}">
+      <label class="form-label" for="fi_${id}">Help keyword</label>
+      <input type="text" id="fi_${id}" class="f-input" placeholder="e.g. HELP"
+        value="${esc(val)}" oninput="answers['${id}']=this.value" onfocus="focusOptInKeyword()">
+    </div>`;
+  }
+
+  if (qKey === 'stopKeyword') {
+    delete sidePanelFields[id];
+    const val = answers[id] || '';
+    return `<div class="form-field" id="fi_wrap_${id}">
+      <label class="form-label" for="fi_${id}">Opt-out keyword</label>
+      <input type="text" id="fi_${id}" class="f-input" placeholder="e.g. STOP"
+        value="${esc(val)}" oninput="answers['${id}']=this.value" onfocus="focusOptInKeyword()">
     </div>`;
   }
 
@@ -4298,7 +4473,8 @@ function renderField(sectionKey, qKey, q) {
   if (cfg?.type === 'address') {
     inputHtml = renderAddressField(id, val);
   } else if (cfg?.type === 'select') {
-    inputHtml = renderSelect(id, cfg.options, val);
+    const selectOpts = q.suggestedAnswers?.length ? q.suggestedAnswers : (cfg.options || []);
+    inputHtml = renderSelect(id, selectOpts, val);
   } else if (cfg?.type === 'country') {
     inputHtml = renderCountrySelect(id, val);
   } else if (cfg?.type === 'phone') {
@@ -4322,7 +4498,7 @@ function renderField(sectionKey, qKey, q) {
           return `<button type="button" class="sugg-tag${active?' active':''}" onclick="toggleSuggTag('${id}','${safe}',this)">${esc(s)}</button>`;
         }).join('')}</div>` : '';
     const viewExLink = TEXTAREA_HELP_LINKS[qKey]
-      ? `<button class="field-footnote" type="button" onclick="openHelpDialog('${TEXTAREA_HELP_LINKS[qKey]}')">View examples</button>`
+      ? `<button class="field-footnote" type="button" onclick="openHelpDialog('${TEXTAREA_HELP_LINKS[qKey]}')">What should this include?</button>`
       : '';
     inputHtml = `${hintHtml}<textarea id="fi_${id}" class="f-textarea"
       placeholder="${esc(TEXTAREA_EXAMPLES[qKey] || 'Enter your answer…')}"
@@ -4364,7 +4540,8 @@ function renderFieldStandard(sectionKey, qKey, q, id) {
   if (cfg?.type === 'address') {
     inputHtml = renderAddressField(id, val);
   } else if (cfg?.type === 'select') {
-    inputHtml = renderSelect(id, cfg.options, val);
+    const selectOpts = q.suggestedAnswers?.length ? q.suggestedAnswers : (cfg.options || []);
+    inputHtml = renderSelect(id, selectOpts, val);
   } else if (cfg?.type === 'country') {
     inputHtml = renderCountrySelect(id, val);
   } else if (cfg?.type === 'phone') {
@@ -4388,7 +4565,7 @@ function renderFieldStandard(sectionKey, qKey, q, id) {
           return `<button type="button" class="sugg-tag${active?' active':''}" onclick="toggleSuggTag('${id}','${safe}',this)">${esc(s)}</button>`;
         }).join('')}</div>` : '';
     const viewExLink = TEXTAREA_HELP_LINKS[qKey]
-      ? `<button class="field-footnote" type="button" onclick="openHelpDialog('${TEXTAREA_HELP_LINKS[qKey]}')">View examples</button>`
+      ? `<button class="field-footnote" type="button" onclick="openHelpDialog('${TEXTAREA_HELP_LINKS[qKey]}')">What should this include?</button>`
       : '';
     inputHtml = `${hintHtml}<textarea id="fi_${id}" class="f-textarea"
       placeholder="${esc(TEXTAREA_EXAMPLES[qKey] || 'Enter your answer…')}"
@@ -4464,8 +4641,11 @@ const SUGG_NOT_IN_UI = new Set(['optOutDescription','stopMessageResponse']);
 
 /* Annotations shown in the debug side panel for specific fields */
 const FIELD_ANNOTATIONS = {
+  optInBrandMessage:   'Not shown in this form — confirmed duplicate of <strong>us.questions.optInConfirmationResponse</strong> (conversation with Laura, 14 March).',
+  triggerDescription:  'Suggested answers from the API are not used. Chips are hardcoded as <strong>WZ_TRIGGER_CHIPS</strong> (User action, System update, Scheduled messages, Promotions or outreach).',
+  optInDescription:    'Suggested answers from the API are not used. Chips are hardcoded as <strong>WZ_OPTIN_CHIPS</strong> to reflect explicit opt-in mechanisms only (e.g. opt-in checkbox, QR code scan). API suggested answers include purchase and account creation, which do not constitute explicit consent on their own.',
   verizonSmsOptInDescription: 'Only shown when the RCS agent is upgrading an existing SMS campaign (i.e. "Does your RCS agent upgrade an existing SMS campaign?" = Yes).',
-  verizonRbmOptInDescription: 'This field serves the same purpose as <strong>general.questions.optInDescription</strong> but is specific to Verizon\'s RBM requirements.',
+  verizonRbmOptInDescription: 'Not shown in this form — already covered in the Verification Details wizard by <strong>general.questions.optInDescription</strong>.',
   stopMessageResponse: 'This field overlaps with <strong>general.questions.optOutDescription</strong> in the Verification Details wizard.',
   optOutDescription:   'This field overlaps with <strong>us.questions.stopMessageResponse</strong> in the US Use case setup form.',
 };
@@ -4765,8 +4945,7 @@ function renderVerificationCard() {
     </div>
     <div class="detail-body">
       <div class="detail-section-label" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px;margin-top:4px">Consent</div>
-      <div class="detail-row"><span class="detail-key">Opt-in methods</span><span class="detail-val">${join(v.optInDescription)}</span></div>
-      ${v.optInOther ? `<div class="detail-row"><span class="detail-key">Opt-in (other)</span><span class="detail-val">${esc(v.optInOther)}</span></div>` : ''}
+      <div class="detail-row"><span class="detail-key">Opt-in methods</span><span class="detail-val">${or(v.optInDescription)}</span></div>
       <div class="detail-row"><span class="detail-key">Screenshot / URL</span><span class="detail-val">${
         v.screenshotMode === 'upload' && v.screenshotFileName
           ? `<span style="color:var(--text2)">${esc(v.screenshotFileName)}</span>`
@@ -4776,8 +4955,8 @@ function renderVerificationCard() {
       }</span></div>
       <div class="detail-row"><span class="detail-key">Opt-out response</span><span class="detail-val" style="white-space:pre-wrap">${or(v.optOutDescription)}</span></div>
 
-      <div class="detail-section-label" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px;margin-top:20px">Messaging content</div>
-      <div class="detail-row"><span class="detail-key">Message triggers</span><span class="detail-val">${join(v.triggerDescription)}</span></div>
+      <div class="detail-section-label" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px;margin-top:20px">Messaging triggers</div>
+      <div class="detail-row"><span class="detail-key">Message triggers</span><span class="detail-val" style="white-space:pre-wrap">${or(v.triggerDescription)}</span></div>
       <div class="detail-row"><span class="detail-key">Trigger description</span><span class="detail-val" style="white-space:pre-wrap">${or(v.interactionsDescription)}</span></div>
 
       <div class="detail-section-label" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px;margin-top:20px">Business contact</div>
