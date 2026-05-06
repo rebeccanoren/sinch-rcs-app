@@ -957,6 +957,37 @@ body {
 }
 .wz-chip:hover { background: var(--blue-light); border-color: #93c5fd; color: var(--blue); }
 .wz-chip.used { background: var(--blue-light); border-color: #93c5fd; color: var(--blue); }
+/* ── Visual picker cards ── */
+.wz-vp-group { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.wz-vp-card {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 12px; padding: 24px;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+  cursor: pointer; user-select: none;
+  transition: border-color 0.12s, background 0.12s;
+}
+.wz-vp-card:hover { border-color: var(--border2); }
+.wz-vp-card.checked { background: #e0f1ff; border-color: #8ac4ff; }
+.wz-vp-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.wz-vp-title { font-size: 16px; font-weight: 500; color: var(--text); line-height: 1.5; letter-spacing: -0.32px; }
+.wz-vp-desc { font-size: 14px; color: var(--text); line-height: 1.57; }
+.wz-vp-cb {
+  width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0;
+  border: 1.5px solid var(--border2); background: #fff;
+  display: flex; align-items: center; justify-content: center; margin-top: 3px;
+  transition: background 0.1s, border-color 0.1s;
+}
+.wz-vp-card.checked .wz-vp-cb { background: var(--blue); border-color: var(--blue); }
+.wz-vp-other-input {
+  width: 100%; min-height: 80px; resize: vertical;
+  padding: 8px 12px; font-family: inherit; font-size: 14px;
+  color: var(--text); background: #fff;
+  border: 1px solid var(--border2); border-radius: 8px;
+  outline: none; line-height: 1.5;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+.wz-vp-other-input::placeholder { color: var(--text3); }
+.wz-vp-other-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,115,232,0.12); }
 .wz-input {
   width: 100%; padding: 10px 12px;
   border: 1px solid var(--border2); border-radius: var(--radius);
@@ -1101,6 +1132,25 @@ body {
   font-family: inherit;
 }
 .side-suggestion:hover { border-color: #93c5fd; color: var(--blue); background: var(--blue-light); }
+.side-preset-group { margin-bottom: 14px; }
+.side-preset-uc {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text2); padding: 4px 8px; margin-bottom: 6px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 4px;
+  display: inline-block;
+}
+.side-preset-item {
+  padding: 8px 10px; margin-bottom: 6px;
+  border: 1px solid var(--border2); border-radius: var(--radius);
+  background: var(--surface);
+}
+.side-preset-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 3px; line-height: 1.4; }
+.side-preset-body { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.side-preset-note {
+  margin-top: 4px; padding: 8px 10px;
+  font-size: 11.5px; color: var(--text2); line-height: 1.5;
+  background: var(--blue-light); border: 1px solid #bfdbfe; border-radius: 6px;
+}
 .wz-uc-select {
   font-family: inherit; font-size: 12px; font-weight: 500; color: var(--text2);
   background: var(--surface2); border: 1px solid var(--border2);
@@ -2581,6 +2631,8 @@ const wzData = {
   screenshotMode:'upload', screenshotUris:'', screenshotFileName:'',
   optOutDescription:'',
   triggerDescription:'', interactionsDescription:'',
+  triggerOptions:[], triggerOther:'',
+  interactionsOptions:[], interactionsOther:'',
   name:'', email:'', title:'', website:'',
 };
 let wzStep = 0;
@@ -2626,6 +2678,29 @@ function resetWzSidePanel() {
   }
 }
 
+function renderMessagingPresetReference(fieldId) {
+  const copyKey = fieldId === 'triggerDescription' ? 'trigger' : 'interactions';
+  const ucLabels = { PROMOTIONAL: 'Promotional', TRANSACTIONAL: 'Transactional', OTP: 'OTP' };
+  const groups = {};
+  MESSAGING_PRESETS.forEach(p => {
+    (groups[p.useCase] = groups[p.useCase] || []).push(p);
+  });
+  let html = `<div class="side-suggestions-label" style="margin-top:18px">Options shown in UI (by use case)</div>`;
+  ['PROMOTIONAL','TRANSACTIONAL','OTP'].forEach(uc => {
+    const items = groups[uc];
+    if (!items?.length) return;
+    html += `<div class="side-preset-group"><div class="side-preset-uc">${esc(ucLabels[uc])}</div>`;
+    items.forEach(p => {
+      html += `<div class="side-preset-item">
+        <div class="side-preset-body">${esc(p[copyKey])}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  html += `<div class="side-preset-note">Multi-use agents include both <strong>Promotional</strong> and <strong>Transactional</strong> options.</div>`;
+  return html;
+}
+
 function focusWzField(fieldId) {
   if (!wzDebugOpen) return;
   const fields = WZ_API_FIELDS[wzStep] || [];
@@ -2648,12 +2723,25 @@ function focusWzField(fieldId) {
     <div class="side-api-question">${esc(questionText)}</div>`;
   }
 
+  const isMessagingField = fieldId === 'triggerDescription' || fieldId === 'interactionsDescription';
+
   if (q?.suggestedAnswers?.length) {
-    html += `<div class="side-suggestions-label">Suggested answers</div>`;
+    html += `<div class="side-suggestions-label">Suggested answers (from API)</div>`;
     q.suggestedAnswers.forEach(s => {
       const safe = s.replace(/'/g, '&#39;').replace(/"/g, '&quot;');
       html += `<button class="side-suggestion" onclick="applyWzSuggestion('${esc(fieldId)}','${safe}')">${esc(s)}</button>`;
     });
+  }
+
+  if (isMessagingField && FIELD_ANNOTATIONS[fieldId]) {
+    html += `<div class="side-annotation">
+      <div class="side-annotation-title">Annotations</div>
+      ${FIELD_ANNOTATIONS[fieldId]}
+    </div>`;
+  }
+
+  if (isMessagingField) {
+    html += renderMessagingPresetReference(fieldId);
   }
 
   if (SUGG_NOT_IN_UI.has(fieldId) && q?.suggestedAnswers?.length) {
@@ -2663,7 +2751,7 @@ function focusWzField(fieldId) {
     </div>`;
   }
 
-  if (FIELD_ANNOTATIONS[fieldId]) {
+  if (!isMessagingField && FIELD_ANNOTATIONS[fieldId]) {
     html += `<div class="side-annotation">
       <div class="side-annotation-title">Annotations</div>
       ${FIELD_ANNOTATIONS[fieldId]}
@@ -2728,11 +2816,11 @@ function applyWzSuggestion(fieldId, text) {
     return;
   }
   if (fieldId === 'triggerDescription') {
-    addTriggerChip(null, text);
+    toggleVpCardByValue('wzTriggerVp', text, fieldId);
     return;
   }
   if (fieldId === 'interactionsDescription') {
-    addInteractionChip(null, text);
+    toggleVpCardByValue('wzInteractionsVp', text, fieldId);
     return;
   }
   const elMap = {
@@ -2817,8 +2905,14 @@ function saveWzStep() {
     wzData.screenshotUris = val('wzScreenshotUrl');
     wzData.optOutDescription = val('wzOptOutDesc');
   } else if (wzStep === 1) {
-    wzData.triggerDescription = val('wzTriggerDesc');
-    wzData.interactionsDescription = val('wzInteractions');
+    const trig = collectVp('wzTriggerVp');
+    wzData.triggerOptions = trig.options;
+    wzData.triggerOther = trig.other;
+    wzData.triggerDescription = [...trig.options, trig.other].filter(Boolean).join(', ');
+    const inter = collectVp('wzInteractionsVp');
+    wzData.interactionsOptions = inter.options;
+    wzData.interactionsOther = inter.other;
+    wzData.interactionsDescription = [...inter.options, inter.other].filter(Boolean).join(', ');
   } else if (wzStep === 2) {
     wzData.name = val('wzName');
     wzData.email = val('wzEmail');
@@ -3315,36 +3409,149 @@ function renderWzConsent() {
     </div>`;
 }
 
-const WZ_TRIGGER_CHIPS = ['User action (e.g. makes a purchase, signs up)','System update (e.g. order shipped, status changed)','Scheduled messages (e.g. reminders, campaigns)','Promotions or outreach (business-initiated)'];
+const MESSAGING_PRESETS = [
+  { title: 'Products, Services & New Arrivals', useCase: 'PROMOTIONAL',
+    trigger: 'When campaigns start, new products are released, or special offers become available',
+    interactions: 'Announcements about new products, discounts, and ongoing campaigns' },
+  { title: 'Abandoned Cart Reminders', useCase: 'PROMOTIONAL',
+    trigger: 'When a user leaves items in their cart without completing checkout',
+    interactions: 'Reminders encouraging users to return and complete their purchase' },
+  { title: 'Scheduled Appointments/Events', useCase: 'TRANSACTIONAL',
+    trigger: 'Before a scheduled appointment or event to remind the user',
+    interactions: 'Reminders with details about upcoming appointments or events' },
+  { title: 'Payment Alerts & Updates', useCase: 'TRANSACTIONAL',
+    trigger: 'After a payment is completed or fails, and before a payment is due',
+    interactions: 'Updates on successful or failed payments, and reminders about upcoming payments' },
+  { title: 'Account Activity Notifications', useCase: 'TRANSACTIONAL',
+    trigger: 'When account details change, such as password or contact information updates',
+    interactions: 'Notifications about important account changes, such as password or contact updates' },
+  { title: 'One-Time Passwords (OTPs)', useCase: 'OTP',
+    trigger: 'During login or password reset to verify the user’s identity',
+    interactions: 'One-time codes used to confirm the user’s identity' },
+  { title: 'Security & Fraud Alerts', useCase: 'TRANSACTIONAL',
+    trigger: 'When suspicious activity is detected on the user’s account',
+    interactions: 'Alerts about suspicious activity with guidance to secure the account' },
+  { title: 'Customer Satisfaction Surveys', useCase: 'TRANSACTIONAL',
+    trigger: 'After interactions like purchases or support cases to request feedback',
+    interactions: 'Requests to rate or review an experience after a purchase or support interaction' },
+  { title: 'Two-Way Customer Support', useCase: 'TRANSACTIONAL',
+    trigger: 'After a user initiates a support request',
+    interactions: 'Responses to support inquiries, including the ability to continue the conversation' },
+];
+
+function getMessagingPresets() {
+  const uc = (document.getElementById('wzUseCaseSelect')?.value || agent.useCase || '').toUpperCase();
+  const allowed = uc === 'MULTIUSE' ? ['PROMOTIONAL', 'TRANSACTIONAL'] : [uc];
+  const filtered = MESSAGING_PRESETS.filter(p => allowed.includes(p.useCase));
+  return filtered.length ? filtered : MESSAGING_PRESETS;
+}
+
+function renderVisualPicker(groupId, items, selected, otherText, focusFieldId, otherPlaceholder, otherDesc = 'Describe another event or condition') {
+  const cards = items.map(item => {
+    const isChecked = selected.includes(item.title);
+    return `
+      <div class="wz-vp-card${isChecked ? ' checked' : ''}" data-val="${esc(item.title)}" onclick="toggleVpCard(this, '${focusFieldId}')">
+        <div class="wz-vp-content">
+          ${item.desc ? `<div class="wz-vp-desc">${esc(item.desc)}</div>` : ''}
+        </div>
+        <div class="wz-vp-cb">${isChecked ? `<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ''}</div>
+      </div>`;
+  }).join('');
+
+  const otherChecked = !!otherText;
+  const otherCard = `
+    <div class="wz-vp-card${otherChecked ? ' checked' : ''}" data-val="__other__" onclick="toggleVpCard(this, '${focusFieldId}')">
+      <div class="wz-vp-content">
+        <div class="wz-vp-desc">${esc(otherDesc)}</div>
+        <textarea class="wz-vp-other-input" id="${groupId}_other" placeholder="${esc(otherPlaceholder)}" onclick="event.stopPropagation()" onfocus="focusWzField('${focusFieldId}')" style="${otherChecked ? '' : 'display:none'}">${esc(otherText)}</textarea>
+      </div>
+      <div class="wz-vp-cb">${otherChecked ? `<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ''}</div>
+    </div>`;
+
+  return `<div class="wz-vp-group" id="${groupId}">${cards}${otherCard}</div>`;
+}
+
+function matchVpTitles(text, titles) {
+  const matched = [];
+  let leftover = text;
+  titles.forEach(t => {
+    if (leftover.includes(t)) {
+      matched.push(t);
+      leftover = leftover.replace(t, '');
+    }
+  });
+  leftover = leftover.replace(/,\s*,/g, ',').replace(/^[\s,]+|[\s,]+$/g, '').trim();
+  return { matched, leftover };
+}
+
+function toggleVpCard(el, focusFieldId) {
+  const isOther = el.dataset.val === '__other__';
+  el.classList.toggle('checked');
+  const checked = el.classList.contains('checked');
+  const cb = el.querySelector('.wz-vp-cb');
+  if (cb) cb.innerHTML = checked
+    ? `<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+    : '';
+  if (isOther) {
+    const ta = el.querySelector('.wz-vp-other-input');
+    if (ta) {
+      ta.style.display = checked ? '' : 'none';
+      if (checked) ta.focus();
+      else ta.value = '';
+    }
+  }
+  if (focusFieldId) focusWzField(focusFieldId);
+}
+
+function toggleVpCardByValue(groupId, value, focusFieldId) {
+  const el = document.querySelector(`#${groupId} .wz-vp-card[data-val="${CSS.escape(value)}"]`);
+  if (el) toggleVpCard(el, focusFieldId);
+}
+
+function collectVp(groupId) {
+  const group = document.getElementById(groupId);
+  if (!group) return { options: [], other: '' };
+  const options = [...group.querySelectorAll('.wz-vp-card.checked')]
+    .map(el => el.dataset.val).filter(v => v !== '__other__');
+  const otherCard = group.querySelector('.wz-vp-card[data-val="__other__"]');
+  const otherChecked = otherCard?.classList.contains('checked');
+  const otherTa = group.querySelector('.wz-vp-other-input');
+  const other = (otherChecked && otherTa) ? otherTa.value.trim() : '';
+  return { options, other };
+}
 
 function renderWzMessaging() {
-  const triggerChipsHtml = `<div class="wz-chips" id="wzTriggerChips">${WZ_TRIGGER_CHIPS.map(s => {
-    const used = wzData.triggerDescription.includes(s);
-    return `<button type="button" class="wz-chip${used ? ' used' : ''}" onclick="addTriggerChip(this,'${s.replace(/'/g,"&#39;")}')">${esc(s)}</button>`;
-  }).join('')}</div>`;
+  const presets = getMessagingPresets();
+  const triggerItems = presets.map(p => ({ title: p.title, desc: p.trigger }));
+  const interactionItems = presets.map(p => ({ title: p.title, desc: p.interactions }));
+  const titles = presets.map(p => p.title);
 
-  const interactionChips = getVerifQuestion('general','interactionsDescription')?.suggestedAnswers || [];
-  const chipsHtml = interactionChips.length
-    ? `<div class="wz-chips" id="wzInteractionChips">${interactionChips.map(s => {
-        const used = wzData.interactionsDescription.includes(s);
-        return `<button type="button" class="wz-chip${used?' used':''}" onclick="addInteractionChip(this,'${s.replace(/'/g,"&#39;")}')">${esc(s)}</button>`;
-      }).join('')}</div>`
-    : '';
+  // Auto-migrate legacy free-text into title selections + other
+  if (!wzData.triggerOptions.length && wzData.triggerDescription) {
+    const { matched, leftover } = matchVpTitles(wzData.triggerDescription, titles);
+    wzData.triggerOptions = matched;
+    if (!wzData.triggerOther) wzData.triggerOther = leftover;
+  }
+  if (!wzData.interactionsOptions.length && wzData.interactionsDescription) {
+    const { matched, leftover } = matchVpTitles(wzData.interactionsDescription, titles);
+    wzData.interactionsOptions = matched;
+    if (!wzData.interactionsOther) wzData.interactionsOther = leftover;
+  }
 
   return `
     <div class="wz-step-title">Messaging triggers</div>
     <div class="wz-step-sub">Describe when messages are sent and how users interact with your RCS Agent. This helps Google and mobile operators review your messaging use case.</div>
     <div class="wz-field">
       <label class="wz-label">When are messages sent to users?</label>
-      <span class="wz-hint">Describe the events or conditions that trigger messages to be sent. This helps carriers understand your messaging behavior.</span>
-      <textarea class="wz-textarea" id="wzTriggerDesc" placeholder="e.g. After a purchase, when an order ships, before an appointment, or during scheduled campaigns" onfocus="focusWzField('triggerDescription')" oninput="syncTriggerChips(this.value)">${esc(wzData.triggerDescription)}</textarea>
-      ${triggerChipsHtml}
+      <span class="wz-hint">Select the events or conditions that trigger messages to be sent. This helps carriers understand your messaging behavior.</span>
+      ${renderVisualPicker('wzTriggerVp', triggerItems, wzData.triggerOptions, wzData.triggerOther, 'triggerDescription',
+        'e.g. Messages are sent when a user becomes inactive or during special campaigns.', 'Other triggers')}
     </div>
     <div class="wz-field">
       <label class="wz-label">What messages will users receive?</label>
-      <span class="wz-hint">Describe the main messages your agent sends and when they are sent. Focus on the most common interactions.</span>
-      <textarea class="wz-textarea" id="wzInteractions" placeholder="e.g. A message is sent immediately after a flight booking is confirmed, and again 24 hours before departure…" onfocus="focusWzField('interactionsDescription')" oninput="syncInteractionChips(this.value)">${esc(wzData.interactionsDescription)}</textarea>
-      ${chipsHtml}
+      <span class="wz-hint">Select the main messages your agent sends. Focus on the most common interactions.</span>
+      ${renderVisualPicker('wzInteractionsVp', interactionItems, wzData.interactionsOptions, wzData.interactionsOther, 'interactionsDescription',
+        'e.g. Re-engagement offers, loyalty rewards, or personalized recommendations.', 'Other messages')}
     </div>`;
 }
 
@@ -4642,7 +4849,8 @@ const SUGG_NOT_IN_UI = new Set(['optOutDescription','stopMessageResponse']);
 /* Annotations shown in the debug side panel for specific fields */
 const FIELD_ANNOTATIONS = {
   optInBrandMessage:   'Not shown in this form — confirmed duplicate of <strong>us.questions.optInConfirmationResponse</strong> (conversation with Laura, 14 March).',
-  triggerDescription:  'Suggested answers from the API are not used. Chips are hardcoded as <strong>WZ_TRIGGER_CHIPS</strong> (User action, System update, Scheduled messages, Promotions or outreach).',
+  triggerDescription:  'Suggested answers from the API are not used. Visual picker options are hardcoded as <strong>MESSAGING_PRESETS</strong>, scoped per use case.',
+  interactionsDescription: 'Suggested answers from the API are not used. Visual picker options are hardcoded as <strong>MESSAGING_PRESETS</strong>, scoped per use case.',
   optInDescription:    'Suggested answers from the API are not used. Chips are hardcoded as <strong>WZ_OPTIN_CHIPS</strong> to reflect explicit opt-in mechanisms only (e.g. opt-in checkbox, QR code scan). API suggested answers include purchase and account creation, which do not constitute explicit consent on their own.',
   verizonSmsOptInDescription: 'Only shown when the RCS agent is upgrading an existing SMS campaign (i.e. "Does your RCS agent upgrade an existing SMS campaign?" = Yes).',
   verizonRbmOptInDescription: 'Not shown in this form — already covered in the Verification Details wizard by <strong>general.questions.optInDescription</strong>.',
