@@ -744,6 +744,74 @@ body {
   cursor: pointer; transition: background 0.12s;
 }
 .upload-choose-btn:hover { background: var(--surface2); }
+.wz-file-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.wz-file-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 8px 10px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  font-size: 13px; color: var(--text);
+}
+.wz-file-row span { word-break: break-all; }
+.wz-url-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+.wz-uri-row { display: flex; align-items: center; gap: 8px; }
+.wz-uri-row input { flex: 1; min-width: 0; }
+.wz-row-remove {
+  flex-shrink: 0;
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid var(--border2); background: var(--surface);
+  font-family: inherit; font-size: 18px; line-height: 1; color: var(--text3);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  padding: 0;
+}
+.wz-row-remove:hover { background: var(--surface2); color: var(--text); }
+.wz-add-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: inherit; font-size: 13px; font-weight: 500; color: var(--blue);
+  background: none; border: none; cursor: pointer; padding: 0;
+}
+.wz-add-btn:hover { text-decoration: underline; }
+.evidence-chip-list { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.evidence-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 10px; max-width: 100%;
+  background: #f8f9fb;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px; color: var(--text);
+  min-width: 0;
+}
+.evidence-chip svg { flex-shrink: 0; }
+.evidence-chip-text {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  min-width: 0;
+}
+a.evidence-chip-text { color: var(--blue); text-decoration: none; }
+a.evidence-chip-text:hover { text-decoration: underline; }
+/* ── Developer demo page layout ── */
+.dev-page { max-width: 880px; margin: 0 auto; padding: 40px 24px 80px; }
+.dev-page-head { margin-bottom: 32px; }
+.dev-page-title { font-size: 24px; font-weight: 600; color: var(--text); letter-spacing: -0.02em; margin: 0 0 8px; }
+.dev-page-sub { font-size: 14px; color: var(--text2); line-height: 1.55; margin: 0; max-width: 600px; }
+.dev-section { margin-bottom: 32px; }
+.dev-section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 12px;
+}
+.dev-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.dev-form-card {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 20px; background: #fff;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer; font-family: inherit; text-align: left;
+  transition: border-color 0.12s, background 0.12s;
+}
+.dev-form-card:hover { border-color: var(--border2); background: var(--surface2); }
+.dev-form-card[disabled] { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+.dev-form-card[disabled]:hover { border-color: var(--border); background: #fff; }
+.dev-form-flag { font-size: 24px; flex-shrink: 0; }
+.dev-form-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.dev-form-meta strong { font-size: 14px; font-weight: 600; color: var(--text); }
+.dev-form-meta span { font-size: 12.5px; color: var(--text2); }
 /* ── Help link ── */
 .help-link {
   font-size: 13px; color: var(--text3); cursor: pointer;
@@ -1019,6 +1087,10 @@ body {
 .wz-summary-row:last-child { border-bottom: none; }
 .wz-summary-key { color: var(--text2); }
 .wz-summary-val { color: var(--text); font-weight: 500; }
+.wz-summary-list, .detail-summary-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.wz-summary-list li, .detail-summary-list li { display: flex; flex-direction: column; gap: 2px; }
+.wz-summary-list li strong, .detail-summary-list li strong { font-size: 13px; font-weight: 600; color: var(--text); }
+.wz-summary-list li span, .detail-summary-list li span { font-size: 12.5px; color: var(--text2); font-weight: 400; line-height: 1.5; }
 
 /* ══════════════════════════════════════
    COUNTRIES TAB
@@ -1559,513 +1631,44 @@ body {
 </head>
 <body>
 
-<!-- ══════════════════════════════════════
-     TOPBAR
-══════════════════════════════════════ -->
-<div class="topbar">
-  <div class="topbar-left">
-    <a href="agents.html" class="back-link">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M9 3L5 7l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Agents
-    </a>
-    <span class="bc-sep">/</span>
-    <span class="bc-current" id="bcName">Loading…</span>
-  </div>
-  <div class="topbar-right">
-    <button class="btn btn-outline" id="btnTopTest" disabled title="Add a test number to enable this" onclick="openSendModal()">
-      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-        <path d="M11 1.5H2a1 1 0 00-1 1v6a1 1 0 001 1h2l2.5 2.5L9 9.5h2a1 1 0 001-1v-6a1 1 0 00-1-1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
-      </svg>
-      Send test message
-    </button>
-    <button class="btn btn-primary" id="btnTopSubmit" disabled title="Complete all compliance steps first">Submit for approval</button>
-  </div>
+<div class="dev-page">
+  <header class="dev-page-head">
+    <h1 class="dev-page-title">RCS – Developer debug</h1>
+    <p class="dev-page-sub">Preview the Google verification and country-specific forms used during RCS agent setup.</p>
+  </header>
+
+  <section class="dev-section">
+    <div class="dev-section-label">Google verification</div>
+    <div class="dev-form-grid">
+      <button class="dev-form-card" onclick="openWizardEmpty()">
+        <span class="dev-form-flag">📝</span>
+        <span class="dev-form-meta"><strong>Verification details</strong><span>Open the wizard with no values filled in</span></span>
+      </button>
+      <button class="dev-form-card" onclick="goToVerificationWizard()">
+        <span class="dev-form-flag">✅</span>
+        <span class="dev-form-meta"><strong>Verification details (edit mode)</strong><span>Open the wizard pre-populated with sample data</span></span>
+      </button>
+    </div>
+  </section>
+
+  <section class="dev-section">
+    <div class="dev-section-label">Country-specific forms</div>
+    <div class="dev-form-grid">
+      <button class="dev-form-card" onclick="openCountryReqDemo('US','US_phase1')">
+        <span class="dev-form-flag">🇺🇸</span>
+        <span class="dev-form-meta"><strong>About your business</strong><span>US verification — Phase 1</span></span>
+      </button>
+      <button class="dev-form-card" onclick="openCountryReqDemo('US','US_phase2')">
+        <span class="dev-form-flag">🇺🇸</span>
+        <span class="dev-form-meta"><strong>Use case setup</strong><span>US verification — Phase 2</span></span>
+      </button>
+      <button class="dev-form-card" disabled aria-disabled="true">
+        <span class="dev-form-flag">🇬🇧</span>
+        <span class="dev-form-meta"><strong>UK operator details</strong><span>UK country-specific questions</span></span>
+      </button>
+    </div>
+  </section>
 </div>
-
-<div class="page-shell">
-<div class="page-container">
-
-  <!-- ══════════════════════════════════════
-       AGENT HEADER
-  ══════════════════════════════════════ -->
-  <div class="agent-header">
-    <div class="agent-header-left">
-      <div class="agent-name" id="agentName"></div>
-      <span class="status-badge badge-in-progress" id="statusBadge">In progress</span>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════
-       TAB BAR
-  ══════════════════════════════════════ -->
-  <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('overview', this)">Overview</button>
-    <button class="tab-btn" onclick="switchTab('countries', this)">Countries</button>
-    <button class="tab-btn" onclick="switchTab('test-numbers', this)">Test numbers</button>
-    <button class="tab-btn" onclick="switchTab('integrate', this)">Integrate</button>
-  </div>
-
-  <!-- ══════════════════════════════════════
-       OVERVIEW TAB
-  ══════════════════════════════════════ -->
-  <div class="tab-pane active" id="tab-overview">
-    <div class="page-layout">
-
-      <!-- MAIN COLUMN -->
-      <div class="main-col">
-
-        <!-- ── Prepare to go live ── -->
-        <h2 class="page-section-heading" style="margin-bottom:14px">Prepare to go live</h2>
-
-        <!-- ── Set up RCS Agent checklist ── -->
-        <div class="checklist-block" id="cl-compliance">
-          <div class="checklist-head" onclick="toggleChecklist('cl-compliance')">
-            <div class="checklist-head-left">
-              <div class="checklist-title">Set up RCS Agent</div>
-              <div class="checklist-subtitle">Complete these steps to submit your RCS agent for approval</div>
-            </div>
-            <div class="checklist-head-right">
-              <span class="checklist-progress" id="prog-compliance">1 of 4 steps completed</span>
-              <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-          </div>
-          <div class="checklist-body">
-
-            <!-- Step 1: Agent appearance -->
-            <div class="checklist-step" onclick="scrollToCard('section-appearance')">
-              <div class="step-icon icon-done" id="appear-step-icon">
-                <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 5.5l3 3 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </div>
-              <div class="step-content">
-                <div class="step-label">Add agent appearance</div>
-                <div class="step-desc">Customize how your agent looks to users.</div>
-              </div>
-              <button class="step-cta" onclick="event.stopPropagation(); scrollToCard('section-appearance')">View</button>
-            </div>
-
-            <!-- Step 2: Add country -->
-            <div class="checklist-step" id="country-step" onclick="switchTab('countries', document.querySelector('.tab-btn:nth-child(2)'))">
-              <div class="step-icon icon-num" id="country-step-icon">2</div>
-              <div class="step-content">
-                <div class="step-label">Add country</div>
-                <div class="step-desc">At least one country must be completed to submit.</div>
-              </div>
-              <button class="step-cta cta-action" id="country-step-cta" onclick="event.stopPropagation(); switchTab('countries', document.querySelector('.tab-btn:nth-child(2)'))">Choose country</button>
-            </div>
-
-            <!-- Step 3: Verification details -->
-            <div class="checklist-step" id="verif-step" onclick="scrollToCard('section-verification')">
-              <div class="step-icon icon-num" id="verif-step-icon">3</div>
-              <div class="step-content">
-                <div class="step-label">Add verification details</div>
-                <div class="step-desc">Consent, messaging use, and business contact for approval.</div>
-              </div>
-              <button class="step-cta cta-action" id="verif-step-cta" onclick="event.stopPropagation(); goToVerificationWizard()">Add details</button>
-            </div>
-
-            <!-- Step 4: Contact information -->
-            <div class="checklist-step" id="contact-step" onclick="scrollToCard('section-contact')">
-              <div class="step-icon icon-num" id="contact-step-icon">4</div>
-              <div class="step-content">
-                <div class="step-label">Add contact information</div>
-                <div class="step-desc">How customers can reach you.</div>
-              </div>
-              <button class="step-cta cta-action" id="contact-step-cta" onclick="event.stopPropagation(); scrollToCard('section-contact')">Add details</button>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- ── Send RCS Test Message ── -->
-        <div class="checklist-block" id="cl-developer">
-          <div class="checklist-head" onclick="toggleChecklist('cl-developer')">
-            <div class="checklist-head-left">
-              <div style="display:flex;align-items:center;gap:10px">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style="color:var(--text3);flex-shrink:0">
-                  <path d="M15.5 2H2.5a1.5 1.5 0 00-1.5 1.5v9A1.5 1.5 0 002.5 14H6l3 3 3-3h3.5a1.5 1.5 0 001.5-1.5v-9A1.5 1.5 0 0015.5 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
-                </svg>
-                <div>
-                  <div class="checklist-title">Send RCS Test Message</div>
-                  <div class="checklist-subtitle">Verify your RCS agent before going live.</div>
-                </div>
-              </div>
-            </div>
-            <div class="checklist-head-right">
-              <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-          </div>
-          <div class="checklist-body">
-
-            <div class="checklist-step" onclick="switchTab('test-numbers', document.querySelector('.tab-btn:nth-child(3)'))">
-              <div class="step-icon icon-num">1</div>
-              <div class="step-content">
-                <div class="step-label">Add a test number</div>
-                <div class="step-desc">Required to send test messages.</div>
-              </div>
-              <button class="step-cta cta-action" onclick="event.stopPropagation(); switchTab('test-numbers', document.querySelector('.tab-btn:nth-child(3)'))">Add number</button>
-            </div>
-
-            <div class="checklist-step" onclick="switchTab('integrate', document.querySelector('.tab-btn:nth-child(4)'))">
-              <div class="step-icon icon-num">2</div>
-              <div class="step-content">
-                <div class="step-label">Integrate with your app</div>
-                <div class="step-desc">Connect via the Sinch Messaging API.</div>
-              </div>
-              <button class="step-cta" onclick="event.stopPropagation(); switchTab('integrate', document.querySelector('.tab-btn:nth-child(4)'))">View docs</button>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- ── Section divider ── -->
-        <div class="section-divider" style="margin:28px 0 18px">
-          <div class="divider-line"></div>
-          <div class="divider-label">Details</div>
-          <div class="divider-line"></div>
-        </div>
-
-        <!-- ── Detail: Agent appearance ── -->
-        <div class="detail-card" id="section-appearance">
-          <div class="detail-head">
-            <div class="detail-title">Agent appearance</div>
-            <button class="btn-edit">Edit</button>
-          </div>
-          <div class="detail-body">
-            <div class="detail-row">
-              <span class="detail-key">Brand name</span>
-              <span class="detail-val" id="detailBrandName"></span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-key">Display name</span>
-              <span class="detail-val" id="detailDisplayName"></span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-key">Description</span>
-              <span class="detail-val" id="detailDescription"></span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-key">Brand colour</span>
-              <span class="detail-val" id="detailBrandColour"></span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-key">Logo</span>
-              <span class="detail-val" id="detailLogo"><span class="empty">Not uploaded</span></span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-key">Background banner</span>
-              <span class="detail-val" id="detailBanner"><span class="empty">Not uploaded</span></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── Detail: Verification details ── -->
-        <div class="detail-card" id="section-verification">
-          <div class="empty-state">
-            <div class="empty-title">No verification details yet</div>
-            <div class="empty-desc">Provide details about user consent, your messaging content, and the authorised business contact. This information is required for Google to verify and approve your RCS agent.</div>
-            <button class="btn-empty" onclick="goToVerificationWizard()">Add verification details</button>
-          </div>
-        </div>
-
-        <!-- ── Detail: Contact information ── -->
-        <div class="detail-card" id="section-contact">
-          <div class="empty-state">
-            <div class="empty-title">No contact information yet</div>
-            <div class="empty-desc">Please add information about how users can reach you.</div>
-            <button class="btn-empty">Add contact information</button>
-          </div>
-        </div>
-
-        <!-- ── Detail: Agent IDs & billing (locked) ── -->
-        <div class="detail-card" id="section-usecase">
-          <div class="detail-head">
-            <div class="detail-title">Agent IDs &amp; settings</div>
-          </div>
-          <div class="detail-body">
-            <div class="detail-row">
-              <span class="detail-key">Google Agent ID</span>
-              <span class="detail-val" style="display:flex;align-items:center;gap:6px">
-                <span class="meta-id" id="agentGoogleId"></span>
-                <button class="copy-btn" onclick="copyText(document.getElementById('agentGoogleId').textContent, this)" title="Copy">
-                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 9H2a1 1 0 01-1-1V2a1 1 0 011-1h6a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-                </button>
-              </span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-key">Sinch Agent ID</span>
-              <span class="detail-val" style="display:flex;align-items:center;gap:6px">
-                <span class="meta-id" id="agentSinchId"></span>
-                <button class="copy-btn" onclick="copyText(document.getElementById('agentSinchId').textContent, this)" title="Copy">
-                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 9H2a1 1 0 01-1-1V2a1 1 0 011-1h6a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-                </button>
-              </span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-key">Region</span>
-              <span class="detail-val" id="agentRegion"></span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-key">Use case</span>
-              <span class="detail-val" id="agentUseCase"></span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-key">Billing category</span>
-              <span class="detail-val" id="detailBillingCategory"></span>
-            </div>
-          </div>
-          <div class="locked-note">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0">
-              <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2"/>
-              <path d="M7 6v4M7 4.5h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            </svg>
-            Agent IDs and use case settings are read-only.
-          </div>
-        </div>
-
-      </div><!-- /main-col -->
-
-      <!-- RIGHT PANEL -->
-      <div class="right-panel">
-        <div class="right-panel-card">
-
-          <!-- Phone mockup -->
-          <div class="phone-shell">
-
-            <!-- View toggle -->
-            <div class="phone-view-tabs">
-              <button class="phone-view-tab active" onclick="switchPhoneView('biz', this)">Business info</button>
-              <button class="phone-view-tab" onclick="switchPhoneView('chat', this)">Conversation</button>
-            </div>
-
-            <!-- Phone frame -->
-            <div class="phone-outer">
-              <div class="phone-screen">
-
-                <!-- Status bar (shared) -->
-                <div class="phone-status">
-                  <span class="phone-time">10:41</span>
-                  <div class="phone-punch"></div>
-                  <div class="phone-icons">
-                    <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
-                      <path d="M6.5 8.5a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5z" fill="#1a1a18"/>
-                      <path d="M3.8 6.2a3.8 3.8 0 0 1 5.4 0" stroke="#1a1a18" stroke-width="1.1" stroke-linecap="round" fill="none"/>
-                      <path d="M1.4 3.8a6.5 6.5 0 0 1 10.2 0" stroke="#1a1a18" stroke-width="1.1" stroke-linecap="round" fill="none"/>
-                    </svg>
-                    <svg width="13" height="9" viewBox="0 0 13 9" fill="none">
-                      <rect x="0" y="6" width="2" height="3" rx="0.4" fill="#1a1a18"/>
-                      <rect x="3.5" y="4" width="2" height="5" rx="0.4" fill="#1a1a18"/>
-                      <rect x="7" y="2" width="2" height="7" rx="0.4" fill="#1a1a18"/>
-                      <rect x="10.5" y="0" width="2" height="9" rx="0.4" fill="#1a1a18"/>
-                    </svg>
-                    <svg width="19" height="10" viewBox="0 0 19 10" fill="none">
-                      <rect x="0.5" y="1" width="15" height="8" rx="2" stroke="#1a1a18" stroke-opacity="0.35"/>
-                      <rect x="1.5" y="2" width="11" height="6" rx="1" fill="#1a1a18"/>
-                      <path d="M17 3.5v3" stroke="#1a1a18" stroke-width="1.3" stroke-linecap="round" stroke-opacity="0.45"/>
-                    </svg>
-                  </div>
-                </div>
-
-                <!-- ── BUSINESS INFO VIEW ── -->
-                <div class="phone-view" id="phoneBizView">
-
-                  <!-- Header -->
-                  <div class="phone-biz-header">
-                    <svg width="7" height="12" viewBox="0 0 7 12" fill="none">
-                      <path d="M6 1L1 6l5 5" stroke="#1a73e8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <span>Info &amp; options</span>
-                  </div>
-
-                  <!-- Banner -->
-                  <div class="phone-biz-banner" id="phoneBizBanner"></div>
-
-                  <!-- Profile -->
-                  <div class="phone-biz-profile">
-                    <div class="phone-biz-avatar-wrap" id="phoneBizAvatar">
-                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <rect x="2" y="4" width="16" height="12" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
-                        <rect x="5" y="7" width="3" height="3" rx="0.5" fill="currentColor"/>
-                        <rect x="9" y="7" width="3" height="3" rx="0.5" fill="currentColor"/>
-                        <rect x="13" y="7" width="2" height="3" rx="0.5" fill="currentColor"/>
-                        <rect x="5" y="11" width="10" height="2" rx="0.5" fill="currentColor"/>
-                      </svg>
-                    </div>
-                    <div class="phone-biz-name-text" id="phoneBizName">CleverBookings</div>
-                    <div class="phone-biz-desc-text" id="phoneBizDesc">Fast, easy travel booking</div>
-                  </div>
-
-                  <!-- Actions -->
-                  <div class="phone-biz-actions">
-                    <div class="phone-biz-action">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M12.8 10.2c-.2-.4-.8-.7-1.3-1-.5-.3-1-.4-1.3-.2-.3.2-.5.5-.8.7-.3.2-.5.1-.8 0-.9-.5-1.8-1.4-2.3-2.3-.1-.3-.2-.5 0-.8.2-.3.5-.5.7-.8.2-.3.1-.8-.2-1.3-.3-.5-.6-1.1-1-1.3C5.3 3 5 3 4.7 3.2c-.8.5-1.5 1.4-1.4 2.4.1 1.2.7 2.5 1.7 3.5s2.3 1.6 3.5 1.7c1 .1 1.9-.6 2.4-1.4.2-.3.2-.6 0-1.2z" fill="currentColor"/>
-                      </svg>
-                      <span>Call</span>
-                    </div>
-                  </div>
-
-                  <!-- Info / Options tabs -->
-                  <div class="phone-biz-tabs">
-                    <div class="phone-biz-tab-item active">Info</div>
-                    <div class="phone-biz-tab-item">Options</div>
-                  </div>
-
-                  <!-- Info list -->
-                  <div class="phone-biz-list">
-                    <div class="phone-biz-item">
-                      <div class="phone-biz-item-icon">
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                          <path d="M12.8 10.2c-.2-.4-.8-.7-1.3-1-.5-.3-1-.4-1.3-.2-.3.2-.5.5-.8.7-.3.2-.5.1-.8 0-.9-.5-1.8-1.4-2.3-2.3-.1-.3-.2-.5 0-.8.2-.3.5-.5.7-.8.2-.3.1-.8-.2-1.3-.3-.5-.6-1.1-1-1.3C5.3 3 5 3 4.7 3.2c-.8.5-1.5 1.4-1.4 2.4.1 1.2.7 2.5 1.7 3.5s2.3 1.6 3.5 1.7c1 .1 1.9-.6 2.4-1.4.2-.3.2-.6 0-1.2z" fill="currentColor"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <div class="phone-biz-item-title">Phone number</div>
-                        <div class="phone-biz-item-sub">Our phone number</div>
-                      </div>
-                    </div>
-                    <div class="phone-biz-item">
-                      <div class="phone-biz-item-icon">
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                          <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/>
-                          <ellipse cx="7" cy="7" rx="2.2" ry="5.5" stroke="currentColor" stroke-width="1.3"/>
-                          <path d="M2 5h10M2 9h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <div class="phone-biz-item-title">Website</div>
-                        <div class="phone-biz-item-sub" id="phoneBizWebsite">Our website</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Home indicator -->
-                  <div class="phone-home"><div class="phone-home-pill"></div></div>
-
-                </div><!-- /phoneBizView -->
-
-                <!-- ── CONVERSATION VIEW ── -->
-                <div class="phone-view hidden" id="phoneChatView">
-
-                  <!-- Chat header -->
-                  <div class="phone-header">
-                    <div class="phone-back">
-                      <svg width="9" height="15" viewBox="0 0 9 15" fill="none">
-                        <path d="M8 1L1.5 7.5 8 14" stroke="#1a73e8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </div>
-                    <div class="phone-avatar" id="phoneAvatar"></div>
-                    <div class="phone-header-info">
-                      <div class="phone-name" id="phoneName">
-
-                        <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-                          <circle cx="5.5" cy="5.5" r="5.5" fill="#1a73e8"/>
-                          <path d="M3 5.5l1.9 1.9 3.3-3.3" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                      </div>
-                      <div class="phone-sub">Business messaging</div>
-                    </div>
-                    <div class="phone-actions">
-                      <svg width="15" height="11" viewBox="0 0 15 11" fill="none">
-                        <rect x="0.5" y="0.5" width="9" height="7" rx="1.5" stroke="currentColor" stroke-width="1.1"/>
-                        <path d="M10 3.5l4-2.5v7l-4-2.5v-2z" fill="currentColor"/>
-                      </svg>
-                      <svg width="4" height="14" viewBox="0 0 4 14" fill="none">
-                        <circle cx="2" cy="2" r="1.5" fill="currentColor"/>
-                        <circle cx="2" cy="7" r="1.5" fill="currentColor"/>
-                        <circle cx="2" cy="12" r="1.5" fill="currentColor"/>
-                      </svg>
-                    </div>
-                  </div>
-
-                  <!-- Chat body -->
-                  <div class="phone-chat">
-                    <div class="chat-date-sep">Today</div>
-                    <div class="phone-msg">
-                      <div class="phone-bubble" id="phoneBubble" style="background:#1d4ed8">
-                        Your booking #BK-1234 is confirmed. Check-in: 15 Mar at 10:00. Have a great trip! ✈️
-                      </div>
-                      <div class="msg-meta">
-                        <span class="msg-time">10:41</span>
-                        <span class="msg-read">
-                          <svg width="13" height="8" viewBox="0 0 13 8" fill="none">
-                            <path d="M1 4l2.5 2.5L8 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M5.5 4l2.5 2.5L13 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                          </svg>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Home indicator -->
-                  <div class="phone-home"><div class="phone-home-pill"></div></div>
-
-                </div><!-- /phoneChatView -->
-
-              </div>
-            </div>
-          </div>
-
-
-          <div class="panel-rows">
-            <div class="panel-row">
-              <span class="panel-label">Status</span>
-              <span class="panel-value" id="panelStatus"><span class="panel-badge amber">In progress</span></span>
-            </div>
-            <div class="panel-row">
-              <span class="panel-label">Use case</span>
-              <span class="panel-value" id="panelUseCase">—</span>
-            </div>
-            <div class="panel-row">
-              <span class="panel-label">Region</span>
-              <span class="panel-value" id="panelRegion">—</span>
-            </div>
-            <div class="panel-row">
-              <span class="panel-label">Billing</span>
-              <span class="panel-value" id="panelBilling">—</span>
-            </div>
-          </div>
-
-        </div>
-      </div><!-- /right-panel -->
-
-    </div><!-- /page-layout -->
-  </div><!-- /tab-overview -->
-
-  <!-- ══════════════════════════════════════
-       OTHER TABS (placeholders)
-  ══════════════════════════════════════ -->
-  <div class="tab-pane" id="tab-countries">
-    <div class="countries-header">
-      <div class="countries-heading" id="countriesHeading">Countries (2)</div>
-      <button class="btn btn-outline" onclick="openCountryDialog()">+ Add country</button>
-    </div>
-    <div class="countries-grid" id="countriesGrid"></div>
-  </div>
-
-  <div class="tab-pane" id="tab-test-numbers">
-    <div class="tab-placeholder">
-      <img src="globe-illustration.png" class="tab-placeholder-globe" alt="">
-      <div class="tab-placeholder-title">No test numbers yet</div>
-      <div class="tab-placeholder-desc">Add phone numbers to test your RCS agent and send messages before going live.</div>
-    </div>
-  </div>
-
-  <div class="tab-pane" id="tab-integrate">
-    <div class="tab-placeholder">
-      <img src="globe-illustration.png" class="tab-placeholder-globe" alt="">
-      <div class="tab-placeholder-title">Ready to integrate</div>
-      <div class="tab-placeholder-desc">Connect your RCS agent to your application using the Sinch Messaging API and SDKs.</div>
-    </div>
-  </div>
-
-</div><!-- /page-container -->
-</div><!-- /page-shell -->
 
 <!-- ── Full-screen Verification Wizard ── -->
 <div class="wizard-overlay hidden" id="verificationWizard">
@@ -2119,28 +1722,6 @@ body {
   </div>
 </div>
 
-<!-- ── Country Picker Dialog ── -->
-<div class="country-dialog-overlay hidden" id="countryDialog">
-  <div class="country-dialog">
-    <div class="country-dialog-head">
-      <div class="country-dialog-title">Add countries</div>
-      <button class="modal-close" onclick="closeCountryDialog()">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-        </svg>
-      </button>
-    </div>
-    <div class="country-search-wrap">
-      <input class="country-search-input" id="countrySearch" placeholder="Search countries…" oninput="filterCountries(this.value)">
-    </div>
-    <div class="country-list" id="countryList"></div>
-    <div class="country-dialog-footer">
-      <button class="btn btn-outline" onclick="closeCountryDialog()">Cancel</button>
-      <button class="btn btn-primary" id="btnAddCountries" onclick="confirmAddCountries()">Add countries</button>
-    </div>
-  </div>
-</div>
-
 <!-- Country requirements overlay -->
 <div class="wizard-overlay hidden" id="countryReqOverlay">
   <div class="wizard-topbar">
@@ -2186,6 +1767,7 @@ body {
     <button class="btn btn-primary" id="countryReqBtnNext">Next step →</button>
   </div>
 </div>
+
 
 <script>
 
@@ -2629,6 +2211,7 @@ async function loadVerificationQuestions(useCase) {
 const wzData = {
   optInDescription:'',
   screenshotMode:'upload', screenshotUris:'', screenshotFileName:'',
+  screenshotFileNames:[], screenshotUriList:[],
   optOutDescription:'',
   triggerDescription:'', interactionsDescription:'',
   triggerOptions:[], triggerOther:'',
@@ -2844,6 +2427,20 @@ async function changeWzUseCase(uc) {
   if (overlay) overlay.classList.add('hidden');
 }
 
+function openWizardEmpty() {
+  // Open the wizard from the empty-state card without prefilling
+  const prev = agent.verificationDetails;
+  agent.verificationDetails = null;
+  Object.keys(wzData).forEach(k => {
+    if (Array.isArray(wzData[k])) wzData[k] = [];
+    else if (typeof wzData[k] === 'string') wzData[k] = '';
+  });
+  wzData.screenshotMode = 'upload';
+  goToVerificationWizard();
+  // Restore filled state on the page so the filled card stays visible after the wizard closes
+  agent.verificationDetails = prev;
+}
+
 function goToVerificationWizard() {
   // Pre-populate wzData from saved details when editing
   if (agent.verificationDetails) {
@@ -2866,8 +2463,6 @@ function goToVerificationWizard() {
 }
 
 function closeVerificationWizard() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('debug') === 'verification') { window.location.href = 'agents.html'; return; }
   document.getElementById('verificationWizard').classList.add('hidden');
 }
 
@@ -2902,7 +2497,8 @@ function wizardPrev() {
 function saveWzStep() {
   if (wzStep === 0) {
     wzData.optInDescription = val('wzOptInDesc');
-    wzData.screenshotUris = val('wzScreenshotUrl');
+    wzData.screenshotUriList = collectScreenshotUris();
+    wzData.screenshotUris = wzData.screenshotUriList.join(', ');
     wzData.optOutDescription = val('wzOptOutDesc');
   } else if (wzStep === 1) {
     const trig = collectVp('wzTriggerVp');
@@ -3007,11 +2603,60 @@ function setUploadMode(mode) {
 }
 
 function handleFileSelect(input) {
-  if (!input.files || !input.files[0]) return;
-  const name = input.files[0].name;
-  wzData.screenshotFileName = name;
-  const el = document.getElementById('wzFileName');
-  if (el) { el.textContent = name; el.style.display = ''; }
+  if (!input.files || !input.files.length) return;
+  const newNames = [...input.files].map(f => f.name);
+  wzData.screenshotFileNames = [...(wzData.screenshotFileNames || []), ...newNames];
+  if (!wzData.screenshotFileName) wzData.screenshotFileName = wzData.screenshotFileNames[0] || '';
+  input.value = '';
+  renderScreenshotFileList();
+}
+
+function removeScreenshotFile(idx) {
+  wzData.screenshotFileNames = (wzData.screenshotFileNames || []).filter((_, i) => i !== idx);
+  wzData.screenshotFileName = wzData.screenshotFileNames[0] || '';
+  renderScreenshotFileList();
+}
+
+function renderScreenshotFileList() {
+  const el = document.getElementById('wzFileList');
+  if (!el) return;
+  const names = wzData.screenshotFileNames || [];
+  el.innerHTML = names.length
+    ? names.map((n, i) => `<div class="wz-file-row"><span>${esc(n)}</span><button type="button" class="wz-row-remove" onclick="removeScreenshotFile(${i})" aria-label="Remove">×</button></div>`).join('')
+    : '';
+}
+
+function collectScreenshotUris() {
+  return [...document.querySelectorAll('#wzUrlList .wz-uri-row input')]
+    .map(i => i.value.trim()).filter(Boolean);
+}
+
+function addScreenshotUrlRow() {
+  const cur = [...document.querySelectorAll('#wzUrlList .wz-uri-row input')].map(i => i.value);
+  cur.push('');
+  wzData.screenshotUriList = cur;
+  renderScreenshotUrlList();
+  const inputs = document.querySelectorAll('#wzUrlList .wz-uri-row input');
+  inputs[inputs.length - 1]?.focus();
+  focusWzField('screenshotUris');
+}
+
+function removeScreenshotUrlRow(idx) {
+  const cur = [...document.querySelectorAll('#wzUrlList .wz-uri-row input')].map(i => i.value);
+  cur.splice(idx, 1);
+  wzData.screenshotUriList = cur.length ? cur : [];
+  renderScreenshotUrlList();
+}
+
+function renderScreenshotUrlList() {
+  const el = document.getElementById('wzUrlList');
+  if (!el) return;
+  const list = (wzData.screenshotUriList && wzData.screenshotUriList.length) ? wzData.screenshotUriList : [''];
+  el.innerHTML = list.map((v, i) => `
+    <div class="wz-uri-row">
+      <input class="wz-input" type="url" placeholder="https://example.com/opt-in-screenshot" value="${esc(v)}" onfocus="focusWzField('screenshotUris')">
+      <button type="button" class="wz-row-remove" onclick="removeScreenshotUrlRow(${i})" aria-label="Remove" ${list.length === 1 ? 'style="visibility:hidden"' : ''}>×</button>
+    </div>`).join('');
 }
 
 const HELP_CONTENT = {
@@ -3362,6 +3007,16 @@ function closeHelpDialog(e) {
 function renderWzConsent() {
   const isUrlMode = wzData.screenshotMode === 'url';
 
+  // Migrate legacy single-value fields into arrays
+  if ((!wzData.screenshotFileNames || !wzData.screenshotFileNames.length) && wzData.screenshotFileName) {
+    wzData.screenshotFileNames = [wzData.screenshotFileName];
+  }
+  if ((!wzData.screenshotUriList || !wzData.screenshotUriList.length) && wzData.screenshotUris) {
+    wzData.screenshotUriList = wzData.screenshotUris.split(/\s*,\s*|\s*\n\s*/).filter(Boolean);
+  }
+  const fileNames = wzData.screenshotFileNames || [];
+  const uriList = (wzData.screenshotUriList && wzData.screenshotUriList.length) ? wzData.screenshotUriList : [''];
+
   const optInChipsHtml = `<div class="wz-chips" id="wzOptInChips">${WZ_OPTIN_CHIPS.map(s => {
     const used = wzData.optInDescription.includes(s);
     return `<button type="button" class="wz-chip${used ? ' used' : ''}" onclick="addOptInChip(this,'${s.replace(/'/g,"&#39;")}')">${esc(s)}</button>`;
@@ -3387,13 +3042,18 @@ function renderWzConsent() {
       <div id="wzUploadPane" style="display:${!isUrlMode ? 'block' : 'none'}">
         <div class="upload-drop" onclick="focusWzField('screenshotUris');document.getElementById('wzFileInput').click()">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style="flex-shrink:0"><path d="M9 12V4M5 8l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 14h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>Drop file here or <button class="upload-choose-btn" type="button" onclick="event.stopPropagation();document.getElementById('wzFileInput').click()">Choose file</button></span>
+          <span>Drop files here or <button class="upload-choose-btn" type="button" onclick="event.stopPropagation();document.getElementById('wzFileInput').click()">Choose files</button></span>
         </div>
-        <input type="file" id="wzFileInput" style="display:none" accept="image/*,.pdf" onchange="handleFileSelect(this)">
-        <div id="wzFileName" style="font-size:13px;color:var(--blue);margin-top:8px;${wzData.screenshotFileName ? '' : 'display:none'}">${esc(wzData.screenshotFileName)}</div>
+        <input type="file" id="wzFileInput" multiple style="display:none" accept="image/*,.pdf" onchange="handleFileSelect(this)">
+        <div id="wzFileList" class="wz-file-list">${fileNames.map((n, i) => `<div class="wz-file-row"><span>${esc(n)}</span><button type="button" class="wz-row-remove" onclick="removeScreenshotFile(${i})" aria-label="Remove">×</button></div>`).join('')}</div>
       </div>
       <div id="wzUrlPane" style="display:${isUrlMode ? 'block' : 'none'}">
-        <input class="wz-input" id="wzScreenshotUrl" type="url" placeholder="https://example.com/opt-in-screenshot" value="${esc(wzData.screenshotUris)}" onfocus="focusWzField('screenshotUris')">
+        <div id="wzUrlList" class="wz-url-list">${uriList.map((v, i) => `
+          <div class="wz-uri-row">
+            <input class="wz-input" type="url" placeholder="https://example.com/opt-in-screenshot" value="${esc(v)}" onfocus="focusWzField('screenshotUris')">
+            <button type="button" class="wz-row-remove" onclick="removeScreenshotUrlRow(${i})" aria-label="Remove" ${uriList.length === 1 ? 'style="visibility:hidden"' : ''}>×</button>
+          </div>`).join('')}</div>
+        <button type="button" class="wz-add-btn" onclick="addScreenshotUrlRow()">+ Add another URL</button>
       </div>
       <button class="help-link" type="button" onclick="openHelpDialog('optin-evidence')">What should a screenshot or URL include?</button>
     </div>
@@ -3411,32 +3071,41 @@ function renderWzConsent() {
 
 const MESSAGING_PRESETS = [
   { title: 'Products, Services & New Arrivals', useCase: 'PROMOTIONAL',
-    trigger: 'When campaigns start, new products are released, or special offers become available',
-    interactions: 'Announcements about new products, discounts, and ongoing campaigns' },
+    trigger: 'Messages are sent when new campaigns launch, products are released, or special offers become available',
+    interactions: 'Users will receive announcements about new products, discounts, and ongoing campaigns' },
   { title: 'Abandoned Cart Reminders', useCase: 'PROMOTIONAL',
-    trigger: 'When a user leaves items in their cart without completing checkout',
-    interactions: 'Reminders encouraging users to return and complete their purchase' },
+    trigger: 'Messages are sent when items are left in a cart without completing checkout',
+    interactions: 'Users will receive reminders to return and complete their purchase' },
   { title: 'Scheduled Appointments/Events', useCase: 'TRANSACTIONAL',
-    trigger: 'Before a scheduled appointment or event to remind the user',
-    interactions: 'Reminders with details about upcoming appointments or events' },
+    trigger: 'Messages are sent before scheduled appointments or events to send reminders',
+    interactions: 'Users will receive reminders with details about upcoming appointments or events' },
   { title: 'Payment Alerts & Updates', useCase: 'TRANSACTIONAL',
-    trigger: 'After a payment is completed or fails, and before a payment is due',
-    interactions: 'Updates on successful or failed payments, and reminders about upcoming payments' },
+    trigger: 'Messages are sent when payments succeed or fail, and before upcoming payments are due',
+    interactions: 'Users will receive updates about successful or failed payments, as well as reminders about upcoming payments' },
   { title: 'Account Activity Notifications', useCase: 'TRANSACTIONAL',
-    trigger: 'When account details change, such as password or contact information updates',
-    interactions: 'Notifications about important account changes, such as password or contact updates' },
+    trigger: 'Messages are sent when account details change, such as passwords or contact information',
+    interactions: 'Users will receive notifications about important account changes, such as password or contact updates' },
   { title: 'One-Time Passwords (OTPs)', useCase: 'OTP',
-    trigger: 'During login or password reset to verify the user’s identity',
-    interactions: 'One-time codes used to confirm the user’s identity' },
+    trigger: 'Messages are sent during login or password reset to verify identity',
+    interactions: 'Users will receive one-time codes used to confirm their identity' },
   { title: 'Security & Fraud Alerts', useCase: 'TRANSACTIONAL',
-    trigger: 'When suspicious activity is detected on the user’s account',
-    interactions: 'Alerts about suspicious activity with guidance to secure the account' },
+    trigger: 'Messages are sent when suspicious activity is detected on an account',
+    interactions: 'Users will receive alerts about suspicious activity, including guidance to help secure their account' },
   { title: 'Customer Satisfaction Surveys', useCase: 'TRANSACTIONAL',
-    trigger: 'After interactions like purchases or support cases to request feedback',
-    interactions: 'Requests to rate or review an experience after a purchase or support interaction' },
+    trigger: 'Messages are sent after purchases or support interactions to collect feedback',
+    interactions: 'Users will receive requests to rate or review an experience after a purchase or support interaction' },
   { title: 'Two-Way Customer Support', useCase: 'TRANSACTIONAL',
-    trigger: 'After a user initiates a support request',
-    interactions: 'Responses to support inquiries, including the ability to continue the conversation' },
+    trigger: 'Messages are sent after a support request or conversation is started',
+    interactions: 'Users will receive responses to support inquiries, including the ability to continue the conversation' },
+  { title: 'Order & Delivery Updates', useCase: 'TRANSACTIONAL',
+    trigger: "Messages are sent when an order's status changes, such as when it has been confirmed, shipped, or delivered",
+    interactions: 'Users will receive real-time updates on their order status, from confirmation and shipping to final delivery' },
+  { title: 'Travel & Transportation Updates', useCase: 'TRANSACTIONAL',
+    trigger: 'Messages are sent for travel events like check-in openings, flight delays, gate changes, or other transit updates',
+    interactions: 'Users will receive timely notifications about their travel, including check-in reminders, status changes, and delay alerts' },
+  { title: 'Service Outage Alerts', useCase: 'TRANSACTIONAL',
+    trigger: 'Messages are sent when a service is disrupted or a system-wide outage occurs',
+    interactions: 'Users will receive alerts regarding service disruptions or system issues, along with status updates' },
 ];
 
 function getMessagingPresets() {
@@ -3577,6 +3246,56 @@ function renderWzContact() {
     </div>`;
 }
 
+function getEvidenceLists(source = wzData) {
+  const files = (source.screenshotFileNames && source.screenshotFileNames.length)
+    ? source.screenshotFileNames
+    : (source.screenshotFileName ? [source.screenshotFileName] : []);
+  const urls = (source.screenshotUriList && source.screenshotUriList.length)
+    ? source.screenshotUriList
+    : (source.screenshotUris ? source.screenshotUris.split(/\s*,\s*|\s*\n\s*/).filter(Boolean) : []);
+  return { files, urls };
+}
+
+const EVIDENCE_CHECK_SVG = `<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="#22c55e"/><path d="M5 8.2l2.2 2.2L11.2 6.4" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`;
+
+function renderEvidenceChips(items, type) {
+  if (!items.length) return '<span style="color:var(--text3);font-size:13px">—</span>';
+  return `<div class="evidence-chip-list">${items.map(v => {
+    const label = type === 'url'
+      ? `<a href="${esc(v)}" target="_blank" rel="noopener" class="evidence-chip-text">${esc(v)}</a>`
+      : `<span class="evidence-chip-text">${esc(v)}</span>`;
+    return `<div class="evidence-chip">${EVIDENCE_CHECK_SVG}${label}</div>`;
+  }).join('')}</div>`;
+}
+
+function renderEvidenceChipsCombined({ files, urls }) {
+  if (!files.length && !urls.length) return '<span style="color:var(--text3);font-size:13px">—</span>';
+  const fileChips = files.map(v => `<div class="evidence-chip">${EVIDENCE_CHECK_SVG}<span class="evidence-chip-text">${esc(v)}</span></div>`);
+  const urlChips = urls.map(v => `<div class="evidence-chip">${EVIDENCE_CHECK_SVG}<a href="${esc(v)}" target="_blank" rel="noopener" class="evidence-chip-text">${esc(v)}</a></div>`);
+  return `<div class="evidence-chip-list">${[...fileChips, ...urlChips].join('')}</div>`;
+}
+
+function renderScreenshotSummary(source = wzData) {
+  const { files, urls } = getEvidenceLists(source);
+  if (!files.length && !urls.length) return '—';
+  return [...files.map(esc), ...urls.map(esc)].join(', ');
+}
+
+function renderMessagingSummaryValue(field, source = wzData, listClass = 'wz-summary-list', emptyMark = '—') {
+  const opts  = field === 'trigger' ? source.triggerOptions  : source.interactionsOptions;
+  const other = field === 'trigger' ? source.triggerOther    : source.interactionsOther;
+  const fallbackText = field === 'trigger' ? source.triggerDescription : source.interactionsDescription;
+  const parts = [];
+  (opts || []).forEach(t => {
+    const p = MESSAGING_PRESETS.find(x => x.title === t);
+    if (p) parts.push(p[field]);
+    else if (t) parts.push(t);
+  });
+  if (other) parts.push(other);
+  if (!parts.length) return fallbackText ? esc(fallbackText) : emptyMark;
+  return esc(parts.join(', '));
+}
+
 function renderWzSummary() {
   const join = arr => arr.length ? arr.join(', ') : '—';
   const or = s => s || '—';
@@ -3586,20 +3305,20 @@ function renderWzSummary() {
     <div class="wz-summary-section">
       <div class="wz-summary-head">Consent</div>
       <div class="wz-summary-row"><span class="wz-summary-key">Opt-in methods</span><span class="wz-summary-val">${or(wzData.optInDescription)}</span></div>
-      <div class="wz-summary-row"><span class="wz-summary-key">Screenshot/URL</span><span class="wz-summary-val">${wzData.screenshotMode === 'upload' && wzData.screenshotFileName ? esc(wzData.screenshotFileName) : or(wzData.screenshotUris)}</span></div>
+      <div class="wz-summary-row"><span class="wz-summary-key">Screenshots / URLs</span><span class="wz-summary-val">${renderEvidenceChipsCombined(getEvidenceLists(wzData))}</span></div>
       <div class="wz-summary-row"><span class="wz-summary-key">Opt-out response</span><span class="wz-summary-val">${or(wzData.optOutDescription)}</span></div>
     </div>
     <div class="wz-summary-section">
       <div class="wz-summary-head">Messaging triggers</div>
-      <div class="wz-summary-row"><span class="wz-summary-key">Message triggers</span><span class="wz-summary-val">${or(wzData.triggerDescription)}</span></div>
-      <div class="wz-summary-row"><span class="wz-summary-key">Interactions</span><span class="wz-summary-val">${or(wzData.interactionsDescription)}</span></div>
+      <div class="wz-summary-row"><span class="wz-summary-key">When messages will be sent</span><span class="wz-summary-val">${renderMessagingSummaryValue('trigger')}</span></div>
+      <div class="wz-summary-row"><span class="wz-summary-key">What messages will be sent</span><span class="wz-summary-val">${renderMessagingSummaryValue('interactions')}</span></div>
     </div>
     <div class="wz-summary-section">
       <div class="wz-summary-head">Business contact</div>
-      <div class="wz-summary-row"><span class="wz-summary-key">Name</span><span class="wz-summary-val">${or(wzData.name)}</span></div>
-      <div class="wz-summary-row"><span class="wz-summary-key">Email</span><span class="wz-summary-val">${or(wzData.email)}</span></div>
-      <div class="wz-summary-row"><span class="wz-summary-key">Title</span><span class="wz-summary-val">${or(wzData.title)}</span></div>
-      <div class="wz-summary-row"><span class="wz-summary-key">Website</span><span class="wz-summary-val">${or(wzData.website)}</span></div>
+      <div class="wz-summary-row"><span class="wz-summary-key">Contact full name</span><span class="wz-summary-val">${or(wzData.name)}</span></div>
+      <div class="wz-summary-row"><span class="wz-summary-key">Contact job title</span><span class="wz-summary-val">${or(wzData.title)}</span></div>
+      <div class="wz-summary-row"><span class="wz-summary-key">Contact email address</span><span class="wz-summary-val">${or(wzData.email)}</span></div>
+      <div class="wz-summary-row"><span class="wz-summary-key">Business website</span><span class="wz-summary-val">${or(wzData.website)}</span></div>
     </div>`;
 }
 
@@ -4076,6 +3795,11 @@ function getFormInfo(formId) {
 }
 
 /* ── Country requirements overlay ── */
+async function openCountryReqDemo(code, formId) {
+  if (!countryCards.has(code)) await loadCountryForms(code);
+  openCountryReq(code, formId);
+}
+
 function openCountryReq(code, formId) {
   const info = getFormInfo(formId);
   if (!info) return;
@@ -5126,6 +4850,28 @@ function renderSummary() {
   return html || `<p style="color:var(--text3);font-size:14px">No answers filled in yet.</p>`;
 }
 
+function buildSampleVerificationDetails() {
+  return {
+    optInDescription: 'Users opt in via a checkout checkbox at purchase, by scanning a QR code in-store, and through a website signup form with explicit consent text.',
+    screenshotMode: 'upload',
+    screenshotFileName: 'checkout-consent.png',
+    screenshotFileNames: ['checkout-consent.png', 'qr-code-poster.jpg', 'signup-form.pdf'],
+    screenshotUris: 'https://example.com/checkout, https://example.com/signup',
+    screenshotUriList: ['https://example.com/checkout', 'https://example.com/signup', 'https://example.com/account/notifications'],
+    optOutDescription: "You've been unsubscribed and won't receive further messages. Reply START to opt back in or HELP for assistance.",
+    triggerOptions: ['Payment Alerts & Updates', 'Account Activity Notifications', 'Security & Fraud Alerts'],
+    triggerOther: 'When a high-value transaction is flagged for manual review',
+    triggerDescription: 'Payment Alerts & Updates, Account Activity Notifications, Security & Fraud Alerts, When a high-value transaction is flagged for manual review',
+    interactionsOptions: ['Payment Alerts & Updates', 'Account Activity Notifications', 'Customer Satisfaction Surveys'],
+    interactionsOther: 'Personalised re-engagement offers for inactive users',
+    interactionsDescription: 'Payment Alerts & Updates, Account Activity Notifications, Customer Satisfaction Surveys, Personalised re-engagement offers for inactive users',
+    name: 'Naomi Sullivan',
+    title: 'Senior Manager, Messaging',
+    email: 'naomi.sullivan@example.com',
+    website: 'https://www.example.com',
+  };
+}
+
 function renderVerificationCard() {
   const v = agent.verificationDetails;
   const card = document.getElementById('section-verification');
@@ -5154,24 +4900,18 @@ function renderVerificationCard() {
     <div class="detail-body">
       <div class="detail-section-label" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px;margin-top:4px">Consent</div>
       <div class="detail-row"><span class="detail-key">Opt-in methods</span><span class="detail-val">${or(v.optInDescription)}</span></div>
-      <div class="detail-row"><span class="detail-key">Screenshot / URL</span><span class="detail-val">${
-        v.screenshotMode === 'upload' && v.screenshotFileName
-          ? `<span style="color:var(--text2)">${esc(v.screenshotFileName)}</span>`
-          : v.screenshotUris
-            ? `<a href="${esc(v.screenshotUris)}" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none">${esc(v.screenshotUris)}</a>`
-            : '<span style="color:var(--text3)">—</span>'
-      }</span></div>
+      <div class="detail-row"><span class="detail-key">Screenshots / URLs</span><span class="detail-val">${renderEvidenceChipsCombined(getEvidenceLists(v))}</span></div>
       <div class="detail-row"><span class="detail-key">Opt-out response</span><span class="detail-val" style="white-space:pre-wrap">${or(v.optOutDescription)}</span></div>
 
       <div class="detail-section-label" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px;margin-top:20px">Messaging triggers</div>
-      <div class="detail-row"><span class="detail-key">Message triggers</span><span class="detail-val" style="white-space:pre-wrap">${or(v.triggerDescription)}</span></div>
-      <div class="detail-row"><span class="detail-key">Trigger description</span><span class="detail-val" style="white-space:pre-wrap">${or(v.interactionsDescription)}</span></div>
+      <div class="detail-row"><span class="detail-key">When messages will be sent</span><span class="detail-val">${renderMessagingSummaryValue('trigger', v, 'detail-summary-list', '<span style="color:var(--text3)">—</span>')}</span></div>
+      <div class="detail-row"><span class="detail-key">What messages will be sent</span><span class="detail-val">${renderMessagingSummaryValue('interactions', v, 'detail-summary-list', '<span style="color:var(--text3)">—</span>')}</span></div>
 
       <div class="detail-section-label" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px;margin-top:20px">Business contact</div>
-      <div class="detail-row"><span class="detail-key">Full name</span><span class="detail-val">${or(v.name)}</span></div>
-      <div class="detail-row"><span class="detail-key">Job title</span><span class="detail-val">${or(v.title)}</span></div>
-      <div class="detail-row"><span class="detail-key">Email</span><span class="detail-val">${or(v.email)}</span></div>
-      <div class="detail-row"><span class="detail-key">Website</span><span class="detail-val">${websiteVal}</span></div>
+      <div class="detail-row"><span class="detail-key">Contact full name</span><span class="detail-val">${or(v.name)}</span></div>
+      <div class="detail-row"><span class="detail-key">Contact job title</span><span class="detail-val">${or(v.title)}</span></div>
+      <div class="detail-row"><span class="detail-key">Contact email address</span><span class="detail-val">${or(v.email)}</span></div>
+      <div class="detail-row"><span class="detail-key">Business website</span><span class="detail-val">${websiteVal}</span></div>
     </div>`;
 }
 
@@ -5246,81 +4986,25 @@ const STATE_MAP = {
 const REGION_MAP = { US: 'United States', EU: 'Europe', APAC: 'Asia Pacific' };
 
 (async () => {
-  const debugParams  = new URLSearchParams(window.location.search);
-  const debugMode    = debugParams.get('debug');
-  const debugCountry = (debugParams.get('code') || '').toUpperCase();
-  const debugForm    = debugParams.get('form');
-
-  // ── Fast-path: country debug links skip the full agent load ──
-  if (debugMode === 'country' && debugCountry) {
-    const meta = COUNTRY_META[debugCountry] || { name: debugCountry, emoji: '🌍' };
-    activeCountries = [{ code: debugCountry, name: meta.name, flag: meta.emoji }];
-    await loadCountryForms(debugCountry);
-    const forms  = countryCards.get(debugCountry)?.forms || [];
-    const target = debugForm ? forms.find(f => f.id === debugForm) : forms[0];
-    if (target) openCountryReq(debugCountry, target.id);
-    return;
-  }
-
-  const senderId = new URLSearchParams(window.location.search).get('id') || DEFAULT_SENDER_ID;
-  try {
-    const res = await fetch(`/api/sender/${senderId}`);
-    const s   = await res.json();
-    const brand = s.details?.brand || {};
-    const q     = s.details?.questionnaire || {};
-    const verif = q.verification?.answers || {};
-    const verifFilled = Object.values(verif).some(v => v);
-    const countryCodes = Object.keys(q).filter(k => k !== 'general' && k !== 'verification');
-
-    agent = {
-      displayName:        brand.name        || 'RCS Agent',
-      brandName:          brand.name        || 'RCS Agent',
-      description:        brand.description || '',
-      brandColor:         brand.color       || '#1d4ed8',
-      logoUrl:            brand.logoUrl     || null,
-      bannerUrl:          brand.bannerUrl   || null,
-      useCase:            s.useCase         || 'TRANSACTIONAL',
-      billingCategory:    s.billingCategory || 'A2P',
-      agentRegion:        REGION_MAP[s.region] || s.region || '',
-      googleAgentId:      s.supplierDetails?.google?.agentId || s.id,
-      sinchAgentId:       s.id,
-      status:             STATE_MAP[s.state] || 'in_progress',
-      verificationDetails: verifFilled ? verif : null,
-      contactInfo:        (brand.phones?.length || brand.emails?.length || brand.websites?.length) ? brand : null,
-      testNumbers:        s.details?.testNumbers || [],
-      websiteUrl:         brand.websites?.[0]?.url || null,
-    };
-
-    activeCountries = countryCodes.map(code => {
-      const upper = code.toUpperCase();
-      const meta  = COUNTRY_META[upper] || { name: upper, emoji: '🌍' };
-      return { code: upper, name: meta.name, flag: meta.emoji };
-    });
-  } catch (e) {
-    console.error('Failed to load sender:', e);
-    agent = {
-      displayName: 'RCS Agent', brandName: 'RCS Agent', description: '',
-      brandColor: '#1d4ed8', logoUrl: null, bannerUrl: null,
-      useCase: 'TRANSACTIONAL', billingCategory: 'A2P', agentRegion: '',
-      googleAgentId: '', sinchAgentId: senderId, status: 'in_progress',
-      verificationDetails: null, contactInfo: null, testNumbers: [], websiteUrl: null,
-    };
-    activeCountries = [];
-  }
-
-  init();
+  // Developer demo: skip sender API loading. Always show two static states
+  // of the Verification Details card (empty + filled). The wizard is reachable
+  // from either card.
+  agent = {
+    displayName: 'Developer Demo Agent',
+    brandName: 'Developer Demo Agent',
+    description: '', brandColor: '#1d4ed8', logoUrl: null, bannerUrl: null,
+    useCase: 'TRANSACTIONAL', billingCategory: 'A2P', agentRegion: '',
+    googleAgentId: '', sinchAgentId: '', status: 'in_progress',
+    verificationDetails: buildSampleVerificationDetails(),
+    contactInfo: null, testNumbers: [], websiteUrl: null,
+  };
+  activeCountries = [];
 
   await Promise.all([
-    loadVerificationQuestions(),
-    ...activeCountries.map(c => loadCountryForms(c.code)),
+    loadVerificationQuestions(agent.useCase),
+    loadCountryForms('US'),
+    loadCountryForms('GB'),
   ]);
-  renderCountriesTab();
-
-  // Auto-open verification wizard if launched via debug link
-  if (debugMode === 'verification') {
-    switchTab('countries', document.querySelector('.tab-btn:nth-child(2)'));
-    setTimeout(() => goToVerificationWizard(), 200);
-  }
 
   // Global keyboard handler
   document.addEventListener('keydown', e => {
@@ -5330,95 +5014,7 @@ const REGION_MAP = { US: 'United States', EU: 'Europe', APAC: 'Asia Pacific' };
     }
   });
 })();
-
 </script>
-
-<!-- ══════════════════════════════════════
-     SEND TEST MESSAGE MODAL
-══════════════════════════════════════ -->
-<div class="sm-overlay hidden" id="sendMsgOverlay" onclick="if(event.target===this)closeSendModal()">
-  <div class="sm-modal" role="dialog" aria-modal="true" aria-labelledby="smTitle">
-
-    <!-- Head -->
-    <div class="sm-head">
-      <div class="sm-head-title" id="smTitle">Send test message</div>
-      <button class="sm-head-close" onclick="closeSendModal()" aria-label="Close">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-        </svg>
-      </button>
-    </div>
-
-    <!-- Body -->
-    <div class="sm-body" id="smBody">
-
-      <!-- Number selector -->
-      <div class="sm-section">
-        <span class="sm-label">Send to</span>
-        <div class="sm-number-pills" id="smNumberPills"></div>
-      </div>
-
-      <!-- Message type -->
-      <div class="sm-section">
-        <span class="sm-label">Message type</span>
-        <div class="sm-type-cards">
-          <div class="sm-type-card selected" id="smTypeText" onclick="selectMsgType('text')">
-            <div class="sm-type-icon">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M2 4h12M2 8h9M2 12h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div class="sm-type-name">Simple text</div>
-            <div class="sm-type-desc">Plain text message</div>
-          </div>
-          <div class="sm-type-card" id="smTypeChoice" onclick="selectMsgType('choice')">
-            <div class="sm-type-icon">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M2 4h12M2 8h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                <rect x="2" y="10.5" width="5" height="3" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
-                <rect x="9" y="10.5" width="5" height="3" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
-              </svg>
-            </div>
-            <div class="sm-type-name">Text and reply</div>
-            <div class="sm-type-desc">Quick reply buttons</div>
-          </div>
-          <div class="sm-type-card" id="smTypeCard" onclick="selectMsgType('card')">
-            <div class="sm-type-icon">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/>
-                <path d="M2 7h12" stroke="currentColor" stroke-width="1.3"/>
-                <path d="M5 10h6M5 12h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div class="sm-type-name">Rich card</div>
-            <div class="sm-type-desc">Card with image &amp; replies</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Dynamic composer -->
-      <div class="sm-divider">
-        <div class="sm-divider-line"></div>
-        <div class="sm-divider-label">Compose</div>
-        <div class="sm-divider-line"></div>
-      </div>
-      <div id="smComposer"></div>
-
-    </div><!-- /sm-body -->
-
-    <!-- Footer -->
-    <div class="sm-footer">
-      <button class="btn btn-outline" onclick="closeSendModal()">Cancel</button>
-      <button class="btn-send" id="smBtnSend" onclick="sendTestMessage()">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <path d="M1 1l12 6-12 6V8.5l8-1.5-8-1.5V1z" fill="currentColor"/>
-        </svg>
-        Send message
-      </button>
-    </div>
-
-  </div>
-</div>
 
 <!-- Help dialog -->
 <div class="help-dialog-backdrop hidden" id="helpDialogBackdrop" onclick="closeHelpDialog(event)">
