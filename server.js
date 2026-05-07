@@ -39,7 +39,7 @@ async function getToken() {
 }
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'agents.html'));
+  res.sendFile(path.join(__dirname, 'public', 'overview.html'));
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
