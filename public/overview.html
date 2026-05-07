@@ -803,11 +803,12 @@ a.evidence-chip-text:hover { text-decoration: underline; }
   padding: 16px 20px; background: #fff;
   border: 1px solid var(--border); border-radius: var(--radius);
   cursor: pointer; font-family: inherit; text-align: left;
+  text-decoration: none; color: var(--text);
   transition: border-color 0.12s, background 0.12s;
 }
 .dev-form-card:hover { border-color: var(--border2); background: var(--surface2); }
-.dev-form-card[disabled] { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
-.dev-form-card[disabled]:hover { border-color: var(--border); background: #fff; }
+.dev-form-card[disabled], .dev-form-card[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+.dev-form-card[disabled]:hover, .dev-form-card[aria-disabled="true"]:hover { border-color: var(--border); background: #fff; }
 .dev-form-flag { font-size: 24px; flex-shrink: 0; }
 .dev-form-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .dev-form-meta strong { font-size: 14px; font-weight: 600; color: var(--text); }
@@ -1640,32 +1641,32 @@ a.evidence-chip-text:hover { text-decoration: underline; }
   <section class="dev-section">
     <div class="dev-section-label">Google verification</div>
     <div class="dev-form-grid">
-      <button class="dev-form-card" onclick="openWizardEmpty()">
+      <a class="dev-form-card" href="?form=verification">
         <span class="dev-form-flag">📝</span>
         <span class="dev-form-meta"><strong>Verification details</strong><span>Open the wizard with no values filled in</span></span>
-      </button>
-      <button class="dev-form-card" onclick="goToVerificationWizard()">
+      </a>
+      <a class="dev-form-card" href="?form=verification-edit">
         <span class="dev-form-flag">✅</span>
         <span class="dev-form-meta"><strong>Verification details (edit mode)</strong><span>Open the wizard pre-populated with sample data</span></span>
-      </button>
+      </a>
     </div>
   </section>
 
   <section class="dev-section">
     <div class="dev-section-label">Country-specific forms</div>
     <div class="dev-form-grid">
-      <button class="dev-form-card" onclick="openCountryReqDemo('US','US_phase1')">
+      <a class="dev-form-card" href="?form=us-phase1">
         <span class="dev-form-flag">🇺🇸</span>
         <span class="dev-form-meta"><strong>About your business</strong><span>US verification — Phase 1</span></span>
-      </button>
-      <button class="dev-form-card" onclick="openCountryReqDemo('US','US_phase2')">
+      </a>
+      <a class="dev-form-card" href="?form=us-phase2">
         <span class="dev-form-flag">🇺🇸</span>
         <span class="dev-form-meta"><strong>Use case setup</strong><span>US verification — Phase 2</span></span>
-      </button>
-      <button class="dev-form-card" disabled aria-disabled="true">
+      </a>
+      <span class="dev-form-card" aria-disabled="true">
         <span class="dev-form-flag">🇬🇧</span>
         <span class="dev-form-meta"><strong>UK operator details</strong><span>UK country-specific questions</span></span>
-      </button>
+      </span>
     </div>
   </section>
 </div>
@@ -2464,6 +2465,9 @@ function goToVerificationWizard() {
 
 function closeVerificationWizard() {
   document.getElementById('verificationWizard').classList.add('hidden');
+  if (new URLSearchParams(location.search).get('form')) {
+    history.replaceState(null, '', location.pathname);
+  }
 }
 
 function wizardGoTo(n) {
@@ -3824,9 +3828,10 @@ function openCountryReq(code, formId) {
 }
 
 function closeCountryReq() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('debug') === 'country') { window.location.href = 'agents.html'; return; }
   document.getElementById('countryReqOverlay').classList.add('hidden');
+  if (new URLSearchParams(location.search).get('form')) {
+    history.replaceState(null, '', location.pathname);
+  }
   countryReqDebugMode = false;
   activeFormId = null;
   document.getElementById('countryReqSide').classList.remove('visible');
@@ -5005,6 +5010,18 @@ const REGION_MAP = { US: 'United States', EU: 'Europe', APAC: 'Asia Pacific' };
     loadCountryForms('US'),
     loadCountryForms('GB'),
   ]);
+
+  // Route to a specific form via ?form=<id>
+  const formParam = new URLSearchParams(location.search).get('form');
+  if (formParam === 'verification') {
+    openWizardEmpty();
+  } else if (formParam === 'verification-edit') {
+    goToVerificationWizard();
+  } else if (formParam === 'us-phase1') {
+    openCountryReq('US', 'US_phase1');
+  } else if (formParam === 'us-phase2') {
+    openCountryReq('US', 'US_phase2');
+  }
 
   // Global keyboard handler
   document.addEventListener('keydown', e => {
