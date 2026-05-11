@@ -1057,6 +1057,16 @@ a.evidence-chip-text:hover { text-decoration: underline; }
 }
 .wz-vp-other-input::placeholder { color: var(--text3); }
 .wz-vp-other-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,115,232,0.12); }
+/* ── String-mode display for saved messaging fields ── */
+.wz-string-mode { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.wz-mode-actions { display: flex; gap: 8px; }
+.wz-mode-btn {
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  padding: 6px 12px; border-radius: var(--radius);
+  border: 1px solid var(--border2); background: #fff; color: var(--text2);
+  cursor: pointer; transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.wz-mode-btn:hover { background: var(--surface2); color: var(--text); }
 .wz-input {
   width: 100%; padding: 10px 12px;
   border: 1px solid var(--border2); border-radius: var(--radius);
@@ -1721,6 +1731,20 @@ a.evidence-chip-text:hover { text-decoration: underline; }
     <button class="btn btn-outline" id="wzBtnPrev" onclick="wizardPrev()" style="display:none">Previous</button>
     <button class="btn btn-primary" id="wzBtnNext" onclick="wizardNext()">Next step →</button>
   </div>
+  <div class="modal-overlay hidden" id="redoConfirmModal" onclick="if (event.target === this) cancelRedoMessaging()">
+    <div class="modal-box" style="max-width:440px">
+      <div class="modal-head">
+        <div class="modal-head-text">
+          <div class="modal-title">Redo this answer?</div>
+          <div class="modal-subtitle" id="redoConfirmSubtitle">This will clear your description so you can start over.</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" type="button" onclick="cancelRedoMessaging()">Cancel</button>
+        <button class="btn btn-primary" type="button" onclick="confirmRedoMessagingProceed()">Yes, clear and redo</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Country requirements overlay -->
@@ -2217,6 +2241,7 @@ const wzData = {
   triggerDescription:'', interactionsDescription:'',
   triggerOptions:[], triggerOther:'',
   interactionsOptions:[], interactionsOther:'',
+  triggerMode:'picker', interactionsMode:'picker',
   name:'', email:'', title:'', website:'',
 };
 let wzStep = 0;
@@ -2437,6 +2462,8 @@ function openWizardEmpty() {
     else if (typeof wzData[k] === 'string') wzData[k] = '';
   });
   wzData.screenshotMode = 'upload';
+  wzData.triggerMode = 'picker';
+  wzData.interactionsMode = 'picker';
   goToVerificationWizard();
   // Restore filled state on the page so the filled card stays visible after the wizard closes
   agent.verificationDetails = prev;
@@ -2446,6 +2473,22 @@ function goToVerificationWizard() {
   // Pre-populate wzData from saved details when editing
   if (agent.verificationDetails) {
     Object.assign(wzData, agent.verificationDetails);
+    // Once verification details are saved, show the messaging fields as a
+    // read-only concatenated string with Edit/Redo affordances rather than
+    // the visual pickers.
+    const savedTriggerMode = agent.verificationDetails.triggerMode || 'picker';
+    const savedInteractionsMode = agent.verificationDetails.interactionsMode || 'picker';
+    if (savedTriggerMode === 'picker' && (wzData.triggerOptions?.length || wzData.triggerOther)) {
+      wzData.triggerDescription = buildMessagingDescription('trigger', wzData);
+    }
+    if (savedInteractionsMode === 'picker' && (wzData.interactionsOptions?.length || wzData.interactionsOther)) {
+      wzData.interactionsDescription = buildMessagingDescription('interactions', wzData);
+    }
+    wzData.triggerMode = 'string';
+    wzData.interactionsMode = 'string';
+  } else {
+    wzData.triggerMode = 'picker';
+    wzData.interactionsMode = 'picker';
   }
   wzStep = 0;
 
@@ -2505,14 +2548,30 @@ function saveWzStep() {
     wzData.screenshotUris = wzData.screenshotUriList.join(', ');
     wzData.optOutDescription = val('wzOptOutDesc');
   } else if (wzStep === 1) {
-    const trig = collectVp('wzTriggerVp');
-    wzData.triggerOptions = trig.options;
-    wzData.triggerOther = trig.other;
-    wzData.triggerDescription = [...trig.options, trig.other].filter(Boolean).join(', ');
-    const inter = collectVp('wzInteractionsVp');
-    wzData.interactionsOptions = inter.options;
-    wzData.interactionsOther = inter.other;
-    wzData.interactionsDescription = [...inter.options, inter.other].filter(Boolean).join(', ');
+    if (wzData.triggerMode === 'string') {
+      const tEl = document.getElementById('wzTriggerString');
+      if (tEl) wzData.triggerDescription = tEl.value.trim();
+    } else {
+      const trigGroup = document.getElementById('wzTriggerVp');
+      if (trigGroup) {
+        const trig = collectVp('wzTriggerVp');
+        wzData.triggerOptions = trig.options;
+        wzData.triggerOther = trig.other;
+        wzData.triggerDescription = buildMessagingDescription('trigger', wzData);
+      }
+    }
+    if (wzData.interactionsMode === 'string') {
+      const iEl = document.getElementById('wzInteractionsString');
+      if (iEl) wzData.interactionsDescription = iEl.value.trim();
+    } else {
+      const interGroup = document.getElementById('wzInteractionsVp');
+      if (interGroup) {
+        const inter = collectVp('wzInteractionsVp');
+        wzData.interactionsOptions = inter.options;
+        wzData.interactionsOther = inter.other;
+        wzData.interactionsDescription = buildMessagingDescription('interactions', wzData);
+      }
+    }
   } else if (wzStep === 2) {
     wzData.name = val('wzName');
     wzData.email = val('wzEmail');
@@ -3193,23 +3252,94 @@ function collectVp(groupId) {
   return { options, other };
 }
 
+function buildMessagingDescription(field, source) {
+  const opts  = field === 'trigger' ? source.triggerOptions  : source.interactionsOptions;
+  const other = field === 'trigger' ? source.triggerOther    : source.interactionsOther;
+  const parts = [];
+  (opts || []).forEach(t => {
+    const p = MESSAGING_PRESETS.find(x => x.title === t);
+    if (p) parts.push(p[field]);
+    else if (t) parts.push(t);
+  });
+  if (other) parts.push(other);
+  return parts.join('. ');
+}
+
+function renderMessagingStringField(field, text) {
+  const taId = field === 'trigger' ? 'wzTriggerString' : 'wzInteractionsString';
+  const focusFieldId = field === 'trigger' ? 'triggerDescription' : 'interactionsDescription';
+  return `
+    <div class="wz-string-mode">
+      <textarea class="wz-textarea" id="${taId}" onfocus="focusWzField('${focusFieldId}')">${esc(text || '')}</textarea>
+      <div class="wz-mode-actions">
+        <button type="button" class="wz-mode-btn" onclick="confirmRedoMessaging('${field}')">Redo</button>
+      </div>
+    </div>`;
+}
+
+let pendingRedoField = null;
+
+function confirmRedoMessaging(field) {
+  saveWzStep();
+  pendingRedoField = field;
+  const label = field === 'trigger' ? 'when messages are sent' : 'what messages users will receive';
+  const subEl = document.getElementById('redoConfirmSubtitle');
+  if (subEl) {
+    subEl.textContent = `This will clear your description for "${label}" so you can start over.`;
+  }
+  document.getElementById('redoConfirmModal').classList.remove('hidden');
+}
+
+function cancelRedoMessaging() {
+  pendingRedoField = null;
+  document.getElementById('redoConfirmModal').classList.add('hidden');
+}
+
+function confirmRedoMessagingProceed() {
+  const field = pendingRedoField;
+  pendingRedoField = null;
+  document.getElementById('redoConfirmModal').classList.add('hidden');
+  if (!field) return;
+  if (field === 'trigger') {
+    wzData.triggerDescription = '';
+    wzData.triggerOptions = [];
+    wzData.triggerOther = '';
+    wzData.triggerMode = 'picker';
+  } else {
+    wzData.interactionsDescription = '';
+    wzData.interactionsOptions = [];
+    wzData.interactionsOther = '';
+    wzData.interactionsMode = 'picker';
+  }
+  renderWzStep();
+}
+
 function renderWzMessaging() {
   const presets = getMessagingPresets();
   const triggerItems = presets.map(p => ({ title: p.title, desc: p.trigger }));
   const interactionItems = presets.map(p => ({ title: p.title, desc: p.interactions }));
   const titles = presets.map(p => p.title);
 
-  // Auto-migrate legacy free-text into title selections + other
-  if (!wzData.triggerOptions.length && wzData.triggerDescription) {
+  // Auto-migrate legacy free-text into title selections + other (picker mode only)
+  if (wzData.triggerMode === 'picker' && !wzData.triggerOptions.length && wzData.triggerDescription) {
     const { matched, leftover } = matchVpTitles(wzData.triggerDescription, titles);
     wzData.triggerOptions = matched;
     if (!wzData.triggerOther) wzData.triggerOther = leftover;
   }
-  if (!wzData.interactionsOptions.length && wzData.interactionsDescription) {
+  if (wzData.interactionsMode === 'picker' && !wzData.interactionsOptions.length && wzData.interactionsDescription) {
     const { matched, leftover } = matchVpTitles(wzData.interactionsDescription, titles);
     wzData.interactionsOptions = matched;
     if (!wzData.interactionsOther) wzData.interactionsOther = leftover;
   }
+
+  const triggerField = wzData.triggerMode === 'string'
+    ? renderMessagingStringField('trigger', wzData.triggerDescription)
+    : renderVisualPicker('wzTriggerVp', triggerItems, wzData.triggerOptions, wzData.triggerOther, 'triggerDescription',
+        'e.g. Messages are sent when a user becomes inactive or during special campaigns.', 'Other triggers');
+  const interactionsField = wzData.interactionsMode === 'string'
+    ? renderMessagingStringField('interactions', wzData.interactionsDescription)
+    : renderVisualPicker('wzInteractionsVp', interactionItems, wzData.interactionsOptions, wzData.interactionsOther, 'interactionsDescription',
+        'e.g. Re-engagement offers, loyalty rewards, or personalized recommendations.', 'Other messages');
 
   return `
     <div class="wz-step-title">Messaging triggers</div>
@@ -3217,14 +3347,12 @@ function renderWzMessaging() {
     <div class="wz-field">
       <label class="wz-label">When are messages sent to users?</label>
       <span class="wz-hint">Select the events or conditions that trigger messages to be sent. This helps carriers understand your messaging behavior.</span>
-      ${renderVisualPicker('wzTriggerVp', triggerItems, wzData.triggerOptions, wzData.triggerOther, 'triggerDescription',
-        'e.g. Messages are sent when a user becomes inactive or during special campaigns.', 'Other triggers')}
+      ${triggerField}
     </div>
     <div class="wz-field">
       <label class="wz-label">What messages will users receive?</label>
       <span class="wz-hint">Select the main messages your agent sends. Focus on the most common interactions.</span>
-      ${renderVisualPicker('wzInteractionsVp', interactionItems, wzData.interactionsOptions, wzData.interactionsOther, 'interactionsDescription',
-        'e.g. Re-engagement offers, loyalty rewards, or personalized recommendations.', 'Other messages')}
+      ${interactionsField}
     </div>`;
 }
 
@@ -3286,9 +3414,13 @@ function renderScreenshotSummary(source = wzData) {
 }
 
 function renderMessagingSummaryValue(field, source = wzData, listClass = 'wz-summary-list', emptyMark = '—') {
+  const mode = (field === 'trigger' ? source.triggerMode : source.interactionsMode) || 'picker';
+  const fallbackText = field === 'trigger' ? source.triggerDescription : source.interactionsDescription;
+  if (mode === 'string') {
+    return fallbackText ? esc(fallbackText) : emptyMark;
+  }
   const opts  = field === 'trigger' ? source.triggerOptions  : source.interactionsOptions;
   const other = field === 'trigger' ? source.triggerOther    : source.interactionsOther;
-  const fallbackText = field === 'trigger' ? source.triggerDescription : source.interactionsDescription;
   const parts = [];
   (opts || []).forEach(t => {
     const p = MESSAGING_PRESETS.find(x => x.title === t);
@@ -3297,7 +3429,7 @@ function renderMessagingSummaryValue(field, source = wzData, listClass = 'wz-sum
   });
   if (other) parts.push(other);
   if (!parts.length) return fallbackText ? esc(fallbackText) : emptyMark;
-  return esc(parts.join(', '));
+  return esc(parts.join('. '));
 }
 
 function renderWzSummary() {
