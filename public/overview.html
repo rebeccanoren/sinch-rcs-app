@@ -1242,7 +1242,7 @@ a.evidence-chip-text:hover { text-decoration: underline; }
 }
 .wz-uc-select:hover { border-color: var(--border); color: var(--text); }
 .wz-uc-select:focus { border-color: var(--blue); }
-/* ── About your business — interactive sections ── */
+/* ── About the business — interactive sections ── */
 .field-section-head {
   font-size: 12px; font-weight: 600; color: var(--text2); letter-spacing: 0.04em;
   text-transform: uppercase; margin-bottom: 4px; margin-top: 4px; display: block;
@@ -1276,6 +1276,66 @@ a.evidence-chip-text:hover { text-decoration: underline; }
 }
 .add-id-remove:hover { background: var(--border); color: var(--text1); }
 .add-id-section .form-field:last-child { margin-bottom: 0; }
+.sample-msg-extra { margin-top: 16px; }
+.sample-msg-extra .form-label { display: flex; align-items: center; justify-content: space-between; }
+.sample-msg-remove {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border2);
+  background: none; cursor: pointer; font-size: 16px; color: var(--text3);
+  font-family: inherit; line-height: 1; padding: 0; flex-shrink: 0;
+}
+.sample-msg-remove:hover { background: var(--border); color: var(--text1); }
+.sample-msg-add-row { margin-top: 16px; }
+.contact-2fa-notice {
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px; margin-bottom: 24px; background: var(--surface2);
+}
+.contact-2fa-notice-title {
+  font-size: 13.5px; font-weight: 600; color: var(--text1); margin-bottom: 8px;
+}
+.contact-2fa-notice-body {
+  font-size: 13.5px; color: var(--text2); line-height: 1.5;
+}
+.contact-2fa-notice-link {
+  display: inline-block; margin-top: 8px;
+  font-size: 13.5px; font-weight: 500; color: var(--blue);
+  background: none; border: none; padding: 0; cursor: pointer; font-family: inherit;
+}
+.contact-2fa-notice-link:hover { text-decoration: underline; }
+.verify-step {
+  display: flex; gap: 16px; margin-top: 24px; align-items: flex-start;
+}
+.verify-step + .email-mock { margin-top: 8px; }
+.verify-step-num {
+  flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--blue); color: #fff; font-size: 13px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+}
+.verify-step-title {
+  font-size: 14px; font-weight: 600; color: var(--text1); margin-bottom: 4px;
+}
+.verify-step p { margin: 0; font-size: 14px; color: var(--text2); line-height: 1.5; }
+.email-mock {
+  border: 1px solid var(--border); border-radius: 10px;
+  overflow: hidden; background: #fff; margin-top: 16px;
+}
+.email-mock-meta {
+  background: var(--surface2); border-bottom: 1px solid var(--border);
+  padding: 8px 16px; font-size: 12.5px; color: var(--text2); line-height: 1.6;
+}
+.email-mock-label {
+  display: inline-block; min-width: 56px;
+  font-weight: 600; color: var(--text3); text-transform: uppercase;
+  font-size: 10.5px; letter-spacing: .06em;
+}
+.email-mock-body { padding: 16px; font-size: 13.5px; color: var(--text); line-height: 1.5; }
+.email-mock-body p { margin: 0 0 8px; }
+.email-mock-foot { color: var(--text3); font-size: 12.5px; }
+.email-mock-btn {
+  display: inline-block; background: var(--blue); color: #fff;
+  font-size: 13px; font-weight: 600; padding: 8px 16px;
+  border-radius: 6px; margin: 8px 0;
+}
 .field-footnote {
   font-size: 12.5px; color: var(--text3); cursor: pointer; margin-top: 4px;
   display: inline-block; text-decoration: underline;
@@ -1304,10 +1364,31 @@ a.evidence-chip-text:hover { text-decoration: underline; }
   color: #c2410c; margin-bottom: 4px;
 }
 .field-tooltip-icon {
+  position: relative;
   width: 16px; height: 16px; border-radius: 50%; background: var(--surface2);
   border: 1px solid var(--border2); display: inline-flex; align-items: center;
-  justify-content: center; font-size: 10px; color: var(--text3); cursor: default;
+  justify-content: center; font-size: 10px; color: var(--text3); cursor: help;
   flex-shrink: 0; line-height: 1;
+}
+.field-tooltip-icon:hover { background: var(--surface); color: var(--text2); }
+.field-tooltip-icon:hover::after,
+.field-tooltip-icon:focus::after {
+  content: attr(data-tooltip);
+  position: absolute; bottom: calc(100% + 8px); left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a18; color: #fff;
+  padding: 8px 12px; border-radius: 6px;
+  font-size: 12px; line-height: 1.45; font-weight: 400;
+  white-space: normal; width: max-content; max-width: 260px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+  z-index: 200; pointer-events: none;
+}
+.field-tooltip-icon:hover::before,
+.field-tooltip-icon:focus::before {
+  content: ''; position: absolute; bottom: calc(100% + 2px); left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent; border-top-color: #1a1a18;
+  z-index: 200; pointer-events: none;
 }
 .btn-debug {
   display: flex; align-items: center; gap: 5px;
@@ -1351,6 +1432,7 @@ a.evidence-chip-text:hover { text-decoration: underline; }
 .form-field { margin-bottom: 1.5rem; }
 .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
 .field-hint { font-size: 13px; color: var(--text2); line-height: 1.5; margin-bottom: 8px; }
+.field-hint-below { font-size: 13px; color: var(--text2); line-height: 1.5; margin-top: 6px; }
 .field-subheading { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
 .side-unused-list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
 .side-unused-row { padding: 8px 10px; background: var(--surface2); border-radius: 6px; border: 1px solid var(--border); }
@@ -1358,9 +1440,6 @@ a.evidence-chip-text:hover { text-decoration: underline; }
 .side-unused-label { font-size: 12px; color: var(--text2); margin-top: 2px; }
 .side-unused-note { font-size: 11px; color: var(--text3); margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--border); line-height: 1.5; }
 .field-section-header { margin-top: 8px; margin-bottom: 4px; padding-top: 16px; border-top: 1px solid var(--border); }
-.kw-pair { border: 1px solid var(--border); border-radius: 10px; padding: 0 16px; margin-bottom: 12px; }
-.kw-pair .form-field { margin-bottom: 0; padding: 16px 0 8px; }
-.kw-pair .form-field + .form-field { padding-top: 4px; }
 .field-section-header-title { font-size: 15px; font-weight: 600; color: var(--text); }
 .field-section-header-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
 .f-input, .f-select, .f-textarea {
@@ -1378,6 +1457,9 @@ a.evidence-chip-text:hover { text-decoration: underline; }
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%236b6b67' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 11px center; padding-right: 30px;
 }
+.f-select:has(option[value=""]:checked) { color: var(--text3); }
+.f-select option { color: var(--text); }
+.f-select option[value=""] { color: var(--text3); }
 .radio-group { display: flex; flex-direction: column; gap: 2px; }
 .radio-option { display: flex; align-items: center; gap: 10px; padding: 6px 0; cursor: pointer; user-select: none; }
 .radio-option input[type=radio] { display: none; }
@@ -1410,6 +1492,56 @@ a.evidence-chip-text:hover { text-decoration: underline; }
 /* Address */
 .addr-structured { display: flex; flex-direction: column; }
 .addr-city-row { display: flex; gap: 10px; align-items: flex-start; }
+.addr-wrap { position: relative; }
+.addr-search-row {
+  display: flex; align-items: center;
+  border: 1px solid var(--border2); border-radius: var(--radius);
+  background: var(--surface); padding: 0 12px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.addr-search-row:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+}
+.addr-search-icon { color: var(--text3); flex-shrink: 0; margin-right: 8px; }
+.addr-input {
+  flex: 1; border: none; background: none;
+  padding: 9px 0; font-size: 14px; font-family: inherit; color: var(--text);
+}
+.addr-input:focus { outline: none; }
+.addr-input::placeholder { color: var(--text3); }
+.addr-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  z-index: 50; overflow: hidden; display: none;
+}
+.addr-dropdown.open { display: block; }
+.addr-result {
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px 14px; cursor: pointer; transition: background 0.1s;
+  border-bottom: 1px solid var(--border);
+}
+.addr-result:last-child { border-bottom: none; }
+.addr-result:hover { background: var(--surface2); }
+.addr-result-icon { color: var(--text3); flex-shrink: 0; }
+.addr-result-line1 { font-size: 14px; color: var(--text); }
+.addr-result-line2 { font-size: 12px; color: var(--text3); }
+.addr-chip {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 14px; border: 1px solid var(--border2);
+  border-radius: var(--radius); background: var(--surface); gap: 12px;
+}
+.addr-chip-line1 { font-size: 14px; color: var(--text); line-height: 1.4; }
+.addr-chip-line2 { font-size: 13px; color: var(--text3); line-height: 1.4; }
+.addr-clear {
+  width: 24px; height: 24px; flex-shrink: 0;
+  border: none; background: none; cursor: pointer; border-radius: 4px;
+  color: var(--text3); font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.12s; line-height: 1;
+}
+.addr-clear:hover { background: var(--surface2); color: var(--text); }
 /* Summary */
 .summary-title { font-size: 24px; font-weight: 600; color: var(--text); margin-bottom: 2rem; letter-spacing: -0.02em; }
 .summary-section { padding: 1.5rem 0; border-top: 1px solid var(--border); }
@@ -1667,7 +1799,7 @@ a.evidence-chip-text:hover { text-decoration: underline; }
     <div class="dev-form-grid">
       <a class="dev-form-card" href="?form=us-phase1">
         <span class="dev-form-flag">🇺🇸</span>
-        <span class="dev-form-meta"><strong>About your business</strong><span>US verification — Phase 1</span></span>
+        <span class="dev-form-meta"><strong>About the business</strong><span>US verification — Phase 1</span></span>
       </a>
       <a class="dev-form-card" href="?form=us-phase2">
         <span class="dev-form-flag">🇺🇸</span>
@@ -2812,6 +2944,7 @@ const HELP_CONTENT = {
   'optout': {
     title: 'Opt-out confirmation response',
     body: () => `
+      <div class="help-dialog-tip"><strong>Required:</strong> Each response must include your brand name.</div>
       <p>This is the message sent to the user when they opt out. It must include:</p>
       <ul>
         <li><strong>Program or brand name</strong><span>So the user knows which service they unsubscribed from</span></li>
@@ -2894,72 +3027,62 @@ const HELP_CONTENT = {
   'cta-before-signup': {
     title: 'Call-to-action text shown before signup',
     body: () => `
-      <p>This is the text users see before they sign up to receive messages. It explains what they are agreeing to. It must:</p>
+      <p>This is the text users see before they sign up to receive messages. It explains what they are agreeing to. It must include:</p>
       <ul>
-        <li>Explain what the user is signing up for</li>
-        <li>Describe the type of messages they will receive</li>
-        <li>Include message frequency (if messages are recurring)</li>
-        <li>Include "Message &amp; data rates may apply"</li>
-        <li>Include a link to your Privacy Policy</li>
-        <li>Include a link to your Terms and Conditions</li>
+        <li>Program description</li>
+        <li>Message frequency (e.g. #msgs/mo, msg frequency varies, recurring messages, 1 msg/request)</li>
+        <li>Opt-out instructions (reply STOP to stop)</li>
+        <li>HELP instructions (reply HELP for help)</li>
+        <li>Complete terms and conditions, or a link to complete terms and conditions</li>
+        <li>Privacy policy, or a link to a privacy policy (must confirm no selling or sharing with third parties)</li>
+        <li>&ldquo;Message and data rates may apply&rdquo;</li>
       </ul>
-      <div class="help-dialog-tip"><strong>Tip:</strong> This text should match exactly what users see at the point of signup (e.g. website, app, or form).</div>
-      <div class="help-examples-label">Examples</div>
-      <div class="help-mockup-row">
+      <div class="help-dialog-tip"><strong>Tip:</strong> This text should match exactly what users see at the point of signup (e.g. website, app, or form).</div>`
+  },
 
-        <!-- Example 1: Newsletter / account signup -->
-        <div class="help-mockup">
-          <div class="help-mockup-bar">
-            <div class="hmock-dot" style="width:7px;height:7px;border-radius:50%;background:#f87171;flex-shrink:0"></div>
-            <div class="hmock-dot" style="width:7px;height:7px;border-radius:50%;background:#fbbf24;flex-shrink:0;margin-left:4px"></div>
-            <div class="hmock-dot" style="width:7px;height:7px;border-radius:50%;background:#4ade80;flex-shrink:0;margin-left:4px"></div>
-            <div class="help-mockup-bar-url">app.example.com/register</div>
-          </div>
-          <div class="help-mockup-body">
-            <div class="hmock-label">Create your account</div>
-            <div class="hmock-row">
-              <div class="hmock-field"></div>
-              <div class="hmock-field"></div>
-            </div>
-            <div class="hmock-field"></div>
-            <hr class="hmock-divider">
-            <div class="hmock-cta-block">Sign up to receive booking updates and reminders. Message frequency varies. Message &amp; data rates may apply. Privacy Policy: example.com/privacy · Terms: example.com/terms</div>
-            <div class="hmock-check-row">
-              <div class="hmock-cb">
-                <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3l2 2 4-4" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </div>
-              <div class="hmock-check-text">I agree to receive messages</div>
-            </div>
-            <div class="hmock-btn">Create account</div>
-          </div>
-          <div class="help-mockup-caption">Signup form with consent text above checkbox</div>
+  'contact-2fa-emails': {
+    title: 'Verification emails this person will receive',
+    body: () => `
+      <p>As part of onboarding, the brand completes two separate two-factor authentication (2FA) steps via email. Verification emails come from both Aegis and Google.</p>
+
+      <div class="verify-step">
+        <div class="verify-step-num">1</div>
+        <div>
+          <div class="verify-step-title">Aegis verification</div>
+          <p>The brand receives an email from Aegis to verify their email address. They must follow the instructions in the email to complete the step.</p>
         </div>
-
-        <!-- Example 2: Checkout page -->
-        <div class="help-mockup">
-          <div class="help-mockup-bar">
-            <div class="hmock-dot" style="width:7px;height:7px;border-radius:50%;background:#f87171;flex-shrink:0"></div>
-            <div class="hmock-dot" style="width:7px;height:7px;border-radius:50%;background:#fbbf24;flex-shrink:0;margin-left:4px"></div>
-            <div class="hmock-dot" style="width:7px;height:7px;border-radius:50%;background:#4ade80;flex-shrink:0;margin-left:4px"></div>
-            <div class="help-mockup-bar-url">shop.example.com/checkout</div>
-          </div>
-          <div class="help-mockup-body">
-            <div class="hmock-label">Order summary</div>
-            <div class="hmock-field short"></div>
-            <div class="hmock-field short"></div>
-            <hr class="hmock-divider">
-            <div class="hmock-cta-block">Get delivery updates and special offers from Clever Bookings. Up to 2 messages per week. Msg &amp; data rates may apply. See example.com/privacy and example.com/terms</div>
-            <div class="hmock-check-row">
-              <div class="hmock-cb">
-                <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3l2 2 4-4" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </div>
-              <div class="hmock-check-text"><strong>Yes, send me order &amp; delivery updates</strong></div>
-            </div>
-            <div class="hmock-btn">Complete purchase</div>
-          </div>
-          <div class="help-mockup-caption">Checkout page with consent text before opt-in</div>
+      </div>
+      <div class="email-mock">
+        <div class="email-mock-meta">
+          <div><span class="email-mock-label">From</span> Aegis &lt;noreply@aegis.sinch.com&gt;</div>
+          <div><span class="email-mock-label">Subject</span> Verify your email to complete RCS agent setup</div>
         </div>
+        <div class="email-mock-body">
+          <p>Hello,</p>
+          <p>Confirm your email address to continue setting up your RCS agent.</p>
+          <div class="email-mock-btn">Verify email</div>
+          <p class="email-mock-foot">This link expires in 24 hours.</p>
+        </div>
+      </div>
 
+      <div class="verify-step">
+        <div class="verify-step-num">2</div>
+        <div>
+          <div class="verify-step-title">Google verification</div>
+          <p>The brand receives an email from Google to validate the agent details and confirm that Sinch is authorised to act as DCA. They must follow the instructions in the email to complete the step.</p>
+        </div>
+      </div>
+      <div class="email-mock">
+        <div class="email-mock-meta">
+          <div><span class="email-mock-label">From</span> Google Business Communications &lt;noreply@google.com&gt;</div>
+          <div><span class="email-mock-label">Subject</span> Approve your RCS Business Messaging agent</div>
+        </div>
+        <div class="email-mock-body">
+          <p>Hello,</p>
+          <p>Review the details for your RCS agent and confirm Sinch as your messaging provider (DCA).</p>
+          <div class="email-mock-btn">Review and approve</div>
+          <p class="email-mock-foot">You may need to sign in with the email address on file.</p>
+        </div>
       </div>`
   },
 
@@ -2982,6 +3105,7 @@ const HELP_CONTENT = {
   'optin-confirmation': {
     title: 'Opt-in confirmation response',
     body: () => `
+      <div class="help-dialog-tip"><strong>Required:</strong> Each response must include your brand name.</div>
       <p>This is the message sent to the user to confirm that they have successfully subscribed to receive messages. It should:</p>
       <ul>
         <li>Clearly confirm the subscription</li>
@@ -3001,6 +3125,7 @@ const HELP_CONTENT = {
   'help-keyword-response': {
     title: 'Help keyword response',
     body: () => `
+      <div class="help-dialog-tip"><strong>Required:</strong> Each response must include your brand name.</div>
       <p>This is the message your agent sends when a user requests help — for example by replying with HELP or a supported equivalent. It must include:</p>
       <ul>
         <li><strong>Program or brand name</strong><span>So the user knows which service is contacting them</span></li>
@@ -3014,7 +3139,7 @@ const HELP_CONTENT = {
   'ein-help': {
     title: 'What is an EIN?',
     body: () => `
-      <p>An EIN (Employer Identification Number) is a unique number assigned by the IRS to identify your business for tax purposes. You can find it on your EIN confirmation letter, tax returns, IRS notices, or in business bank and payroll records.</p>
+      <p>An EIN (Employer Identification Number) is a unique tax ID issued by the IRS to identify a business. You can find it on IRS documents, tax returns, or business banking and payroll records.</p>
       <div class="help-irs-letter">
         <div class="help-irs-header">
           <div class="help-irs-seal">
@@ -3535,17 +3660,17 @@ const US_PHASE2_EXTRA_KEYS = new Set(['optInBrandMessage','verizonRbmOptInDescri
 /* ── Step definitions for named form types ── */
 const STEP_DEFS = {
   US_phase1: [
-    { title:'About your business',
-      subtitle:'Legal registration details about the company sending RCS messages.',
+    { title:'Business details',
+      subtitle:'Provide details about the business that will send RCS messages. We\'ll use this information to verify the business and submit it to mobile operators for approval.',
       keys:['us__companyLegalName','us__brandName','us__brandIndustry','us__legalForm','us__taxIdCountry','us__ein','us__taxId','us__additionalIdType','us__additionalIdNumber','us__stockExchange','us__stockSymbol'] },
-    { title:'Business address',
-      subtitle:'The registered address of your business.',
+    { title:'Registered business address',
+      subtitle:'Enter the address on file with the IRS or state business registration.',
       keys:['us__fullCompanyAddress'] },
-    { title:'Public contact information',
-      subtitle:'This information is used by mobile operators to verify your business.',
+    { title:'Public business contact information',
+      subtitle:'Mobile operators use this information to verify the business and confirm that customers can reach it through public channels.',
       keys:['us__websiteUrl','us__phoneNumber'] },
     { title:'Business contact person',
-      subtitle:"After you submit your RCS agent, this person will receive an email from Google to review the details and approve Sinch as the messaging provider. They must be authorized to represent the business sending the messages (the brand shown in the agent), not the reseller or partner submitting the request. This person may also be contacted by local mobile operators to verify the information.",
+      subtitle:"This person must be authorised to represent the brand shown in the agent — not the reseller or partner submitting the request. Local mobile operators may also contact them to verify the details.",
       keys:['us__contactFirstName','us__contactSurname','us__contactPosition','us__contactPhoneNumber','us__contactEmail'] },
     { title:'Summary', isSummary:true },
   ],
@@ -3562,11 +3687,11 @@ const STEP_DEFS = {
       // general.questions.optInDescription (opt-in description) and
       // general.questions.screenshotUris (consent screenshot). Covered by the Verification
       // Details wizard — no need to surface it here as well.
-      keys:['us__callToActionDescription','us__optInKeyword','us__optInConfirmationResponse','us__helpKeyword','us__helpMessageResponse','us__stopKeyword','us__stopMessageResponse','us__verizonSmsOptInDescription'] },
+      keys:['us__callToActionDescription','us__optInConfirmationResponse','us__helpMessageResponse','us__stopMessageResponse','us__verizonSmsOptInDescription'] },
     { title:'Summary', isSummary:true },
   ],
   GB_country: [
-    { title:'About your business',
+    { title:'About the business',
       subtitle:'Mobile operators in United Kingdom need additional details about the business using this RCS Agent.',
       keys:['gb__companyLegalName','gb__brandIndustry','gb__companyRegistrationNumber','gb__fullCompanyAddress'] },
     { title:'Message volume',
@@ -3593,11 +3718,11 @@ const FIELD_LABELS = {
   verizonSmsOptInDescription:'Verizon SMS subscriber opt-in description',
   verizonRbmOptInDescription:'Verizon RBM opt-in description',
   sampleMessages:'Sample message', callToActionDescription:'Call-to-action text shown before signup', callToActionScreenshotUrl:'Call to action screenshot URL',
-  companyLegalName:'Legal business name', brandName:'Business display name', brandIndustry:'Business category',
+  companyLegalName:'Legal business name', brandName:'Brand name', brandIndustry:'Brand category',
   legalForm:'Legal form', taxIdCountry:'Legal country of registration', ein:'Tax ID (EIN)', taxId:'Tax ID',
   additionalIdType:'Additional ID type', additionalIdNumber:'Additional ID number',
   stockExchange:'Stock Exchange', stockSymbol:'Stock Symbol', websiteUrl:'Website URL',
-  phoneNumber:'Phone number', fullCompanyAddress:'Registered business address',
+  phoneNumber:'Phone number', fullCompanyAddress:'Address',
   companyRegistrationNumber:'Registration number',
   messagesFrequency:'How often do you expect to send messages?',
   campaignLength:'What will be the length of the RCS campaign?',
@@ -3632,17 +3757,10 @@ const SMS_CAMPAIGN_TYPES = [
   { label:'Toll-free number (TFN)',      fullVal:'Yes — upgrading a toll-free number (TFN)',  numKey:'verizonSmsUpgradeLongCode',  numLabel:'toll-free number (TFN)',       placeholder:'e.g. 833-123-4567' },
 ];
 
-/* Fields injected into steps that have no backing API question */
-const SYNTHETIC_FIELDS = {
-  'us__optInKeyword':  { sectionKey:'us', qKey:'optInKeyword',  q:{ question:null, suggestedAnswers:[] } },
-  'us__helpKeyword':   { sectionKey:'us', qKey:'helpKeyword',   q:{ question:null, suggestedAnswers:[] } },
-  'us__stopKeyword':   { sectionKey:'us', qKey:'stopKeyword',   q:{ question:null, suggestedAnswers:[] } },
-};
-
 /* Section headers inserted before a specific qKey */
 const SECTION_HEADERS = {
-  smsCampaign:            { title:'SMS fallback', subtitle:'Let us know if you plan to use SMS as a fallback. This helps with review and verification.' },
-  optInKeyword:           { title:'Compliance', subtitle:'Define the messages your agent sends to meet carrier and regulatory requirements. These responses confirm actions like opting out and may be triggered by keywords (for example "STOP") or other unsubscribe methods.' },
+  smsCampaign:               { title:'SMS fallback', subtitle:'Let us know if you plan to use SMS as a fallback. This helps with review and verification.' },
+  optInConfirmationResponse: { title:'Opt in and keyword responses', subtitle:'Define the messages your agent sends to meet carrier and regulatory requirements. These responses confirm actions like opting in, requesting help, and opting out.' },
 };
 
 const RADIO_KEYS    = new Set(['smsCampaign','verizonInitialMessageTypeModel']);
@@ -3654,14 +3772,18 @@ const TEXTAREA_HINTS = {
   sampleMessages:           'Write a realistic message your agent would send. Include what it is about, when it is sent, and what the user can do next.',
   callToActionDescription:  'Provide the exact text shown to users before they sign up to receive messages. This must include what they\'ll receive and required disclosures.',
 };
+const FIELD_HINTS = {
+  brandName: 'The name customers recognize this business by. This may be different from the legal business name.',
+  brandIndustry: 'Select the category that best describes the business.',
+};
 const TEXTAREA_EXAMPLES = {
   useCaseDescription:       'e.g. We send order updates after purchase, delivery notifications, appointment reminders, and customer support messages',
   sampleMessages:           'e.g. Your order #1042 has shipped and will arrive by Friday. Track your delivery at acme.com/track',
   callToActionDescription: 'Example: Sign up to receive booking updates and reminders from us. Message frequency varies. Message & data rates may apply.',
   optInBrandMessage:       'Example: Welcome to ACME! Get 10% off your first order.',
-  optInConfirmationResponse: 'Example: You\'re now subscribed to ACME updates. Msg & data rates may apply. Reply STOP to unsubscribe.',
-  helpMessageResponse:     'Example: For support, visit acme.com/help or email support@acme.com. Msg & data rates may apply.',
-  stopMessageResponse:     'Example: You\'ve been unsubscribed and won\'t receive any more messages from us.',
+  optInConfirmationResponse: 'Each response must include your brand name.',
+  helpMessageResponse:     'Each response must include your brand name.',
+  stopMessageResponse:     'Each response must include your brand name.',
 };
 /* qKey → help dialog topic; renders a "View examples" link below the textarea */
 const TEXTAREA_HELP_LINKS = {
@@ -3681,6 +3803,21 @@ const PHONE_PREFIXES = [
 ];
 
 const US_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC'];
+
+const MOCK_ADDRESSES = [
+  {line1:'1600 Amphitheatre Pkwy',        line2:'Mountain View, CA 94043, United States'},
+  {line1:'350 Fifth Avenue',              line2:'New York, NY 10118, United States'},
+  {line1:'1 Infinite Loop',               line2:'Cupertino, CA 95014, United States'},
+  {line1:'410 Terry Ave N',               line2:'Seattle, WA 98109, United States'},
+  {line1:'Lindhagensgatan 112',           line2:'112 51 Stockholm, Sweden'},
+  {line1:'1 Hacker Way',                  line2:'Menlo Park, CA 94025, United States'},
+  {line1:'Sveavägen 44',                  line2:'111 34 Stockholm, Sweden'},
+  {line1:'221B Baker Street',             line2:'London NW1 6XE, United Kingdom'},
+  {line1:'Avenue des Champs-Élysées 101', line2:'75008 Paris, France'},
+  {line1:'Unter den Linden 1',            line2:'10117 Berlin, Germany'},
+  {line1:'Gran Vía 1',                    line2:'28013 Madrid, Spain'},
+  {line1:'Drottninggatan 68',             line2:'111 21 Stockholm, Sweden'},
+];
 
 
 /* Operator counts per country (placeholder data) */
@@ -3884,7 +4021,7 @@ function buildCountryForms(code, data) {
         phase1.push(entry);
     }
     return [
-      { id:'US_phase1', title:'About your business',
+      { id:'US_phase1', title:'About the business',
         subtitle:'Company registration, identity, and contact details required for US activation.',
         questions: phase1 },
       { id:'US_phase2', title:'Use case setup',
@@ -4116,8 +4253,7 @@ function renderActiveStep() {
   } else {
     const stepKeyOrder = step.keys;
     const stepQuestions = stepKeyOrder.map(key => {
-      const apiQ = activeFormQuestions.find(q => `${q.sectionKey}__${q.qKey}` === key);
-      return apiQ || SYNTHETIC_FIELDS[key] || null;
+      return activeFormQuestions.find(q => `${q.sectionKey}__${q.qKey}` === key) || null;
     }).filter(Boolean);
     sidePanelFields = {};
     document.getElementById('countryReqFields').innerHTML = renderFields(stepQuestions);
@@ -4219,17 +4355,6 @@ function focusField(id) {
 }
 
 /* Number input connects to us.questions.smsCampaign (primary) + verizonSmsUpgrade* (secondary) */
-/* Opt-in keyword field — not in API */
-function focusOptInKeyword() {
-  if (!countryReqDebugMode) return;
-  document.getElementById('countryReqSideContent').innerHTML = `<div class="side-panel-inner">
-    <div class="side-annotation">
-      <div class="side-annotation-title">Annotations</div>
-      This field has no confirmed API connection yet. It may be used for testing purposes — to be decided.
-    </div>
-  </div>`;
-}
-
 /* Shown when focusing the Yes/No or type-picker — UI-only helpers with no API field */
 function focusSmsCampHelper() {
   if (!countryReqDebugMode) return;
@@ -4294,40 +4419,61 @@ function applySuggestion(id, text) {
 }
 
 /* ── Field rendering ── */
-/* Keyword → paired response key for visual grouping */
-const KEYWORD_PAIRS = {
-  optInKeyword: 'optInConfirmationResponse',
-  helpKeyword:  'helpMessageResponse',
-  stopKeyword:  'stopMessageResponse',
-};
-const KEYWORD_BADGES = {
-  optInKeyword: 'START',
-  helpKeyword:  'HELP',
-  stopKeyword:  'STOP',
-};
-
 function renderFields(questions) {
   if (!questions?.length) return `<p style="color:var(--text3);font-size:14px">No fields for this step.</p>`;
-  const out = [];
-  const skip = new Set();
-  questions.forEach(({ sectionKey, qKey, q }, i) => {
-    if (skip.has(qKey)) return;
+  return questions.map(({ sectionKey, qKey, q }) => {
     const header = SECTION_HEADERS[qKey]
       ? `<div class="field-section-header">
           <div class="field-section-header-title">${esc(SECTION_HEADERS[qKey].title)}</div>
           <div class="field-section-header-sub">${esc(SECTION_HEADERS[qKey].subtitle)}</div>
         </div>`
       : '';
-    const pairedKey = KEYWORD_PAIRS[qKey];
-    const nextQ = questions[i + 1];
-    if (pairedKey && nextQ?.qKey === pairedKey) {
-      skip.add(pairedKey);
-      out.push(header + `<div class="kw-pair">${renderField(sectionKey, qKey, q)}${renderField(nextQ.sectionKey, nextQ.qKey, nextQ.q)}</div>`);
-    } else {
-      out.push(header + renderField(sectionKey, qKey, q));
-    }
-  });
-  return out.join('');
+    return header + renderField(sectionKey, qKey, q);
+  }).join('');
+}
+
+function renderSampleMessagesExtras(id) {
+  const extras = answers[`${id}__extras`] || [];
+  const items = extras.map((val, idx) => `
+    <div class="form-field sample-msg-extra">
+      <label class="form-label" for="fi_${id}__extra_${idx}">
+        <span>Sample message ${idx + 2}</span>
+        <button type="button" class="sample-msg-remove" onclick="removeSampleMsg('${id}',${idx})" title="Remove">&#x2715;</button>
+      </label>
+      <textarea id="fi_${id}__extra_${idx}" class="f-textarea"
+        placeholder="Enter another example message…"
+        oninput="updateSampleMsgExtra('${id}',${idx},this.value)"
+        onfocus="focusField('${id}')">${esc(val)}</textarea>
+    </div>`).join('');
+  return `${items}
+    <div class="sample-msg-add-row">
+      <button type="button" class="add-id-btn" onclick="addSampleMsg('${id}')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+        Add another message
+      </button>
+    </div>`;
+}
+
+function addSampleMsg(id) {
+  const extras = answers[`${id}__extras`] || [];
+  extras.push('');
+  answers[`${id}__extras`] = extras;
+  document.getElementById(`sampleMsgExtras_${id}`).innerHTML = renderSampleMessagesExtras(id);
+  const inp = document.getElementById(`fi_${id}__extra_${extras.length - 1}`);
+  if (inp) inp.focus();
+}
+
+function updateSampleMsgExtra(id, idx, val) {
+  const extras = answers[`${id}__extras`] || [];
+  extras[idx] = val;
+  answers[`${id}__extras`] = extras;
+}
+
+function removeSampleMsg(id, idx) {
+  const extras = answers[`${id}__extras`] || [];
+  extras.splice(idx, 1);
+  answers[`${id}__extras`] = extras;
+  document.getElementById(`sampleMsgExtras_${id}`).innerHTML = renderSampleMessagesExtras(id);
 }
 
 function renderField(sectionKey, qKey, q) {
@@ -4341,8 +4487,8 @@ function renderField(sectionKey, qKey, q) {
   if (qKey === 'taxIdCountry') {
     if (!answers[id]) answers[id] = 'US';
     const sectionHead = `<div style="margin-bottom:16px;padding-top:8px;border-top:1px solid var(--border)">
-      <span class="field-section-head">Company legal details</span>
-      <p class="field-section-sub">Tell us how your company is legally registered and whether it's publicly traded.</p>
+      <span class="field-section-head">Business verification</span>
+      <p class="field-section-sub">Mobile operators use this information to verify the business before approving RCS messaging.</p>
     </div>`;
     sidePanelFields[id] = { sectionKey, qKey, q };
     const uiLabel = FIELD_LABELS[qKey] || q.question?.trim() || qKey;
@@ -4382,7 +4528,7 @@ function renderField(sectionKey, qKey, q) {
     return `<div class="form-field" id="fi_wrap_${typeId}">
       <button type="button" class="add-id-btn" id="addIdBtn" onclick="toggleAddId()" style="display:${isOpen?'none':'inline-flex'}">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
-        Add additional ID number
+        Additional business identifier (optional)
       </button>
       <div class="add-id-section" id="addIdContent" style="display:${isOpen?'block':'none'}">
         <div class="add-id-section-header">
@@ -4394,7 +4540,7 @@ function renderField(sectionKey, qKey, q) {
           <label class="form-label">Identifier type</label>
           <select id="fi_${typeId}" class="f-select" onfocus="focusField('${typeId}')"
             onchange="(function(v){answers['${typeId}']=v;var sl={'Data Universal Numbering System (DUNS)':'DUNS','Legal Entity Identifier (LEI)':'LEI','Global Intermediary Identification Number (GIIN)':'GIIN'};var pl={DUNS:'e.g. 12-345-6789',LEI:'e.g. 5493OO1KJTIIGC8Y1R12',GIIN:'e.g. ABCD12.12345.LE.789'};var s=sl[v]||v;var lbl=document.getElementById('addIdNumLabel');if(lbl)lbl.textContent=s;var inp=document.getElementById('fi_${numId}');if(inp)inp.placeholder=pl[s]||'';})(this.value)">
-            <option value="">Select…</option>
+            <option value="">Select identifier type</option>
             ${idTypeOpts.map(o=>`<option value="${esc(o)}"${typeVal===o?' selected':''}>${esc(o)}</option>`).join('')}
           </select>
         </div>
@@ -4419,13 +4565,13 @@ function renderField(sectionKey, qKey, q) {
       <label class="public-company-check">
         <input type="checkbox" id="publicCompanyCheck" ${isPublic ? 'checked' : ''}
           onchange="togglePublicCompany(this.checked)">
-        This is a public company
+        The business is publicly traded
       </label>
       <div id="publicCompanyFields" style="display:${isPublic?'block':'none'}">
         <div class="form-field" style="margin-bottom:14px">
           <div class="field-label-with-hint">
             <label class="form-label" for="fi_${exId}">Stock Exchange</label>
-            <span class="field-tooltip-icon" title="The exchange where your company is listed (e.g. NASDAQ, NYSE, OMX)">?</span>
+            <span class="field-tooltip-icon" tabindex="0" data-tooltip="The exchange where the business is listed, such as NYSE or NASDAQ." aria-label="The exchange where the business is listed, such as NYSE or NASDAQ.">?</span>
           </div>
           <input type="text" id="fi_${exId}" class="f-input"
             placeholder="e.g. NYSE, NASDAQ" value="${esc(exVal)}"
@@ -4434,7 +4580,7 @@ function renderField(sectionKey, qKey, q) {
         <div class="form-field" style="margin-bottom:0">
           <div class="field-label-with-hint">
             <label class="form-label" for="fi_${symId}">Stock Symbol</label>
-            <span class="field-tooltip-icon" title="Your company's ticker symbol on that exchange (e.g. AAPL)">?</span>
+            <span class="field-tooltip-icon" tabindex="0" data-tooltip="The stock ticker symbol used to identify the business, such as AAPL." aria-label="The stock ticker symbol used to identify the business, such as AAPL.">?</span>
           </div>
           <input type="text" id="fi_${symId}" class="f-input"
             placeholder="e.g. AAPL" value="${esc(symVal)}"
@@ -4444,6 +4590,21 @@ function renderField(sectionKey, qKey, q) {
     </div>`;
   }
 
+  if (qKey === 'contactFirstName') {
+    const standardHtml = renderFieldStandard(sectionKey, qKey, q, id);
+    const notice = `<div class="contact-2fa-notice">
+      <div class="contact-2fa-notice-title">This person will complete two email verification steps</div>
+      <div class="contact-2fa-notice-body">After submission, they will receive two separate two-factor authentication (2FA) emails at the address you provide here — one from Aegis and one from Google. They must follow the instructions in both to finish onboarding.</div>
+      <button type="button" class="contact-2fa-notice-link" onclick="openHelpDialog('contact-2fa-emails')">See sample emails →</button>
+    </div>`;
+    return notice + standardHtml;
+  }
+
+  if (qKey === 'sampleMessages') {
+    const standardHtml = renderFieldStandard(sectionKey, qKey, q, id);
+    return `${standardHtml}<div id="sampleMsgExtras_${id}">${renderSampleMessagesExtras(id)}</div>`;
+  }
+
   if (qKey === 'verizonSmsOptInDescription') {
     // Only shown when the agent upgrades an existing SMS campaign
     const smsCampaignVal = answers[`${sectionKey}__smsCampaign`];
@@ -4451,38 +4612,6 @@ function renderField(sectionKey, qKey, q) {
     // Render via standard path but wrap in a toggleable div
     const innerHtml = renderFieldStandard(sectionKey, qKey, q, id);
     return `<div id="verizonSmsOptInWrapper_${sectionKey}" style="display:${visible?'block':'none'}">${innerHtml}</div>`;
-  }
-
-  if (qKey === 'optInKeyword') {
-    // UI helper — not connected to any API field
-    delete sidePanelFields[id];
-    const val = answers[id] || '';
-    return `<div class="form-field" id="fi_wrap_${id}">
-      <label class="form-label" for="fi_${id}">Opt-in keyword</label>
-      <input type="text" id="fi_${id}" class="f-input" placeholder="e.g. START"
-        value="${esc(val)}" oninput="answers['${id}']=this.value" onfocus="focusOptInKeyword()">
-      <p class="field-hint">Users text this to subscribe. Carriers also use it to verify your setup.</p>
-    </div>`;
-  }
-
-  if (qKey === 'helpKeyword') {
-    delete sidePanelFields[id];
-    const val = answers[id] || '';
-    return `<div class="form-field" id="fi_wrap_${id}">
-      <label class="form-label" for="fi_${id}">Help keyword</label>
-      <input type="text" id="fi_${id}" class="f-input" placeholder="e.g. HELP"
-        value="${esc(val)}" oninput="answers['${id}']=this.value" onfocus="focusOptInKeyword()">
-    </div>`;
-  }
-
-  if (qKey === 'stopKeyword') {
-    delete sidePanelFields[id];
-    const val = answers[id] || '';
-    return `<div class="form-field" id="fi_wrap_${id}">
-      <label class="form-label" for="fi_${id}">Opt-out keyword</label>
-      <input type="text" id="fi_${id}" class="f-input" placeholder="e.g. STOP"
-        value="${esc(val)}" oninput="answers['${id}']=this.value" onfocus="focusOptInKeyword()">
-    </div>`;
   }
 
   if (qKey === 'smsCampaign') {
@@ -4528,6 +4657,13 @@ function renderField(sectionKey, qKey, q) {
           placeholder="${typeMatch ? esc(typeMatch.placeholder) : ''}" value="${esc(numVal)}"
           oninput="updateSmsCampNum('${sectionKey}',this.value)" onfocus="focusSmsCampNumInp('${sectionKey}')">
       </div>
+      <div id="smsSenderTraffic_${sectionKey}" style="display:${typeMatch?'block':'none'};margin-top:16px">
+        <label class="form-label" for="smsSenderTrafficInp_${sectionKey}">Monthly traffic on the SMS sender</label>
+        <input type="number" min="0" id="smsSenderTrafficInp_${sectionKey}" class="f-input"
+          placeholder="e.g. 10000" value="${esc(answers[`${sectionKey}__smsSenderMonthlyTraffic`] || '')}"
+          oninput="answers['${sectionKey}__smsSenderMonthlyTraffic']=this.value" onfocus="focusSmsCampHelper()">
+        <p class="field-hint-below">Estimated messages per month sent from this sender.</p>
+      </div>
     </div>`;
   }
 
@@ -4542,7 +4678,7 @@ function renderField(sectionKey, qKey, q) {
     inputHtml = renderAddressField(id, val);
   } else if (cfg?.type === 'select') {
     const selectOpts = q.suggestedAnswers?.length ? q.suggestedAnswers : (cfg.options || []);
-    inputHtml = renderSelect(id, selectOpts, val);
+    inputHtml = renderSelect(id, selectOpts, val, uiLabel);
   } else if (cfg?.type === 'country') {
     inputHtml = renderCountrySelect(id, val);
   } else if (cfg?.type === 'phone') {
@@ -4590,8 +4726,10 @@ function renderField(sectionKey, qKey, q) {
   const labelHtml = isSubheading
     ? `<p class="field-subheading">${label}</p>`
     : `<label class="form-label" for="fi_${id}">${label}</label>`;
+  const fieldHintHtml = FIELD_HINTS[qKey] && !TEXTAREA_KEYS.has(qKey)
+    ? `<p class="field-hint-below">${FIELD_HINTS[qKey]}</p>` : '';
 
-  return `<div class="form-field" id="fi_wrap_${id}">${labelHtml}${inputHtml}</div>`;
+  return `<div class="form-field" id="fi_wrap_${id}">${labelHtml}${inputHtml}${fieldHintHtml}</div>`;
 }
 
 function renderFieldStandard(sectionKey, qKey, q, id) {
@@ -4609,7 +4747,7 @@ function renderFieldStandard(sectionKey, qKey, q, id) {
     inputHtml = renderAddressField(id, val);
   } else if (cfg?.type === 'select') {
     const selectOpts = q.suggestedAnswers?.length ? q.suggestedAnswers : (cfg.options || []);
-    inputHtml = renderSelect(id, selectOpts, val);
+    inputHtml = renderSelect(id, selectOpts, val, uiLabel);
   } else if (cfg?.type === 'country') {
     inputHtml = renderCountrySelect(id, val);
   } else if (cfg?.type === 'phone') {
@@ -4657,8 +4795,10 @@ function renderFieldStandard(sectionKey, qKey, q, id) {
   const labelHtml = isSubheading
     ? `<p class="field-subheading">${label}</p>`
     : `<label class="form-label" for="fi_${id}">${label}</label>`;
+  const fieldHintHtml = FIELD_HINTS[qKey] && !TEXTAREA_KEYS.has(qKey)
+    ? `<p class="field-hint-below">${FIELD_HINTS[qKey]}</p>` : '';
 
-  return `<div class="form-field" id="fi_wrap_${id}">${labelHtml}${inputHtml}</div>`;
+  return `<div class="form-field" id="fi_wrap_${id}">${labelHtml}${inputHtml}${fieldHintHtml}</div>`;
 }
 
 function toggleAddId() {
@@ -4709,6 +4849,7 @@ const SUGG_NOT_IN_UI = new Set(['optOutDescription','stopMessageResponse']);
 
 /* Annotations shown in the debug side panel for specific fields */
 const FIELD_ANNOTATIONS = {
+  fullCompanyAddress:  'Not in API — <strong>us.questions.fullCompanyAddress</strong> does not exist in the Sinch Provisioning schema (the prototype mock includes it, but it should be ignored). This is a UI-only composite field; the Google-style typeahead stores <strong>{ line1, line2 }</strong>. Before submission, parse it into the discrete required US address fields — all are <em>read-only required</em> in the API: <ul style="margin:6px 0 0 0;padding-left:18px"><li><strong>us.questions.addressLine1</strong> — Street address line 1 (line1 from Places)</li><li><strong>us.questions.addressLine2</strong> — Street address line 2 (suite / unit / floor)</li><li><strong>us.questions.addressCity</strong> — City</li><li><strong>us.questions.addressState</strong> — State (2-letter code, e.g. NY, CA)</li><li><strong>us.questions.addressPostalCode</strong> — Postal code (ZIP)</li><li><strong>us.questions.addressCountry</strong> — Country (ISO code, "US")</li></ul>Parse <strong>line2</strong> ("City, ST 12345, Country") into the four city/state/ZIP/country parts before submission.',
   optInBrandMessage:   'Not shown in this form — confirmed duplicate of <strong>us.questions.optInConfirmationResponse</strong> (conversation with Laura, 14 March).',
   triggerDescription:  'Suggested answers from the API are not used. Visual picker options are hardcoded as <strong>MESSAGING_PRESETS</strong>, scoped per use case.',
   interactionsDescription: 'Suggested answers from the API are not used. Visual picker options are hardcoded as <strong>MESSAGING_PRESETS</strong>, scoped per use case.',
@@ -4719,19 +4860,20 @@ const FIELD_ANNOTATIONS = {
   optOutDescription:   'This field overlaps with <strong>us.questions.stopMessageResponse</strong> in the US Use case setup form.',
 };
 
-function renderSelect(id, options, current, inline) {
+function renderSelect(id, options, current, label, inline) {
   const opts = options.map(o => `<option value="${esc(o)}"${current===o?' selected':''}>${esc(o)}</option>`).join('');
   const onChange = inline
     ? `answers['${id}']=this.value;var lbl=document.getElementById('addIdNumLabel');if(lbl)lbl.textContent=this.value+' number';`
     : `answers['${id}']=this.value`;
+  const placeholder = label ? `Select ${label.toLowerCase()}` : 'Select an option';
   return `<select id="fi_${id}" class="f-select" onchange="${onChange}" onfocus="focusField('${id}')">
-    <option value="">Select…</option>${opts}</select>`;
+    <option value="">${esc(placeholder)}</option>${opts}</select>`;
 }
 function renderCountrySelect(id, current, extraChange) {
   const opts = ALL_COUNTRIES.map(c => `<option value="${esc(c.code)}"${current===c.code?' selected':''}>${c.flag ? c.flag + ' ' : ''}${esc(c.name)}</option>`).join('');
   const onChange = `answers['${id}']=this.value${extraChange ? ';' + extraChange : ''}`;
   return `<select id="fi_${id}" class="f-select" onchange="${onChange}" onfocus="focusField('${id}')">
-    <option value="">Select country…</option>${opts}</select>`;
+    <option value="">Select country</option>${opts}</select>`;
 }
 function renderRadio(id, options, current) {
   return `<div class="radio-group">` +
@@ -4762,8 +4904,10 @@ function selectSmsCampaign(id, value, sectionKey) {
     // Clear type & number
     const t = document.getElementById(`smsCampType_${sectionKey}`);
     const n = document.getElementById(`smsCampNum_${sectionKey}`);
+    const m = document.getElementById(`smsSenderTraffic_${sectionKey}`);
     if (t) t.style.display = 'none';
     if (n) n.style.display = 'none';
+    if (m) m.style.display = 'none';
     document.querySelectorAll(`[name="${id}_type"]`).forEach(inp => {
       inp.checked = false; inp.closest('.radio-option')?.classList.remove('selected');
     });
@@ -4788,7 +4932,9 @@ function selectSmsCampaignType(id, sectionKey, fullVal, numKey, placeholder, num
   const numDiv  = document.getElementById(`smsCampNum_${sectionKey}`);
   const numLbl  = document.getElementById(`smsCampNumLabel_${sectionKey}`);
   const numInp  = document.getElementById(`smsCampNumInp_${sectionKey}`);
+  const trafDiv = document.getElementById(`smsSenderTraffic_${sectionKey}`);
   if (numDiv) numDiv.style.display = 'block';
+  if (trafDiv) trafDiv.style.display = 'block';
   if (numLbl) numLbl.textContent = `What is the ${numLabelText} being upgraded?`;
   if (numInp) {
     numInp.placeholder = placeholder;
@@ -4877,53 +5023,76 @@ function renderPhoneField(id, val) {
 
 /* ── Address field ── */
 function renderAddressField(id, current) {
-  const v = (current && typeof current === 'object' && !current.line1) ? current : {};
-  // Migrate legacy line1/line2 format
-  if (current?.line1) { v.street = current.line1; }
-  const street = v.street || '';
-  const suite  = v.suite  || '';
-  const city   = v.city   || '';
-  const state  = v.state  || '';
-  const zip    = v.zip    || '';
-  const stateOpts = US_STATES.map(s => `<option value="${s}"${state===s?' selected':''}>${s}</option>`).join('');
-  return `<div class="addr-structured">
-    <div class="form-field" style="margin-bottom:10px">
-      <label class="form-label">Street address</label>
-      <input class="f-input" type="text" placeholder="e.g. 350 Fifth Avenue" value="${esc(street)}"
-        oninput="updateAddr('${id}','street',this.value)" onfocus="focusField('${id}')">
-    </div>
-    <div class="form-field" style="margin-bottom:10px">
-      <label class="form-label">Suite / Unit / Floor <span style="color:var(--text3);font-weight:400">(optional)</span></label>
-      <input class="f-input" type="text" placeholder="e.g. Suite 400, Floor 3" value="${esc(suite)}"
-        oninput="updateAddr('${id}','suite',this.value)" onfocus="focusField('${id}')">
-    </div>
-    <div class="addr-city-row">
-      <div class="form-field" style="margin-bottom:0;flex:1">
-        <label class="form-label">City</label>
-        <input class="f-input" type="text" placeholder="e.g. New York" value="${esc(city)}"
-          oninput="updateAddr('${id}','city',this.value)" onfocus="focusField('${id}')">
+  if (current && current.line1) {
+    return `<div class="addr-chip" id="addrChip_${id}">
+      <div>
+        <div class="addr-chip-line1">${esc(current.line1)}</div>
+        <div class="addr-chip-line2">${esc(current.line2 || '')}</div>
       </div>
-      <div class="form-field" style="margin-bottom:0;width:100px">
-        <label class="form-label">State</label>
-        <select class="f-select" onchange="updateAddr('${id}','state',this.value)" onfocus="focusField('${id}')">
-          <option value="">State</option>${stateOpts}
-        </select>
-      </div>
-      <div class="form-field" style="margin-bottom:0;width:110px">
-        <label class="form-label">ZIP code</label>
-        <input class="f-input" type="text" placeholder="e.g. 10001" value="${esc(zip)}" maxlength="10"
-          oninput="updateAddr('${id}','zip',this.value)" onfocus="focusField('${id}')">
-      </div>
+      <button class="addr-clear" onclick="clearAddress('${id}')" title="Clear">×</button>
+    </div>`;
+  }
+  return `<div class="addr-wrap" id="addrWrap_${id}">
+    <div class="addr-search-row">
+      <svg class="addr-search-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input class="addr-input" id="addrInput_${id}" placeholder="Start typing the street address"
+        autocomplete="off"
+        oninput="filterAddresses('${id}',this.value)"
+        onfocus="focusField('${id}');filterAddresses('${id}',this.value)">
     </div>
+    <div class="addr-dropdown" id="addrDrop_${id}"></div>
   </div>`;
 }
-function updateAddr(id, field, value) {
-  if (!answers[id] || typeof answers[id] !== 'object' || answers[id].line1) {
-    const old = answers[id];
-    answers[id] = { street: old?.line1 || '', suite:'', city:'', state:'', zip:'' };
-  }
-  answers[id][field] = value;
-  renderStepperOnly();
+
+function filterAddresses(id, query) {
+  const drop = document.getElementById(`addrDrop_${id}`); if (!drop) return;
+  const q = query.trim().toLowerCase();
+  const results = q.length < 1
+    ? MOCK_ADDRESSES.slice(0,5)
+    : MOCK_ADDRESSES.filter(a => a.line1.toLowerCase().includes(q)||a.line2.toLowerCase().includes(q)).slice(0,6);
+  if (!results.length) { drop.classList.remove('open'); return; }
+
+  drop.innerHTML = results.map((a,i) =>
+    `<div class="addr-result" onclick="selectAddress('${id}',${MOCK_ADDRESSES.indexOf(a)})">
+      <svg class="addr-result-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <path d="M8 1.5C5.51 1.5 3.5 3.51 3.5 6c0 3.75 4.5 8.5 4.5 8.5S12.5 9.75 12.5 6c0-2.49-2.01-4.5-4.5-4.5z" stroke="currentColor" stroke-width="1.4"/>
+        <circle cx="8" cy="6" r="1.25" stroke="currentColor" stroke-width="1.4"/>
+      </svg>
+      <div>
+        <div class="addr-result-line1">${esc(a.line1)}</div>
+        <div class="addr-result-line2">${esc(a.line2)}</div>
+      </div>
+    </div>`
+  ).join('');
+  drop.classList.add('open');
+
+  setTimeout(() => {
+    const handler = e => {
+      if (!drop.closest('.addr-wrap')?.contains(e.target)) {
+        drop.classList.remove('open');
+        document.removeEventListener('click', handler);
+      }
+    };
+    document.addEventListener('click', handler);
+  }, 0);
+}
+
+function selectAddress(id, idx) {
+  const a = MOCK_ADDRESSES[idx];
+  answers[id] = {line1:a.line1, line2:a.line2};
+  const wrap = document.getElementById(`addrWrap_${id}`);
+  if (wrap) wrap.outerHTML = renderAddressField(id, answers[id]);
+  if (typeof renderStepperOnly === 'function') renderStepperOnly();
+}
+
+function clearAddress(id) {
+  delete answers[id];
+  const chip = document.getElementById(`addrChip_${id}`);
+  if (chip) chip.outerHTML = renderAddressField(id, null);
+  if (typeof renderStepperOnly === 'function') renderStepperOnly();
 }
 
 /* ── File upload ── */
@@ -5162,6 +5331,11 @@ const REGION_MAP = { US: 'United States', EU: 'Europe', APAC: 'Asia Pacific' };
       if (helpBackdrop && !helpBackdrop.classList.contains('hidden')) { closeHelpDialog(); return; }
     }
   });
+
+  // Close address typeaheads on scroll (matches index.html behavior)
+  document.addEventListener('scroll', () => {
+    document.querySelectorAll('.addr-dropdown.open').forEach(d=>d.classList.remove('open'));
+  }, true);
 })();
 </script>
 

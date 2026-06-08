@@ -377,6 +377,9 @@
     background-repeat: no-repeat; background-position: right 11px center;
     padding-right: 30px;
   }
+  .f-select:has(option[value=""]:checked) { color: var(--text3); }
+  .f-select option { color: var(--text); }
+  .f-select option[value=""] { color: var(--text3); }
 
   /* Radio */
   .radio-group { display: flex; flex-direction: column; gap: 2px; }
@@ -786,7 +789,7 @@
     <div class="select-wrap">
       <select class="hdr-select" id="addCountrySelect"
         style="width:100%;padding:9px 28px 9px 12px;font-size:14px;background-color:var(--surface)">
-        <option value="">Select a country…</option>
+        <option value="">Select country</option>
         <option value="GB">🇬🇧  United Kingdom</option>
         <option value="US">🇺🇸  United States</option>
         <option value="FR">🇫🇷  France</option>
@@ -915,14 +918,14 @@ const STEP_DEFS = {
     { title:'Summary', isSummary:true },
   ],
   US_phase1: [
-    { title:'About your business',
-      subtitle:'Legal registration details about the company sending RCS messages.',
+    { title:'Business details',
+      subtitle:'Provide details about the business that will send RCS messages. We\'ll use this information to verify the business and submit it to mobile operators for approval.',
       keys:['us__companyLegalName','us__brandName','us__brandIndustry','us__legalForm','us__taxIdCountry','us__ein','us__taxId','us__additionalIdType','us__additionalIdNumber','us__stockExchange','us__stockSymbol'] },
-    { title:'Business address',
-      subtitle:'The registered address of your business.',
+    { title:'Registered business address',
+      subtitle:'Enter the address on file with the IRS or state business registration.',
       keys:['us__fullCompanyAddress'] },
-    { title:'Public contact information',
-      subtitle:'Contact details that will be publicly visible on your RCS agent.',
+    { title:'Public business contact information',
+      subtitle:'Mobile operators use this information to verify the business and confirm that customers can reach it through public channels.',
       keys:['us__websiteUrl','us__phoneNumber'] },
     { title:'Business contact person',
       subtitle:'This person must be authorized to confirm the company\'s ownership of the agent and approve Sinch\'s right to manage it. This should be someone from the business that the agent represents. Their details may be verified by Google or local mobile operators.',
@@ -994,7 +997,7 @@ const FIELD_LABELS = {
   stockSymbol:      'Stock symbol',
   websiteUrl:       'Website URL',
   phoneNumber:      'Phone number',
-  fullCompanyAddress: 'Registered business address',
+  fullCompanyAddress: 'Address',
 };
 
 // Fields where the label acts as a subheading with hint below (not inline label)
@@ -1339,7 +1342,7 @@ function buildCountryForms(code, data) {
         phase1.push(entry);
     }
     return [
-      {id:'US_phase1', title:'About your business',
+      {id:'US_phase1', title:'About the business',
        subtitle:'Company registration, identity, and contact details required for US activation.',
        questions:phase1},
       {id:'US_phase2', title:'Use case setup',
@@ -2135,7 +2138,7 @@ function renderField(sectionKey, qKey, q) {
   if (cfg?.type === 'address') {
     inputHtml = renderAddressField(id, val);
   } else if (cfg?.type === 'select') {
-    inputHtml = renderSelect(id, cfg.options, val);
+    inputHtml = renderSelect(id, cfg.options, val, uiLabel);
   } else if (cfg?.type === 'country') {
     inputHtml = renderCountrySelect(id, val);
   } else if (cfg?.type === 'phone') {
@@ -2227,17 +2230,18 @@ function quickFill(id, text) {
   answers[id] = text;
 }
 
-function renderSelect(id, options, current) {
+function renderSelect(id, options, current, label) {
   const opts = options.map(o => `<option value="${esc(o)}" ${current===o?'selected':''}>${o}</option>`).join('');
+  const placeholder = label ? `Select ${label.toLowerCase()}` : 'Select an option';
   return `<select id="fi_${id}" class="f-select" onchange="answers['${id}']=this.value" onfocus="focusField('${id}')">
-    <option value="">Select…</option>${opts}</select>`;
+    <option value="">${esc(placeholder)}</option>${opts}</select>`;
 }
 
 function renderCountrySelect(id, current) {
   const opts = ALL_COUNTRIES.map(([code,name]) =>
     `<option value="${code}" ${current===code?'selected':''}>${name}</option>`).join('');
   return `<select id="fi_${id}" class="f-select" onchange="answers['${id}']=this.value" onfocus="focusField('${id}')">
-    <option value="">Select country…</option>${opts}</select>`;
+    <option value="">Select country</option>${opts}</select>`;
 }
 
 function renderRadio(id, options, current) {
@@ -2321,7 +2325,7 @@ function renderAddressField(id, current) {
         <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" stroke-width="1.5"/>
         <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
-      <input class="addr-input" id="addrInput_${id}" placeholder="Search for an address…"
+      <input class="addr-input" id="addrInput_${id}" placeholder="Start typing the street address"
         autocomplete="off"
         oninput="filterAddresses('${id}',this.value)"
         onfocus="focusField('${id}');filterAddresses('${id}',this.value)">
