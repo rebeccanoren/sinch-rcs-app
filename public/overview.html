@@ -1302,6 +1302,17 @@ a.evidence-chip-text:hover { text-decoration: underline; }
   background: none; border: none; padding: 0; cursor: pointer; font-family: inherit;
 }
 .contact-2fa-notice-link:hover { text-decoration: underline; }
+
+/* V2 field → PAPI field-list mapping shown under each input */
+.v2-field-source {
+  margin: 6px 0 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text3);
+}
+.v2-field-source strong { font-weight: 600; color: #92400e; }
+.v2-field-source-note { display: block; margin-top: 2px; color: var(--text3); opacity: 0.85; }
 .verify-step {
   display: flex; gap: 16px; margin-top: 24px; align-items: flex-start;
 }
@@ -1797,14 +1808,14 @@ a.evidence-chip-text:hover { text-decoration: underline; }
   <section class="dev-section">
     <div class="dev-section-label">Country-specific forms</div>
     <div class="dev-form-grid">
-      <a class="dev-form-card" href="?form=us-phase1">
+      <span class="dev-form-card" aria-disabled="true">
         <span class="dev-form-flag">🇺🇸</span>
         <span class="dev-form-meta"><strong>About the business</strong><span>US verification — Phase 1</span></span>
-      </a>
-      <a class="dev-form-card" href="?form=us-phase2">
+      </span>
+      <span class="dev-form-card" aria-disabled="true">
         <span class="dev-form-flag">🇺🇸</span>
         <span class="dev-form-meta"><strong>Use case setup</strong><span>US verification — Phase 2</span></span>
-      </a>
+      </span>
       <a class="dev-form-card" href="?form=us-phase1-v2">
         <span class="dev-form-flag">🇺🇸</span>
         <span class="dev-form-meta"><strong>About the business V2</strong><span>US verification — Phase 1 (static, no API)</span></span>
@@ -3706,14 +3717,14 @@ const STEP_DEFS = {
   ],
   US_phase2_v2: [
     { title:'Message use case',
-      subtitle:'Tell us how you\'ll use RCS messaging and whether you plan to use SMS as a fallback. This helps us and mobile carriers verify your RCS agent.',
-      keys:['usv2__campaignDescription','usv2__messagesVolume','usv2__embeddedLink','usv2__embeddedPhone','usv2__ageGatedContent','usv2__directLending','usv2__smsFallback','usv2__smsFallbackNumber'] },
+      subtitle:'Tell us how you\'ll use RCS messaging. This helps us and mobile carriers verify your RCS agent.',
+      keys:['usv2__campaignDescription','usv2__messagesVolume','usv2__embeddedLink','usv2__embeddedPhone','usv2__ageGatedContent','usv2__directLending'] },
     { title:'Example message',
       subtitle:'Provide a sample message users will receive from your agent, and describe the call to action.',
       keys:['usv2__sampleMessages'] },
     { title:'Consent',
       subtitle:'Explain how people sign up to receive your messages and how they can manage their preferences.',
-      keys:['usv2__callToActionMessage','usv2__optIn','usv2__optInConfirmationMessage','usv2__optOut','usv2__optOutConfirmationMessage','usv2__help','usv2__helpMessage'] },
+      keys:['usv2__callToActionMessage','usv2__optInConfirmationMessage','usv2__helpMessage'] },
     { title:'Summary', isSummary:true },
   ],
 };
@@ -3748,15 +3759,9 @@ const V2_QUESTIONS = {
     embeddedPhone:             { question:'Will phone numbers be embedded within message payloads?', suggestedAnswers:[] },
     ageGatedContent:           { question:'Is the campaign content restricted by age (e.g. alcohol, tobacco)?', suggestedAnswers:[] },
     directLending:             { question:'Does the campaign involve direct financial lending?', suggestedAnswers:[] },
-    smsFallback:               { question:'Will you use SMS as a fallback?', suggestedAnswers:[] },
-    smsFallbackNumber:         { question:'The number used for SMS fallback (short code, 10DLC, or TFN).', suggestedAnswers:[] },
     sampleMessages:            { question:'A list of 1 to 5 example texts demonstrating the messaging workflow.', suggestedAnswers:[] },
     callToActionMessage:       { question:'What is the call-to-action text?', suggestedAnswers:[] },
-    optIn:                     { question:'Is an explicit subscriber opt-in agreement required/active?', suggestedAnswers:[] },
     optInConfirmationMessage:  { question:'What is the message that confirms a user\'s opt-in?', suggestedAnswers:[] },
-    optOut:                    { question:'Is an active opt-out mechanism (like STOP) provided?', suggestedAnswers:[] },
-    optOutConfirmationMessage: { question:'What is the message users receive when they opt out?', suggestedAnswers:[] },
-    help:                      { question:'Are support keywords (like HELP) integrated into the flow?', suggestedAnswers:[] },
     helpMessage:               { question:'What is the message users receive when they send HELP?', suggestedAnswers:[] },
   },
 };
@@ -3791,11 +3796,7 @@ const FIELD_LABELS = {
   messagesVolume:'Estimated monthly message volume',
   embeddedLink:'Embedded links', embeddedPhone:'Embedded phone numbers',
   ageGatedContent:'Age-gated content', directLending:'Direct lending',
-  smsFallback:'Will you use SMS as a fallback?',
-  smsFallbackNumber:'SMS fallback number',
-  optIn:'Subscriber opt-in', optOut:'Subscriber opt-out', help:'Subscriber help',
   optInConfirmationMessage:'Opt-in confirmation message',
-  optOutConfirmationMessage:'Opt-out confirmation message',
   helpMessage:'Help message',
   callToActionMessage:'Call-to-action text shown before signup',
 };
@@ -3827,11 +3828,6 @@ const FIELD_CONFIG = {
   embeddedPhone:{type:'radio',options:['Yes','No']},
   ageGatedContent:{type:'radio',options:['Yes','No']},
   directLending:{type:'radio',options:['Yes','No']},
-  optIn:{type:'radio',options:['Yes','No']},
-  optOut:{type:'radio',options:['Yes','No']},
-  help:{type:'radio',options:['Yes','No']},
-  smsFallback:{type:'radio',options:['Yes','No']},
-  smsFallbackNumber:{type:'text',placeholder:'e.g. 12345, +12025551234, or 833-123-4567'},
 };
 
 const SMS_CAMPAIGN_TYPES = [
@@ -3846,14 +3842,13 @@ const SECTION_HEADERS = {
   optInConfirmationResponse: { title:'Opt in and keyword responses', subtitle:'Define the messages your agent sends to meet carrier and regulatory requirements. These responses confirm actions like opting in, requesting help, and opting out.' },
   /* V2 (static) fields */
   embeddedLink:              { title:'Message content', subtitle:'Tell us what your messages will contain. Carriers use this to classify the campaign.' },
-  smsFallback:               { title:'SMS fallback', subtitle:'Let us know if you plan to use SMS as a fallback. This helps with review and verification.' },
-  optIn:                     { title:'Opt in and keyword responses', subtitle:'Define the messages your agent sends to meet carrier and regulatory requirements. These responses confirm actions like opting in, requesting help, and opting out.' },
+  optInConfirmationMessage:  { title:'Opt in and keyword responses', subtitle:'Define the messages your agent sends to meet carrier and regulatory requirements. These responses confirm actions like opting in and requesting help.' },
 };
 
 const RADIO_KEYS    = new Set(['smsCampaign','verizonInitialMessageTypeModel']);
 const CHECKBOX_KEYS = new Set([]);
 const TEXTAREA_KEYS = new Set(['useCaseDescription','callToActionDescription','sampleMessages','optInUserMessage','optInConfirmationResponse','optInBrandMessage','helpMessageResponse','stopMessageResponse','triggerDescription','interactionsDescription','videoUris','verizonSmsOptInDescription','optOutDescription','optInDescription',
-  'campaignDescription','callToActionMessage','optInConfirmationMessage','optOutConfirmationMessage','helpMessage']);
+  'campaignDescription','callToActionMessage','optInConfirmationMessage','helpMessage']);
 const FIELD_SUBHEADING_KEYS = new Set(['interactionsDescription','screenshotUris']);
 const TEXTAREA_HINTS = {
   useCaseDescription:       'Describe what messages you plan to send and when they are used. For example: order updates, appointment reminders, customer support, or promotions.',
@@ -3867,6 +3862,55 @@ const FIELD_HINTS = {
   brandIndustry: 'Select the category that best describes the business.',
 };
 
+/* V2 fields → the PAPI field list they represent (shown under each v2 input).
+   `note` carries the comment from the field list; no note = required, no comment. */
+const V2_FIELD_SOURCES = {
+  companyLegalName:   { field:'companyLegalName',  group:'Sinch Brand - Business Profile' },
+  brandName:          { field:'brandName',         group:'Sinch Brand - Business Profile',
+                        note:'Shouldn\'t this be tied to Google Brand? Operators may eventually say "we don\'t accept this because Google brand is different than real brand".' },
+  brandIndustry:      { field:'brandIndustry',     group:'Sinch Brand - Business Profile' },
+  legalForm:          { field:'legalForm',         group:'Sinch Brand - Business Profile' },
+  taxIdCountry:       { field:'taxIdCountry',      group:'Sinch Brand - Business Profile' },
+  taxId:              { field:'taxId (includes EIN)', group:'Sinch Brand - Business Profile',
+                        note:'Optional for US companies — this will include EIN. (ein: optional for non-US companies and Sole Proprietors.)' },
+  fullCompanyAddress: { field:'addressLine1 · addressLine2 · addressCity · addressCountry · addressState · addressPostalCode', group:'Sinch Brand - Business Profile',
+                        note:'addressLine2 is optional (should we just skip this?)' },
+  phoneNumber:        { field:'phoneNumber',       group:'Sinch Brand - Business Profile' },
+  websiteUrl:         { field:'websiteUrl',        group:'Sinch Brand - Business Profile' },
+  stockExchange:      { field:'stockExchange',     group:'Sinch Brand - Brand verification for RCS',
+                        note:'Optional — required for public companies only.' },
+  stockSymbol:        { field:'stockSymbol',       group:'Sinch Brand - Brand verification for RCS',
+                        note:'Optional — required for public companies only.' },
+  campaignDescription:{ field:'campaignDescription', group:'Sinch Campaign - Campaign hub input',
+                        note:'Should cover Verizon brand description.' },
+  embeddedLink:       { field:'embeddedLink',      group:'Sinch Campaign - Campaign hub input',
+                        note:'Bool. embedded_link — flag indicating if URL links will be embedded within message payloads.' },
+  embeddedPhone:      { field:'embeddedPhone',     group:'Sinch Campaign - Campaign hub input',
+                        note:'Bool. embedded_phone — flag indicating if phone numbers will be embedded within message payloads.' },
+  ageGatedContent:    { field:'ageGatedContent',   group:'Sinch Campaign - Campaign hub input',
+                        note:'Bool. age_gated_content — indicates if the campaign content is restricted by age (e.g. alcohol, tobacco).' },
+  directLending:      { field:'directLending',     group:'Sinch Campaign - Campaign hub input',
+                        note:'Bool. direct_lending — indicates if the campaign involves direct financial lending, requiring stricter compliance.' },
+  sampleMessages:     { field:'sampleMessages',    group:'Sinch Campaign - RCS campaign input',
+                        note:'sample_messages — a list of 1 to 5 example texts demonstrating the messaging workflow.' },
+  optInConfirmationMessage: { field:'optInConfirmationMessage', group:'Sinch Campaign - RCS campaign input',
+                        note:'opt_in_confirmation' },
+  helpMessage:        { field:'helpMessage',       group:'Sinch Campaign - RCS campaign input',
+                        note:'help_message — help message of the campaign.' },
+  callToActionMessage:{ field:'callToActionMessage', group:'Sinch Campaign - RCS campaign input',
+                        note:'call_to_action — call to action message of the campaign.' },
+  messagesVolume:     { field:'messagesVolume',    group:'Sinch Campaign - RCS campaign input',
+                        note:'We probably just need a rough estimate: a total monthly volume estimate for all carriers. An existing SMS campaign can also be used for the estimate.' },
+};
+
+function v2SourceHtml(sectionKey, qKey) {
+  if (sectionKey !== 'usv2') return '';
+  const src = V2_FIELD_SOURCES[qKey];
+  if (!src) return '';
+  const noteHtml = src.note ? `<span class="v2-field-source-note">${esc(src.note)}</span>` : '';
+  return `<p class="v2-field-source"><strong>${esc(src.field)}</strong> — ${esc(src.group)}${noteHtml}</p>`;
+}
+
 /* Extra info shown as a "?" tooltip next to the field label */
 const FIELD_TOOLTIPS = {
   messagesVolume: 'A rough estimate of total monthly messages across all US carriers.',
@@ -3874,10 +3918,6 @@ const FIELD_TOOLTIPS = {
   embeddedPhone: 'Phone numbers will be embedded within message payloads.',
   ageGatedContent: 'The campaign content is restricted by age (e.g. alcohol, tobacco).',
   directLending: 'The campaign involves direct financial lending, which requires stricter compliance.',
-  smsFallbackNumber: 'The short code, 10DLC, or toll-free number used for SMS fallback.',
-  optIn: 'An explicit subscriber opt-in agreement is required and active.',
-  optOut: 'An active opt-out mechanism (like STOP) is provided.',
-  help: 'Support keywords (like HELP) are integrated into the flow.',
 };
 const TEXTAREA_EXAMPLES = {
   useCaseDescription:       'e.g. We send order updates after purchase, delivery notifications, appointment reminders, and customer support messages',
@@ -3890,7 +3930,6 @@ const TEXTAREA_EXAMPLES = {
   campaignDescription:     'e.g. We send order updates after purchase, delivery notifications, appointment reminders, and customer support messages',
   callToActionMessage:     'Example: Sign up to receive booking updates and reminders from us. Message frequency varies. Message & data rates may apply.',
   optInConfirmationMessage:  'Each response must include your brand name.',
-  optOutConfirmationMessage: 'Each response must include your brand name.',
   helpMessage:             'Each response must include your brand name.',
 };
 /* qKey → help dialog topic; renders a "View examples" link below the textarea */
@@ -3903,7 +3942,6 @@ const TEXTAREA_HELP_LINKS = {
   callToActionMessage:       'cta-before-signup',
   optInConfirmationMessage:  'optin-confirmation',
   helpMessage:               'help-keyword-response',
-  optOutConfirmationMessage: 'optout',
 };
 
 const PHONE_PREFIXES = [
@@ -4631,7 +4669,7 @@ function renderField(sectionKey, qKey, q) {
     const apiKey  = `${sectionKey}.questions.${qKey}`;
     const label   = debugLabel(uiLabel, qKey, q, apiKey);
     const selectHtml = renderCountrySelect(id, answers[id], `updateTaxIdFields(this.value)`);
-    return sectionHead + `<div class="form-field" id="fi_wrap_${id}"><label class="form-label">${label}</label>${selectHtml}</div>`;
+    return sectionHead + `<div class="form-field" id="fi_wrap_${id}"><label class="form-label">${label}</label>${selectHtml}${v2SourceHtml(sectionKey, qKey)}</div>`;
   }
 
   if (qKey === 'taxId' && sectionKey === 'usv2') {
@@ -4646,6 +4684,7 @@ function renderField(sectionKey, qKey, q) {
       <input type="text" id="fi_${id}" class="f-input" placeholder="e.g. 12-3456789"
         value="${esc(val)}" oninput="answers['${id}']=this.value" onfocus="focusField('${id}')">
       <button class="field-footnote" type="button" onclick="openHelpDialog('ein-help')">Where can I find this?</button>
+      ${v2SourceHtml(sectionKey, qKey)}
     </div>`;
   }
 
@@ -4727,6 +4766,7 @@ function renderField(sectionKey, qKey, q) {
           <input type="text" id="fi_${exId}" class="f-input"
             placeholder="e.g. NYSE, NASDAQ" value="${esc(exVal)}"
             oninput="answers['${exId}']=this.value" onfocus="focusField('${exId}')">
+          ${v2SourceHtml(sectionKey, 'stockExchange')}
         </div>
         <div class="form-field" style="margin-bottom:0">
           <div class="field-label-with-hint">
@@ -4736,6 +4776,7 @@ function renderField(sectionKey, qKey, q) {
           <input type="text" id="fi_${symId}" class="f-input"
             placeholder="e.g. AAPL" value="${esc(symVal)}"
             oninput="answers['${symId}']=this.value" onfocus="focusField('${symId}')">
+          ${v2SourceHtml(sectionKey, 'stockSymbol')}
         </div>
       </div>
     </div>`;
@@ -4749,13 +4790,6 @@ function renderField(sectionKey, qKey, q) {
       <button type="button" class="contact-2fa-notice-link" onclick="openHelpDialog('contact-2fa-emails')">See sample emails →</button>
     </div>`;
     return notice + standardHtml;
-  }
-
-  if (qKey === 'smsFallbackNumber') {
-    // Only shown when "Will you use SMS as a fallback?" = Yes
-    const visible = answers[`${sectionKey}__smsFallback`] === 'Yes';
-    const innerHtml = renderFieldStandard(sectionKey, qKey, q, id);
-    return `<div id="smsFallbackNumWrap_${sectionKey}" style="display:${visible?'block':'none'}">${innerHtml}</div>`;
   }
 
   if (qKey === 'sampleMessages') {
@@ -4890,7 +4924,7 @@ function renderField(sectionKey, qKey, q) {
   const fieldHintHtml = FIELD_HINTS[qKey] && !TEXTAREA_KEYS.has(qKey)
     ? `<p class="field-hint-below">${FIELD_HINTS[qKey]}</p>` : '';
 
-  return `<div class="form-field" id="fi_wrap_${id}">${labelHtml}${inputHtml}${fieldHintHtml}</div>`;
+  return `<div class="form-field" id="fi_wrap_${id}">${labelHtml}${inputHtml}${fieldHintHtml}${v2SourceHtml(sectionKey, qKey)}</div>`;
 }
 
 function renderFieldStandard(sectionKey, qKey, q, id) {
@@ -4962,7 +4996,7 @@ function renderFieldStandard(sectionKey, qKey, q, id) {
   const fieldHintHtml = FIELD_HINTS[qKey] && !TEXTAREA_KEYS.has(qKey)
     ? `<p class="field-hint-below">${FIELD_HINTS[qKey]}</p>` : '';
 
-  return `<div class="form-field" id="fi_wrap_${id}">${labelHtml}${inputHtml}${fieldHintHtml}</div>`;
+  return `<div class="form-field" id="fi_wrap_${id}">${labelHtml}${inputHtml}${fieldHintHtml}${v2SourceHtml(sectionKey, qKey)}</div>`;
 }
 
 function toggleAddId() {
@@ -5055,17 +5089,6 @@ function selectRadio(id, idx) {
     if (i === idx) { inp.checked = true; answers[id] = inp.value; lbl.classList.add('selected'); }
     else { inp.checked = false; lbl.classList.remove('selected'); }
   });
-  if (id.endsWith('__smsFallback')) {
-    const sectionKey = id.split('__')[0];
-    const wrap = document.getElementById(`smsFallbackNumWrap_${sectionKey}`);
-    const isYes = answers[id] === 'Yes';
-    if (wrap) wrap.style.display = isYes ? 'block' : 'none';
-    if (!isYes) {
-      answers[`${sectionKey}__smsFallbackNumber`] = '';
-      const numInp = document.getElementById(`fi_${sectionKey}__smsFallbackNumber`);
-      if (numInp) numInp.value = '';
-    }
-  }
   renderStepperOnly();
 }
 function selectSmsCampaign(id, value, sectionKey) {
