@@ -3718,7 +3718,7 @@ const STEP_DEFS = {
   US_phase2_v2: [
     { title:'Message use case',
       subtitle:'Tell us how you\'ll use RCS messaging. This helps us and mobile carriers verify your RCS agent.',
-      keys:['usv2__campaignDescription','usv2__messagesVolume','usv2__embeddedLink','usv2__embeddedPhone','usv2__ageGatedContent','usv2__directLending'] },
+      keys:['usv2__messagesVolume','usv2__embeddedLink','usv2__embeddedPhone','usv2__ageGatedContent','usv2__directLending'] },
     { title:'Example message',
       subtitle:'Provide a sample message users will receive from your agent, and describe the call to action.',
       keys:['usv2__sampleMessages'] },
@@ -3752,7 +3752,6 @@ const V2_QUESTIONS = {
   },
   /* Sinch Campaign — Campaign hub input + RCS campaign input */
   phase2: {
-    campaignDescription:       { question:'Describe the campaign and how you plan to use RCS Business Messaging. Covers the Verizon brand description.', suggestedAnswers:[] },
     messagesVolume:            { question:'Estimated total monthly message volume across all carriers.',
                                  suggestedAnswers:['0 - 10K messages','10K - 100K messages','100K - 1M messages','1M+ messages'] },
     embeddedLink:              { question:'Will URL links be embedded within message payloads?', suggestedAnswers:[] },
@@ -3792,7 +3791,6 @@ const FIELD_LABELS = {
   messagesFrequency:'How often do you expect to send messages?',
   campaignLength:'What will be the length of the RCS campaign?',
   /* V2 (static) fields */
-  campaignDescription:'Campaign description',
   messagesVolume:'Estimated monthly message volume',
   embeddedLink:'Embedded links', embeddedPhone:'Embedded phone numbers',
   ageGatedContent:'Age-gated content', directLending:'Direct lending',
@@ -3848,13 +3846,12 @@ const SECTION_HEADERS = {
 const RADIO_KEYS    = new Set(['smsCampaign','verizonInitialMessageTypeModel']);
 const CHECKBOX_KEYS = new Set([]);
 const TEXTAREA_KEYS = new Set(['useCaseDescription','callToActionDescription','sampleMessages','optInUserMessage','optInConfirmationResponse','optInBrandMessage','helpMessageResponse','stopMessageResponse','triggerDescription','interactionsDescription','videoUris','verizonSmsOptInDescription','optOutDescription','optInDescription',
-  'campaignDescription','callToActionMessage','optInConfirmationMessage','helpMessage']);
+  'callToActionMessage','optInConfirmationMessage','helpMessage']);
 const FIELD_SUBHEADING_KEYS = new Set(['interactionsDescription','screenshotUris']);
 const TEXTAREA_HINTS = {
   useCaseDescription:       'Describe what messages you plan to send and when they are used. For example: order updates, appointment reminders, customer support, or promotions.',
   sampleMessages:           'Write a realistic message your agent would send. Include what it is about, when it is sent, and what the user can do next. You can add up to 5 example messages.',
   callToActionDescription:  'Provide the exact text shown to users before they sign up to receive messages. This must include what they\'ll receive and required disclosures.',
-  campaignDescription:      'Describe what messages you plan to send and when they are used. For example: order updates, appointment reminders, customer support, or promotions.',
   callToActionMessage:      'Provide the exact text shown to users before they sign up to receive messages. This must include what they\'ll receive and required disclosures.',
 };
 const FIELD_HINTS = {
@@ -3881,8 +3878,6 @@ const V2_FIELD_SOURCES = {
                         note:'Optional — required for public companies only.' },
   stockSymbol:        { field:'stockSymbol',       group:'Sinch Brand - Brand verification for RCS',
                         note:'Optional — required for public companies only.' },
-  campaignDescription:{ field:'campaignDescription', group:'Sinch Campaign - Campaign hub input',
-                        note:'Should cover Verizon brand description.' },
   embeddedLink:       { field:'embeddedLink',      group:'Sinch Campaign - Campaign hub input',
                         note:'Bool. embedded_link — flag indicating if URL links will be embedded within message payloads.' },
   embeddedPhone:      { field:'embeddedPhone',     group:'Sinch Campaign - Campaign hub input',
@@ -3927,7 +3922,6 @@ const TEXTAREA_EXAMPLES = {
   optInConfirmationResponse: 'Each response must include your brand name.',
   helpMessageResponse:     'Each response must include your brand name.',
   stopMessageResponse:     'Each response must include your brand name.',
-  campaignDescription:     'e.g. We send order updates after purchase, delivery notifications, appointment reminders, and customer support messages',
   callToActionMessage:     'Example: Sign up to receive booking updates and reminders from us. Message frequency varies. Message & data rates may apply.',
   optInConfirmationMessage:  'Each response must include your brand name.',
   helpMessage:             'Each response must include your brand name.',
